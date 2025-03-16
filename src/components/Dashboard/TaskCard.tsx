@@ -1,14 +1,7 @@
 
 import React from "react";
 import { Task, TaskStatus } from "@/lib/types";
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle,
-  CardDescription 
-} from "@/components/ui/card";
+import Card3D, { CardContent3D, CardFooter3D, CardHeader3D, CardTitle3D } from "@/components/ui/3d-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
@@ -42,11 +35,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   className
 }) => {
   const statusColors = {
-    [TaskStatus.PENDING]: "bg-yellow-500",
-    [TaskStatus.RUNNING]: "bg-green-500",
-    [TaskStatus.COMPLETED]: "bg-blue-500",
-    [TaskStatus.FAILED]: "bg-red-500",
-    [TaskStatus.PAUSED]: "bg-gray-500"
+    [TaskStatus.PENDING]: "bg-vibrant-yellow/90",
+    [TaskStatus.RUNNING]: "bg-vibrant-green/90",
+    [TaskStatus.COMPLETED]: "bg-vibrant-blue/90",
+    [TaskStatus.FAILED]: "bg-destructive/90",
+    [TaskStatus.PAUSED]: "bg-muted-foreground/90"
   };
 
   const statusIcons = {
@@ -69,17 +62,32 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const isRunning = task.status === TaskStatus.RUNNING;
 
+  const progressBarColors = {
+    [TaskStatus.PENDING]: "bg-vibrant-yellow",
+    [TaskStatus.RUNNING]: "bg-vibrant-green",
+    [TaskStatus.COMPLETED]: "bg-vibrant-blue",
+    [TaskStatus.FAILED]: "bg-destructive",
+    [TaskStatus.PAUSED]: "bg-muted-foreground"
+  };
+
   return (
-    <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-soft", className)}>
-      <CardHeader className="pb-2">
+    <Card3D 
+      className={cn(
+        "overflow-hidden transition-all duration-300 border border-border/40 bg-card/50 backdrop-blur-sm", 
+        className
+      )}
+      hoverEffects
+      glareEffect
+    >
+      <CardHeader3D className="pb-2">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-lg">{task.name}</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle3D className="text-lg">{task.name}</CardTitle3D>
+            <p className="text-sm text-muted-foreground mt-1">
               {task.description.length > 60 
                 ? `${task.description.substring(0, 60)}...` 
                 : task.description}
-            </CardDescription>
+            </p>
           </div>
           <Badge 
             variant="outline" 
@@ -93,8 +101,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <span>{statusText[task.status]}</span>
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent>
+      </CardHeader3D>
+      <CardContent3D>
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-2 text-sm">
             <div>
@@ -103,7 +111,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
             <div>
               <p className="text-muted-foreground">Earnings</p>
-              <p className="font-medium">${task.earnings.toFixed(2)}</p>
+              <p className="font-medium text-vibrant-green">${task.earnings.toFixed(2)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Last Run</p>
@@ -121,16 +129,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 {task.completionCount}/{task.targetCompletions}
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress 
+              value={progress} 
+              className="h-2" 
+              indicatorClassName={progressBarColors[task.status]}
+            />
           </div>
         </div>
-      </CardContent>
-      <CardFooter className="flex items-center justify-between pt-2">
+      </CardContent3D>
+      <CardFooter3D className="flex items-center justify-between pt-2">
         <div className="flex items-center space-x-2">
           <Button 
             variant="outline" 
             size="icon" 
             onClick={() => onEdit?.(task.id)}
+            className="bg-background/50 hover:bg-primary/10 hover:border-primary/50 transition-all"
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -138,7 +151,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             variant="outline" 
             size="icon" 
             onClick={() => onDelete?.(task.id)}
-            className="text-destructive hover:text-destructive"
+            className="text-destructive hover:text-destructive bg-background/50 hover:bg-destructive/10 hover:border-destructive/50 transition-all"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -148,7 +161,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <Button 
               onClick={() => onPause?.(task.id)}
               variant="outline"
-              className="gap-1"
+              className="gap-1 bg-background/50 hover:bg-muted-foreground/10 transition-all hover:border-muted-foreground/50"
             >
               <PauseCircle className="h-4 w-4" />
               Pause
@@ -157,7 +170,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <Button 
               onClick={() => onStart?.(task.id)}
               variant={task.status === TaskStatus.COMPLETED ? "outline" : "default"}
-              className="gap-1"
+              className={cn("gap-1", 
+                task.status === TaskStatus.COMPLETED 
+                  ? "bg-background/50 hover:bg-vibrant-blue/10 transition-all hover:border-vibrant-blue/50" 
+                  : "bg-gradient-purple-pink hover:opacity-90"
+              )}
               disabled={task.status === TaskStatus.COMPLETED}
             >
               {task.status === TaskStatus.COMPLETED ? (
@@ -174,8 +191,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </Button>
           )}
         </div>
-      </CardFooter>
-    </Card>
+      </CardFooter3D>
+    </Card3D>
   );
 };
 

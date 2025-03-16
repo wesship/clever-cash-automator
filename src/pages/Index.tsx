@@ -10,8 +10,10 @@ import { Task, TaskStatus, TaskType, PlatformType, Statistics } from "@/lib/type
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, PanelRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { PlusCircle, PanelRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card3D from "@/components/ui/3d-card";
+import Background3D from "@/components/ui/3d-background";
 import { Separator } from "@/components/ui/separator";
 
 // Mock data for tasks
@@ -188,13 +190,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Background3D />
       <Header />
       
-      <main className="flex-1 pt-24 pb-16 px-4 md:px-8">
+      <main className="flex-1 pt-24 pb-16 px-4 md:px-8 relative">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-2 mb-8">
-            <h1 className="text-3xl font-bold tracking-tight">
-              AutoEarn Dashboard
+            <h1 className="text-3xl font-bold tracking-tight inline-flex items-center">
+              <span className="text-gradient">AutoEarn Dashboard</span>
+              <Sparkles className="ml-2 h-5 w-5 text-vibrant-yellow animate-pulse-slow" />
             </h1>
             <p className="text-muted-foreground">
               Manage your automated tasks and track earnings
@@ -202,19 +206,19 @@ const Index = () => {
           </div>
 
           <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <div className="flex items-center justify-between">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                <TabsTrigger value="create">Create Task</TabsTrigger>
+            <div className="flex items-center justify-between bg-card/50 backdrop-blur-sm p-1 rounded-lg shadow-soft">
+              <TabsList className="bg-background/50">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">Overview</TabsTrigger>
+                <TabsTrigger value="tasks" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">Tasks</TabsTrigger>
+                <TabsTrigger value="create" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">Create Task</TabsTrigger>
               </TabsList>
               
               <div className="hidden sm:flex items-center space-x-2">
-                <Button variant="outline" size="sm" className="gap-1">
+                <Button variant="outline" size="sm" className="gap-1 backdrop-blur-sm bg-background/50">
                   <ChevronLeft className="h-4 w-4" />
                   Previous
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1">
+                <Button variant="outline" size="sm" className="gap-1 backdrop-blur-sm bg-background/50">
                   Next
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -226,12 +230,12 @@ const Index = () => {
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold tracking-tight">Recent Tasks</h2>
+                  <h2 className="text-xl font-semibold tracking-tight text-gradient">Recent Tasks</h2>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setActiveTab("tasks")}
-                    className="gap-1"
+                    className="gap-1 bg-background/50 backdrop-blur-sm hover:bg-primary/20"
                   >
                     <PanelRight className="h-4 w-4" />
                     View All
@@ -239,7 +243,7 @@ const Index = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {tasks.slice(0, 3).map((task) => (
-                    <Card key={task.id} className="shadow-soft">
+                    <Card3D key={task.id} className="border border-border/40 bg-card/50 backdrop-blur-sm" hoverEffects glareEffect>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg">{task.name}</CardTitle>
                       </CardHeader>
@@ -247,11 +251,17 @@ const Index = () => {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">Status</span>
-                            <span className="text-sm font-medium">{task.status}</span>
+                            <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+                              task.status === TaskStatus.RUNNING ? 'bg-vibrant-green/10 text-vibrant-green' : 
+                              task.status === TaskStatus.COMPLETED ? 'bg-vibrant-blue/10 text-vibrant-blue' :
+                              task.status === TaskStatus.FAILED ? 'bg-destructive/10 text-destructive' :
+                              task.status === TaskStatus.PAUSED ? 'bg-muted text-muted-foreground' :
+                              'bg-vibrant-yellow/10 text-vibrant-yellow'
+                            }`}>{task.status}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">Earnings</span>
-                            <span className="text-sm font-medium">${task.earnings.toFixed(2)}</span>
+                            <span className="text-sm font-medium text-vibrant-green">${task.earnings.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">Completions</span>
@@ -259,14 +269,14 @@ const Index = () => {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
+                    </Card3D>
                   ))}
                 </div>
               </div>
               
-              <Card className="bg-primary/5 border-primary/20">
+              <Card3D className="bg-gradient-to-br from-primary/5 to-vibrant-blue/5 border-primary/20 backdrop-blur-sm" glareEffect>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Quick Tips</CardTitle>
+                  <CardTitle className="text-lg text-gradient">Quick Tips</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -276,14 +286,14 @@ const Index = () => {
                         Always use proxies for high-volume tasks, and respect platform terms of service.
                       </p>
                     </div>
-                    <Separator />
+                    <Separator className="bg-border/50" />
                     <div className="space-y-2">
                       <h3 className="font-medium">Optimize for Success</h3>
                       <p className="text-sm text-muted-foreground">
                         Distribute tasks across multiple accounts and time periods to maximize earnings.
                       </p>
                     </div>
-                    <Separator />
+                    <Separator className="bg-border/50" />
                     <div className="space-y-2">
                       <h3 className="font-medium">Monitor Performance</h3>
                       <p className="text-sm text-muted-foreground">
@@ -292,7 +302,7 @@ const Index = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card3D>
             </TabsContent>
 
             <TabsContent value="tasks" className="animate-fade-in">

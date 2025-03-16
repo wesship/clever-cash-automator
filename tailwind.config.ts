@@ -62,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// New vibrant color palette
+				vibrant: {
+					purple: '#8B5CF6',
+					pink: '#D946EF',
+					blue: '#0EA5E9',
+					green: '#10B981',
+					orange: '#F97316',
+					yellow: '#FBBF24',
 				}
 			},
 			borderRadius: {
@@ -97,6 +106,15 @@ export default {
 				float: {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				// 3D rotation effects
+				rotateX: {
+					'0%, 100%': { transform: 'rotateX(0deg)' },
+					'50%': { transform: 'rotateX(10deg)' }
+				},
+				rotateY: {
+					'0%, 100%': { transform: 'rotateY(0deg)' },
+					'50%': { transform: 'rotateY(10deg)' }
 				}
 			},
 			animation: {
@@ -106,7 +124,10 @@ export default {
 				'fade-in': 'fadeIn 0.5s ease-out',
 				'slide-up': 'slideUp 0.5s ease-out',
 				'pulse-slow': 'pulse 3s infinite',
-				'float': 'float 3s ease-in-out infinite'
+				'float': 'float 3s ease-in-out infinite',
+				// 3D animations
+				'rotate-x': 'rotateX 6s ease-in-out infinite',
+				'rotate-y': 'rotateY 6s ease-in-out infinite'
 			},
 			fontFamily: {
 				sans: ['Inter var', 'sans-serif'],
@@ -114,10 +135,32 @@ export default {
 			},
 			boxShadow: {
 				'soft': '0 2px 15px rgba(0, 0, 0, 0.06)',
-				'glass': '0 8px 32px rgba(0, 0, 0, 0.07)'
+				'glass': '0 8px 32px rgba(0, 0, 0, 0.07)',
+				// 3D shadows
+				'3d-soft': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+				'3d': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+				'3d-intense': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+				'3d-harsh': '0 0 15px rgba(0, 0, 0, 0.1), 0 0 3px rgba(0, 0, 0, 0.05)',
 			},
 			backdropBlur: {
 				xs: '2px'
+			},
+			// 3D transform utilities
+			transform: {
+				'3d': 'perspective(1000px)',
+			},
+			transformStyle: {
+				'3d': 'preserve-3d',
+			},
+			transformOrigin: {
+				'center-bottom': 'center bottom',
+			},
+			// Gradient backgrounds
+			backgroundImage: {
+				'gradient-purple-pink': 'linear-gradient(135deg, #8B5CF6, #D946EF)',
+				'gradient-blue-purple': 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
+				'gradient-green-blue': 'linear-gradient(135deg, #10B981, #0EA5E9)',
+				'gradient-orange-yellow': 'linear-gradient(135deg, #F97316, #FBBF24)',
 			}
 		}
 	},
