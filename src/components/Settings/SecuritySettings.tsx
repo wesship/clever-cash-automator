@@ -28,6 +28,10 @@ const SecuritySettings = () => {
     }
   };
 
+  const handleSaveChanges = () => {
+    toast.success("Security settings saved");
+  };
+
   return (
     <Card className="bg-card/50 backdrop-blur-sm">
       <CardHeader>
@@ -91,7 +95,7 @@ const SecuritySettings = () => {
         </div>
         
         <div className="pt-4 flex justify-end">
-          <Button className="gap-2" onClick={() => toast.success("Security settings saved")}>
+          <Button className="gap-2" onClick={handleSaveChanges}>
             <Save className="h-4 w-4" />
             Save Changes
           </Button>

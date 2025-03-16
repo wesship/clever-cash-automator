@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, ReactNode } from 'react';
 import useLocalStorage from './use-local-storage';
 import { toast } from "sonner";
@@ -78,6 +77,8 @@ export const UserPreferencesProvider: React.FC<{ children: ReactNode }> = ({ chi
       toast.success(`Display updated: ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} set to ${String(value)}`);
     } else if (key === 'notificationsEnabled') {
       toast.info(`Notifications ${value ? 'enabled' : 'disabled'}`);
+    } else if (key === 'emailNotificationsEnabled') {
+      toast.info(`Email notifications ${value ? 'enabled' : 'disabled'}`);
     }
   };
 

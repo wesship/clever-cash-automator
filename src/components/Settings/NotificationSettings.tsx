@@ -11,6 +11,10 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 const NotificationSettings = () => {
   const { preferences, updatePreference } = useUserPreferences();
 
+  const handleSaveChanges = () => {
+    toast.success("Notification settings saved");
+  };
+
   return (
     <Card className="bg-card/50 backdrop-blur-sm">
       <CardHeader>
@@ -40,7 +44,7 @@ const NotificationSettings = () => {
               Get notified when tasks fail
             </p>
           </div>
-          <Switch defaultChecked 
+          <Switch 
             checked={preferences.notificationsEnabled}
             onCheckedChange={(checked) => updatePreference('notificationsEnabled', checked)}
           />
@@ -55,9 +59,9 @@ const NotificationSettings = () => {
               Get weekly earnings reports
             </p>
           </div>
-          <Switch defaultChecked 
-            checked={preferences.keyboardShortcutsEnabled}
-            onCheckedChange={(checked) => updatePreference('keyboardShortcutsEnabled', checked)}
+          <Switch 
+            checked={preferences.earningsSummaryEmails || false}
+            onCheckedChange={(checked) => updatePreference('earningsSummaryEmails', checked)}
           />
         </div>
         
@@ -71,13 +75,13 @@ const NotificationSettings = () => {
             </p>
           </div>
           <Switch 
-            checked={preferences.offlineModeEnabled}
-            onCheckedChange={(checked) => updatePreference('offlineModeEnabled', checked)}
+            checked={preferences.emailNotificationsEnabled || false}
+            onCheckedChange={(checked) => updatePreference('emailNotificationsEnabled', checked)}
           />
         </div>
         
         <div className="pt-4 flex justify-end">
-          <Button className="gap-2" onClick={() => toast.success("Notification settings saved")}>
+          <Button className="gap-2" onClick={handleSaveChanges}>
             <Save className="h-4 w-4" />
             Save Changes
           </Button>
