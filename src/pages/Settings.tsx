@@ -102,16 +102,16 @@ const Settings = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button 
-                        variant={preferences.defaultTaskView === "grid" ? "default" : "outline"}
+                        variant={preferences.taskListView === "grid" ? "default" : "outline"}
                         size="sm"
-                        onClick={() => updatePreference('defaultTaskView', 'grid')}
+                        onClick={() => updatePreference('taskListView', 'grid')}
                       >
                         Grid
                       </Button>
                       <Button 
-                        variant={preferences.defaultTaskView === "list" ? "default" : "outline"}
+                        variant={preferences.taskListView === "list" ? "default" : "outline"}
                         size="sm"
-                        onClick={() => updatePreference('defaultTaskView', 'list')}
+                        onClick={() => updatePreference('taskListView', 'list')}
                       >
                         List
                       </Button>
