@@ -131,8 +131,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
             <Progress 
               value={progress} 
-              className="h-2" 
-              indicatorClassName={progressBarColors[task.status]}
+              className={cn("h-2", progressBarColors[task.status])}
             />
           </div>
         </div>
