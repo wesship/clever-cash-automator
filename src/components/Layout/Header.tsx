@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,7 +10,8 @@ import {
   Plus, 
   Menu, 
   X, 
-  CreditCard 
+  CreditCard,
+  Building
 } from "lucide-react";
 
 interface NavItem {
@@ -36,6 +37,11 @@ const navItems: NavItem[] = [
     icon: <CreditCard className="h-5 w-5" />
   },
   {
+    name: "Departments",
+    href: "/departments",
+    icon: <Building className="h-5 w-5" />
+  },
+  {
     name: "Settings",
     href: "/settings",
     icon: <Settings className="h-5 w-5" />
@@ -44,6 +50,7 @@ const navItems: NavItem[] = [
 
 export const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -55,6 +62,11 @@ export const Header: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleCreateTask = () => {
+    // Navigate to the dashboard and indicate we want to show the create task tab
+    navigate("/?tab=create");
+  };
 
   return (
     <header
@@ -102,12 +114,10 @@ export const Header: React.FC = () => {
               Settings
             </Button>
           </Link>
-          <Link to="/?tab=create">
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              New Task
-            </Button>
-          </Link>
+          <Button size="sm" onClick={handleCreateTask}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Task
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -153,12 +163,16 @@ export const Header: React.FC = () => {
                   Settings
                 </Button>
               </Link>
-              <Link to="/?tab=create" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="justify-start w-full">
-                  <Plus className="mr-2 h-5 w-5" />
-                  New Task
-                </Button>
-              </Link>
+              <Button 
+                className="justify-start w-full"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleCreateTask();
+                }}
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                New Task
+              </Button>
             </div>
           </div>
         </div>

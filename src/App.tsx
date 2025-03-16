@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
 import Accounts from "./pages/Accounts";
 import Settings from "./pages/Settings";
+import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ const App = () => {
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/accounts" element={<Accounts />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/departments" element={<Departments />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

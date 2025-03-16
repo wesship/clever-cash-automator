@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import TaskList from "@/components/Dashboard/TaskList";
@@ -22,8 +22,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { TaskCardSkeleton } from "@/components/ui/skeleton-loader";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
+import { toast } from "sonner";
 
-// Mock data for tasks
 const mockTasks: Task[] = [
   {
     id: "1",
@@ -152,7 +152,6 @@ const mockTasks: Task[] = [
   },
 ];
 
-// Mock statistics data
 const mockStatistics: Statistics = {
   totalEarnings: 116.05,
   tasksCompleted: 124,
@@ -167,6 +166,7 @@ const Index = () => {
   const { theme, setTheme, isDarkMode } = useTheme();
   const isMobile = useIsMobile();
   const { preferences, updatePreference } = useUserPreferences();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -175,13 +175,17 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [recentVisits, setRecentVisits] = useLocalStorage<number>("recent-visits", 0);
 
-  // Simulate data loading
   useEffect(() => {
-    // Increment visit counter
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'create') {
+      setActiveTab('create');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     setRecentVisits(prev => prev + 1);
     
     const loadData = async () => {
-      // Simulate API loading delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       setTasks(mockTasks);
       setIsLoading(false);
@@ -213,8 +217,11 @@ const Index = () => {
     };
 
     setTasks([newTask, ...tasks]);
-    setShowTaskForm(false);
     setActiveTab("tasks");
+    toast.success(`Task "${data.name}" created successfully!`);
+    
+    searchParams.delete('tab');
+    setSearchParams(searchParams);
   };
 
   const toggleTheme = () => {
@@ -226,7 +233,6 @@ const Index = () => {
       <Background3D />
       <Header />
       
-      {/* Show welcome guide for new users */}
       {preferences.showWelcomeGuide && <WelcomeGuide />}
       
       <main className="flex-1 pt-24 pb-16 px-4 md:px-8 relative">
@@ -296,7 +302,6 @@ const Index = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {isLoading ? (
-                      // Show skeletons while loading
                       Array.from({ length: 3 }).map((_, index) => (
                         <TaskCardSkeleton key={index} className="w-full h-full" />
                       ))
@@ -364,7 +369,6 @@ const Index = () => {
                   </CardContent>
                 </Card3D>
                 
-                {/* Added FAQ section */}
                 <FAQ className="mt-8" />
               </TabsContent>
 
