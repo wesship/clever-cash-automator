@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskCardProps {
   task: Task;
@@ -34,6 +35,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onEdit,
   className
 }) => {
+  const isMobile = useIsMobile();
+
   const statusColors = {
     [TaskStatus.PENDING]: "bg-vibrant-yellow/90",
     [TaskStatus.RUNNING]: "bg-vibrant-green/90",
@@ -84,8 +87,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <div>
             <CardTitle3D className="text-lg">{task.name}</CardTitle3D>
             <p className="text-sm text-muted-foreground mt-1">
-              {task.description.length > 60 
-                ? `${task.description.substring(0, 60)}...` 
+              {task.description.length > (isMobile ? 40 : 60) 
+                ? `${task.description.substring(0, isMobile ? 40 : 60)}...` 
                 : task.description}
             </p>
           </div>
@@ -98,7 +101,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             )}
           >
             {statusIcons[task.status]}
-            <span>{statusText[task.status]}</span>
+            <span>{isMobile ? null : statusText[task.status]}</span>
           </Badge>
         </div>
       </CardHeader3D>
@@ -143,6 +146,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             size="icon" 
             onClick={() => onEdit?.(task.id)}
             className="bg-background/50 hover:bg-primary/10 hover:border-primary/50 transition-all"
+            aria-label="Edit task"
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -151,6 +155,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             size="icon" 
             onClick={() => onDelete?.(task.id)}
             className="text-destructive hover:text-destructive bg-background/50 hover:bg-destructive/10 hover:border-destructive/50 transition-all"
+            aria-label="Delete task"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -161,9 +166,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               onClick={() => onPause?.(task.id)}
               variant="outline"
               className="gap-1 bg-background/50 hover:bg-muted-foreground/10 transition-all hover:border-muted-foreground/50"
+              aria-label="Pause task"
             >
               <PauseCircle className="h-4 w-4" />
-              Pause
+              {isMobile ? null : "Pause"}
             </Button>
           ) : (
             <Button 
@@ -175,16 +181,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                   : "bg-gradient-purple-pink hover:opacity-90"
               )}
               disabled={task.status === TaskStatus.COMPLETED}
+              aria-label={task.status === TaskStatus.COMPLETED ? "Restart task" : "Start task"}
             >
               {task.status === TaskStatus.COMPLETED ? (
                 <>
                   <RefreshCw className="h-4 w-4" />
-                  Restart
+                  {isMobile ? null : "Restart"}
                 </>
               ) : (
                 <>
                   <PlayCircle className="h-4 w-4" />
-                  Start
+                  {isMobile ? null : "Start"}
                 </>
               )}
             </Button>
