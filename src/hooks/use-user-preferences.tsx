@@ -10,6 +10,10 @@ interface UserPreferences {
   taskSortOrder: 'newest' | 'earnings' | 'progress';
   taskFilter: 'all' | 'running' | 'completed' | 'pending' | 'failed';
   notificationsEnabled: boolean;
+  emailNotificationsEnabled?: boolean;
+  taskCompletionEmails?: boolean;
+  earningsSummaryEmails?: boolean;
+  notificationSound?: 'default' | 'chime' | 'bell' | 'none';
   analyticsTimeframe: 'day' | 'week' | 'month' | 'year' | 'custom';
   customTimeframe?: {
     startDate?: Date;
@@ -29,6 +33,10 @@ const defaultPreferences: UserPreferences = {
   taskSortOrder: 'newest',
   taskFilter: 'all',
   notificationsEnabled: true,
+  emailNotificationsEnabled: false,
+  taskCompletionEmails: true,
+  earningsSummaryEmails: true,
+  notificationSound: 'default',
   analyticsTimeframe: 'week',
   keyboardShortcutsEnabled: false,
   offlineModeEnabled: true,
