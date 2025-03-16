@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
 ];
 
 export const Header: React.FC = () => {
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -74,27 +75,39 @@ export const Header: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              {item.icon}
-              <span className="ml-2">{item.name}</span>
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                  isActive 
+                    ? "bg-primary/10 text-primary" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {item.icon}
+                <span className="ml-2">{item.name}</span>
+              </Link>
+            );
+          })}
         </nav>
         
         <div className="hidden md:flex items-center space-x-4">
-          <Button size="sm" variant="outline">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            New Task
-          </Button>
+          <Link to="/settings">
+            <Button size="sm" variant="outline">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button>
+          </Link>
+          <Link to="/?tab=create">
+            <Button size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              New Task
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -114,26 +127,38 @@ export const Header: React.FC = () => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border animate-fade-in">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-secondary transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.icon}
-                <span className="ml-3">{item.name}</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors",
+                    isActive 
+                      ? "bg-primary/10 text-primary" 
+                      : "hover:bg-secondary"
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.icon}
+                  <span className="ml-3">{item.name}</span>
+                </Link>
+              );
+            })}
             <div className="pt-2 flex flex-col space-y-2">
-              <Button variant="outline" className="justify-start">
-                <Settings className="mr-2 h-5 w-5" />
-                Settings
-              </Button>
-              <Button className="justify-start">
-                <Plus className="mr-2 h-5 w-5" />
-                New Task
-              </Button>
+              <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="justify-start w-full">
+                  <Settings className="mr-2 h-5 w-5" />
+                  Settings
+                </Button>
+              </Link>
+              <Link to="/?tab=create" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="justify-start w-full">
+                  <Plus className="mr-2 h-5 w-5" />
+                  New Task
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
