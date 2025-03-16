@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Task, TaskStatus } from "@/lib/types";
 import TaskCard from "./TaskCard";
@@ -58,14 +57,12 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [sortBy, setSortBy] = useState<keyof Task>("createdAt");
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   
-  // Set up keyboard shortcuts
   const { helpVisible, setHelpVisible } = useKeyboardShortcuts({
     createTask: () => onCreateTask && onCreateTask(),
     toggleView: () => updatePreference('taskListView', preferences.taskListView === 'grid' ? 'list' : 'grid'),
     toggleHelp: () => setShortcutsDialogOpen(true)
   });
-  
-  // Use InView hook to track when the task list is visible
+
   const [containerRef, isInView] = useInView<HTMLDivElement>({
     triggerOnce: true,
     threshold: 0.1,
@@ -73,21 +70,17 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const handleStartTask = (taskId: string) => {
     toast.success("Task started successfully");
-    // In a real app, this would call an API to start the task
   };
 
   const handlePauseTask = (taskId: string) => {
     toast.success("Task paused successfully");
-    // In a real app, this would call an API to pause the task
   };
 
   const handleDeleteTask = (taskId: string) => {
     toast.success("Task deleted successfully");
-    // In a real app, this would call an API to delete the task
   };
 
   const handleEditTask = (taskId: string) => {
-    // In a real app, this would navigate to edit task page or open a modal
     console.log("Edit task", taskId);
   };
 
@@ -113,7 +106,6 @@ export const TaskList: React.FC<TaskListProps> = ({
           ? a.earnings - b.earnings
           : b.earnings - a.earnings;
       }
-      // Add more sorting options as needed
       return 0;
     });
 
@@ -261,8 +253,8 @@ export const TaskList: React.FC<TaskListProps> = ({
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="font-medium">{task.name}</h3>
                     <Badge variant={
-                      task.status === TaskStatus.RUNNING ? 'success' :
-                      task.status === TaskStatus.COMPLETED ? 'default' :
+                      task.status === TaskStatus.RUNNING ? 'default' :
+                      task.status === TaskStatus.COMPLETED ? 'secondary' :
                       task.status === TaskStatus.FAILED ? 'destructive' :
                       task.status === TaskStatus.PAUSED ? 'outline' : 'secondary'
                     }>
