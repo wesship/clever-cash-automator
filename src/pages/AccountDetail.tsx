@@ -40,7 +40,7 @@ const AccountDetail = () => {
       { id: "3", name: "Video Watching", status: "paused", earnings: 12.30, completions: 18, total: 50 },
       { id: "4", name: "Referrals", status: "active", earnings: 9.20, completions: 2, total: 20 }
     ],
-    // Fixed duplicate 'earnings' property by renaming this to 'earningsData'
+    // Fixed: renamed the duplicate 'earnings' property to 'earningsData'
     earningsData: {
       daily: [2.30, 3.50, 1.20, 4.80, 3.90, 5.10, 3.20],
       days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
