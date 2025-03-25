@@ -51,26 +51,32 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ className }) => {
   const location = useLocation();
   
+  // Check if the current path starts with any of the nav item paths
+  const isActive = (path: string) => {
+    // Exact match for root path
+    if (path === "/" && location.pathname === "/") return true;
+    // For other paths, check if the current path starts with the nav path
+    // But not for root path to avoid matching all routes
+    return path !== "/" && location.pathname.startsWith(path);
+  };
+  
   return (
     <nav className={cn("flex items-center space-x-1", className)}>
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.href;
-        return (
-          <Link
-            key={item.name}
-            to={item.href}
-            className={cn(
-              "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-              isActive 
-                ? "bg-primary/10 text-primary" 
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-            )}
-          >
-            {item.icon}
-            <span className="ml-2">{item.name}</span>
-          </Link>
-        );
-      })}
+      {navItems.map((item) => (
+        <Link
+          key={item.name}
+          to={item.href}
+          className={cn(
+            "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+            isActive(item.href) 
+              ? "bg-primary/10 text-primary" 
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+          )}
+        >
+          {item.icon}
+          <span className="ml-2">{item.name}</span>
+        </Link>
+      ))}
     </nav>
   );
 };

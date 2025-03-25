@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +98,7 @@ const mockProxies = [
 
 const Accounts = () => {
   const [activeTab, setActiveTab] = useState("accounts");
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -183,13 +185,18 @@ const Accounts = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between pt-2">
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <Edit2 className="h-3 w-3" />
-                        Edit
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-1"
+                        onClick={() => navigate(`/accounts/${account.id}`)}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Details
                       </Button>
                       {account.status === "active" ? (
                         <Button variant="outline" size="sm" className="gap-1">
-                          <ExternalLink className="h-3 w-3" />
+                          <CheckCircle className="h-3 w-3" />
                           Connect
                         </Button>
                       ) : (

@@ -1,14 +1,17 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
-import { BarChart, PieChart, LineChart, TrendingUp, Users, DollarSign, Calendar } from "lucide-react";
+import { BarChart, PieChart, LineChart, TrendingUp, Users, DollarSign, Calendar, ExternalLink } from "lucide-react";
 import Background3D from "@/components/ui/3d-background";
 
 const Analytics = () => {
   const [period, setPeriod] = useState<"day" | "week" | "month" | "year">("month");
+  const navigate = useNavigate();
 
   // Mock data
   const earningsData = {
@@ -120,8 +123,17 @@ const Analytics = () => {
 
               <TabsContent value="earnings" className="space-y-4">
                 <Card className="bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Earnings Over Time</CardTitle>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1"
+                      onClick={() => navigate('/analytics/earnings')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Detailed View
+                    </Button>
                   </CardHeader>
                   <CardContent className="h-80 flex items-center justify-center">
                     <p className="text-center text-muted-foreground">
@@ -133,8 +145,17 @@ const Analytics = () => {
 
               <TabsContent value="tasks" className="space-y-4">
                 <Card className="bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Task Performance</CardTitle>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1"
+                      onClick={() => navigate('/analytics/tasks')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Detailed View
+                    </Button>
                   </CardHeader>
                   <CardContent className="h-80 flex items-center justify-center">
                     <p className="text-center text-muted-foreground">
@@ -146,8 +167,17 @@ const Analytics = () => {
 
               <TabsContent value="platforms" className="space-y-4">
                 <Card className="bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Earnings by Platform</CardTitle>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1"
+                      onClick={() => navigate('/analytics/platforms')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Detailed View
+                    </Button>
                   </CardHeader>
                   <CardContent className="h-80 flex items-center justify-center">
                     <p className="text-center text-muted-foreground">

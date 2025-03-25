@@ -12,9 +12,12 @@ import { Loader } from "@/components/ui/Loader";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
+import AnalyticsDetail from "./pages/AnalyticsDetail";
 import Accounts from "./pages/Accounts";
+import AccountDetail from "./pages/AccountDetail";
 import Settings from "./pages/Settings";
 import Departments from "./pages/Departments";
+import DepartmentDetail from "./pages/DepartmentDetail";
 import NotFound from "./pages/NotFound";
 import BackgroundDemo from "./pages/BackgroundDemo";
 
@@ -64,9 +67,12 @@ const App = () => {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/analytics/:id" element={<AnalyticsDetail />} />
                     <Route path="/accounts" element={<Accounts />} />
-                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/accounts/:id" element={<AccountDetail />} />
                     <Route path="/departments" element={<Departments />} />
+                    <Route path="/departments/:id" element={<DepartmentDetail />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="/background-demo" element={<BackgroundDemo />} />
                     <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
                     <Route path="*" element={<NotFound />} />
