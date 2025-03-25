@@ -22,7 +22,7 @@ const AppearanceSettings = () => {
     <Card className="bg-card/50 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>Appearance</CardTitle>
-        <CardDescription>Customize how AutoEarn looks and feels</CardDescription>
+        <CardDescription>Customize how DEVONN.AI Moneyhub looks and feels</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { HeartIcon, GithubIcon, TwitterIcon, InstagramIcon } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -12,12 +11,12 @@ const Footer: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-purple-pink flex items-center justify-center card-3d-float">
-                <span className="text-white font-semibold text-sm">AE</span>
+                <span className="text-white font-semibold text-sm">DM</span>
               </div>
-              <span className="text-lg font-semibold tracking-tight text-gradient">AutoEarn</span>
+              <span className="text-lg font-semibold tracking-tight text-gradient">DEVONN.AI Moneyhub</span>
             </div>
             <p className="text-muted-foreground text-sm mb-4 max-w-xs">
-              Elegantly automate online tasks with an AI-powered platform designed for simplicity and performance.
+              Elegantly automate financial tasks with an AI-powered platform designed for simplicity and performance.
             </p>
             <div className="flex items-center space-x-3">
               <a href="#" className="text-muted-foreground hover:text-vibrant-purple transition-colors transform hover:scale-110 duration-200">
@@ -86,11 +85,11 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-8 pt-4 border-t border-border flex flex-col md:flex-row items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} AutoEarn. All rights reserved.
+            &copy; {new Date().getFullYear()} DEVONN.AI Moneyhub. All rights reserved.
           </p>
           <div className="flex items-center mt-4 md:mt-0">
             <p className="text-xs text-muted-foreground flex items-center">
-              Made with <HeartIcon className="mx-1 text-vibrant-pink h-4 w-4 animate-pulse-slow" /> by the AutoEarn Team
+              Made with <HeartIcon className="mx-1 text-vibrant-pink h-4 w-4 animate-pulse-slow" /> by the DEVONN.AI Team
             </p>
           </div>
         </div>

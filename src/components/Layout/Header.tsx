@@ -89,9 +89,9 @@ export const Header: React.FC = () => {
           ) : (
             <>
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-white font-semibold text-lg">AE</span>
+                <span className="text-white font-semibold text-lg">DM</span>
               </div>
-              <span className="text-xl font-semibold tracking-tight">AutoEarn</span>
+              <span className="text-xl font-semibold tracking-tight">DEVONN.AI Moneyhub</span>
             </>
           )}
         </Link>

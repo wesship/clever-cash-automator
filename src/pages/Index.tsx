@@ -36,7 +36,7 @@ const Index = () => {
       
       <main className="flex-1 pt-24 pb-16 px-4 md:px-8 relative">
         <div className="max-w-7xl mx-auto">
-          <DashboardHeader title="AutoEarn Dashboard" />
+          <DashboardHeader title="DEVONN.AI Moneyhub Dashboard" />
 
           <ErrorBoundary>
             <DashboardTabs 
