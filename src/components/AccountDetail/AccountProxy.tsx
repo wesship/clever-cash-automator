@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Settings, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Account } from "@/types/account.types";
 
 interface AccountProxyProps {
-  account: any;
+  account: Account;
 }
 
 const AccountProxy = ({ account }: AccountProxyProps) => {

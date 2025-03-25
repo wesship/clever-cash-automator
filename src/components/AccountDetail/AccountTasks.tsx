@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Task } from "@/types/account.types";
 
 interface AccountTasksProps {
-  tasks: any[];
+  tasks: Task[];
   getStatusColor: (status: string) => string;
 }
 

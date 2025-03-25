@@ -2,9 +2,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, DollarSign, BarChart } from "lucide-react";
+import { Account } from "@/types/account.types";
 
 interface AccountMetricsProps {
-  account: any;
+  account: Account;
 }
 
 const AccountMetricsCards = ({ account }: AccountMetricsProps) => {

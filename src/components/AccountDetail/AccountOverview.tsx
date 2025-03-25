@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings } from "lucide-react";
+import { Account } from "@/types/account.types";
 
 interface AccountDetailsProps {
-  account: any;
+  account: Account;
   getStatusColor: (status: string) => string;
 }
 

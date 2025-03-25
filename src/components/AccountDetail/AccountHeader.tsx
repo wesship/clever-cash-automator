@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, Settings, CheckCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Account } from "@/types/account.types";
 
 interface AccountHeaderProps {
-  account: any;
+  account: Account;
   getStatusColor: (status: string) => string;
 }
 
