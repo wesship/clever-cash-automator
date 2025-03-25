@@ -1,0 +1,83 @@
+
+/* Matrix Theme Styles */
+.matrix-theme {
+  --matrix-green: #00ff00;
+  --matrix-dark: #000000;
+  --matrix-text: #ccffcc;
+  --matrix-accent: #33ff33;
+  color-scheme: dark;
+}
+
+.matrix-theme body {
+  background-color: var(--matrix-dark);
+  color: var(--matrix-green);
+}
+
+.matrix-theme .bg-background {
+  background-color: var(--matrix-dark) !important;
+}
+
+.matrix-theme .text-foreground {
+  color: var(--matrix-green) !important;
+}
+
+.matrix-theme .text-muted-foreground {
+  color: var(--matrix-text) !important;
+  opacity: 0.8;
+}
+
+.matrix-theme .bg-card {
+  background-color: rgba(0, 20, 0, 0.7) !important;
+  border-color: var(--matrix-green) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) !important;
+}
+
+.matrix-theme .border-border {
+  border-color: var(--matrix-green) !important;
+  opacity: 0.5;
+}
+
+.matrix-theme button {
+  border-color: var(--matrix-green) !important;
+}
+
+.matrix-theme button:hover {
+  background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
+.matrix-theme .text-gradient {
+  background: linear-gradient(90deg, #00ff00 0%, #ccffcc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.matrix-theme input, 
+.matrix-theme select, 
+.matrix-theme textarea {
+  background-color: rgba(0, 20, 0, 0.7) !important;
+  border-color: var(--matrix-green) !important;
+  color: var(--matrix-green) !important;
+}
+
+.matrix-theme input:focus, 
+.matrix-theme select:focus, 
+.matrix-theme textarea:focus {
+  box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.3) !important;
+}
+
+.matrix-logo {
+  filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.7));
+}
+
+/* Animation for the matrix text */
+@keyframes matrixPulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.matrix-theme .animate-matrix {
+  animation: matrixPulse 2s infinite ease-in-out;
+}

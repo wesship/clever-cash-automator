@@ -1,155 +1,135 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { Moon, Sun, Save } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useTheme } from "@/hooks/use-theme";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
+import { useMatrixTheme } from "@/hooks/use-matrix-theme";
+import { Button } from "@/components/ui/button";
+import { Moon, Sun, LayoutGrid, LayoutList, ZapOff, Zap, Code } from "lucide-react";
 
 const AppearanceSettings = () => {
   const { theme, setTheme } = useTheme();
-  const { preferences, updatePreference } = useUserPreferences();
+  const { preferences, updatePreferences } = useUserPreferences();
+  const { matrixEnabled, toggleMatrix } = useMatrixTheme();
+
+  const handleToggleDarkMode = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
-    <>
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize how the application looks and feels</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <Card className="bg-card/50 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle>Appearance</CardTitle>
+        <CardDescription>Customize how AutoEarn looks and feels</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                <span className="font-medium">Theme</span>
-              </div>
+              <Label className="text-base">Theme</Label>
               <p className="text-sm text-muted-foreground">
-                Choose between light and dark theme
+                Choose between light and dark mode
               </p>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm">Light</span>
-              <Switch 
-                checked={theme === "dark"}
-                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-              />
-              <span className="text-sm">Dark</span>
-            </div>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="ml-4"
+              onClick={handleToggleDarkMode}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
           </div>
-          
-          <Separator />
           
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="font-medium">Welcome Guide</span>
+              <Label className="text-base">Matrix Theme</Label>
               <p className="text-sm text-muted-foreground">
-                Show welcome guide for new users
+                Enable digital rain effect
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch 
+                id="matrix-theme"
+                checked={matrixEnabled}
+                onCheckedChange={toggleMatrix}
+              />
+              <Code className="h-4 w-4 text-green-500" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">Show Welcome Guide</Label>
+              <p className="text-sm text-muted-foreground">
+                Display onboarding guide for new users
               </p>
             </div>
             <Switch 
+              id="welcome-guide"
               checked={preferences.showWelcomeGuide}
-              onCheckedChange={(checked) => updatePreference('showWelcomeGuide', checked)}
+              onCheckedChange={(checked) => 
+                updatePreferences({ showWelcomeGuide: checked })
+              }
             />
           </div>
           
-          <Separator />
-          
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="font-medium">Task View</span>
+              <Label className="text-base">Task View</Label>
               <p className="text-sm text-muted-foreground">
-                Default task view style
+                Choose how tasks are displayed
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <Button 
-                variant={preferences.taskListView === "grid" ? "default" : "outline"}
+              <Button
+                variant={preferences.taskView === "grid" ? "default" : "outline"}
                 size="sm"
-                onClick={() => updatePreference('taskListView', 'grid')}
+                onClick={() => updatePreferences({ taskView: "grid" })}
               >
+                <LayoutGrid className="h-4 w-4 mr-1" />
                 Grid
               </Button>
-              <Button 
-                variant={preferences.taskListView === "list" ? "default" : "outline"}
+              <Button
+                variant={preferences.taskView === "list" ? "default" : "outline"}
                 size="sm"
-                onClick={() => updatePreference('taskListView', 'list')}
+                onClick={() => updatePreferences({ taskView: "list" })}
               >
+                <LayoutList className="h-4 w-4 mr-1" />
                 List
               </Button>
             </div>
           </div>
           
-          <div className="pt-4 flex justify-end">
-            <Button className="gap-2" onClick={() => toast.success("Settings saved successfully")}>
-              <Save className="h-4 w-4" />
-              Save Changes
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle>User Interface</CardTitle>
-          <CardDescription>Customize the behavior of the application</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="font-medium">Animations</span>
+              <Label className="text-base">Animations</Label>
               <p className="text-sm text-muted-foreground">
-                Enable UI animations
+                Enable UI animations and transitions
               </p>
             </div>
-            <Switch 
-              checked={preferences.notificationsEnabled}
-              onCheckedChange={(checked) => updatePreference('notificationsEnabled', checked)}
-            />
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <span className="font-medium">Autostart Tasks</span>
-              <p className="text-sm text-muted-foreground">
-                Automatically start scheduled tasks on login
-              </p>
+            <div className="flex items-center gap-2">
+              <Switch 
+                id="animations"
+                checked={preferences.enableAnimations}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ enableAnimations: checked })
+                }
+              />
+              {preferences.enableAnimations ? (
+                <Zap className="h-4 w-4 text-yellow-500" />
+              ) : (
+                <ZapOff className="h-4 w-4" />
+              )}
             </div>
-            <Switch 
-              checked={preferences.keyboardShortcutsEnabled}
-              onCheckedChange={(checked) => updatePreference('keyboardShortcutsEnabled', checked)}
-            />
           </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <span className="font-medium">Confirm Actions</span>
-              <p className="text-sm text-muted-foreground">
-                Show confirmation dialogs for important actions
-              </p>
-            </div>
-            <Switch 
-              checked={preferences.offlineModeEnabled}
-              onCheckedChange={(checked) => updatePreference('offlineModeEnabled', checked)}
-            />
-          </div>
-          
-          <div className="pt-4 flex justify-end">
-            <Button className="gap-2" onClick={() => toast.success("Settings saved successfully")}>
-              <Save className="h-4 w-4" />
-              Save Changes
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -11,8 +10,10 @@ import {
   Menu, 
   X, 
   CreditCard,
-  Building
+  Building,
+  Code
 } from "lucide-react";
+import { useMatrixTheme } from "@/hooks/use-matrix-theme";
 
 interface NavItem {
   name: string;
@@ -53,6 +54,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { matrixEnabled, toggleMatrix } = useMatrixTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,7 +66,6 @@ export const Header: React.FC = () => {
   }, []);
 
   const handleCreateTask = () => {
-    // Navigate to the dashboard and indicate we want to show the create task tab
     navigate("/?tab=create");
   };
 
@@ -79,13 +80,22 @@ export const Header: React.FC = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-white font-semibold text-lg">AE</span>
-          </div>
-          <span className="text-xl font-semibold tracking-tight">AutoEarn</span>
+          {matrixEnabled ? (
+            <img 
+              src="/lovable-uploads/e0f02569-72a1-4354-addf-a7b024479be7.png" 
+              alt="DEVONN.AI" 
+              className="h-8 matrix-logo"
+            />
+          ) : (
+            <>
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <span className="text-white font-semibold text-lg">AE</span>
+              </div>
+              <span className="text-xl font-semibold tracking-tight">AutoEarn</span>
+            </>
+          )}
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
@@ -108,6 +118,15 @@ export const Header: React.FC = () => {
         </nav>
         
         <div className="hidden md:flex items-center space-x-4">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={toggleMatrix}
+            className={matrixEnabled ? "bg-green-900/20 text-green-500 border-green-500" : ""}
+          >
+            <Code className={`mr-2 h-4 w-4 ${matrixEnabled ? "text-green-500" : ""}`} />
+            {matrixEnabled ? "Matrix: ON" : "Matrix: OFF"}
+          </Button>
           <Link to="/settings">
             <Button size="sm" variant="outline">
               <Settings className="mr-2 h-4 w-4" />
@@ -120,7 +139,6 @@ export const Header: React.FC = () => {
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -133,7 +151,6 @@ export const Header: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border animate-fade-in">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-2">
@@ -157,6 +174,17 @@ export const Header: React.FC = () => {
               );
             })}
             <div className="pt-2 flex flex-col space-y-2">
+              <Button 
+                variant="outline" 
+                className="justify-start w-full"
+                onClick={() => {
+                  toggleMatrix();
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Code className="mr-2 h-5 w-5" />
+                {matrixEnabled ? "Matrix: ON" : "Matrix: OFF"}
+              </Button>
               <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" className="justify-start w-full">
                   <Settings className="mr-2 h-5 w-5" />

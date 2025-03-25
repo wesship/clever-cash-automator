@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { UserPreferencesProvider } from "@/hooks/use-user-preferences";
+import { MatrixThemeProvider } from "@/hooks/use-matrix-theme";
 import { useState, useEffect } from "react";
 import { Loader } from "@/components/ui/Loader";
 import ErrorBoundary from "@/components/ui/error-boundary";
@@ -55,22 +56,24 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <UserPreferencesProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/accounts" element={<Accounts />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/departments" element={<Departments />} />
-                  <Route path="/background-demo" element={<BackgroundDemo />} />
-                  <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
+            <MatrixThemeProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/accounts" element={<Accounts />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/departments" element={<Departments />} />
+                    <Route path="/background-demo" element={<BackgroundDemo />} />
+                    <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </TooltipProvider>
+            </MatrixThemeProvider>
           </UserPreferencesProvider>
         </ThemeProvider>
       </QueryClientProvider>
