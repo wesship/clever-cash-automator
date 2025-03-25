@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,7 @@ import Accounts from "./pages/Accounts";
 import Settings from "./pages/Settings";
 import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
+import BackgroundDemo from "./pages/BackgroundDemo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +30,6 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial loading 
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -64,7 +63,7 @@ const App = () => {
                   <Route path="/accounts" element={<Accounts />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/departments" element={<Departments />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="/background-demo" element={<BackgroundDemo />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
