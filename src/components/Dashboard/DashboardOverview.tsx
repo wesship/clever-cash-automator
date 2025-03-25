@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Statistics, Task } from "@/lib/types";
+import { Statistics, Task, TaskStatus } from "@/lib/types";
 import StatisticsPanel from "@/components/Dashboard/StatisticsPanel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,10 +57,10 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Status</span>
                       <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-                        task.status === 'RUNNING' ? 'bg-vibrant-green/10 text-vibrant-green' : 
-                        task.status === 'COMPLETED' ? 'bg-vibrant-blue/10 text-vibrant-blue' :
-                        task.status === 'FAILED' ? 'bg-destructive/10 text-destructive' :
-                        task.status === 'PAUSED' ? 'bg-muted text-muted-foreground' :
+                        task.status === TaskStatus.RUNNING ? 'bg-vibrant-green/10 text-vibrant-green' : 
+                        task.status === TaskStatus.COMPLETED ? 'bg-vibrant-blue/10 text-vibrant-blue' :
+                        task.status === TaskStatus.FAILED ? 'bg-destructive/10 text-destructive' :
+                        task.status === TaskStatus.PAUSED ? 'bg-muted text-muted-foreground' :
                         'bg-vibrant-yellow/10 text-vibrant-yellow'
                       }`}>{task.status}</span>
                     </div>
