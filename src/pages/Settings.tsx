@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wifi, Bell, Shield, User } from "lucide-react";
+import { Wifi, Bell, Shield, User, Settings as SettingsIcon } from "lucide-react";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import Background3D from "@/components/ui/3d-background";
@@ -10,6 +10,7 @@ import NotificationSettings from "@/components/Settings/NotificationSettings";
 import SecuritySettings from "@/components/Settings/SecuritySettings";
 import NetworkSettings from "@/components/Settings/NetworkSettings";
 import AdvancedSettings from "@/components/Settings/AdvancedSettings";
+import AccountSettings from "@/components/Settings/AccountSettings";
 
 const Settings = () => {
   return (
@@ -25,10 +26,14 @@ const Settings = () => {
             </h1>
           </div>
 
-          <Tabs defaultValue="general" className="space-y-6">
+          <Tabs defaultValue="account" className="space-y-6">
             <TabsList className="bg-card/50 backdrop-blur-sm">
-              <TabsTrigger value="general" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
+              <TabsTrigger value="account" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
                 <User className="h-4 w-4 mr-2" />
+                Account
+              </TabsTrigger>
+              <TabsTrigger value="general" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
+                <SettingsIcon className="h-4 w-4 mr-2" />
                 General
               </TabsTrigger>
               <TabsTrigger value="notifications" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
@@ -44,6 +49,10 @@ const Settings = () => {
                 Network
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="account" className="space-y-6 animate-fade-in">
+              <AccountSettings />
+            </TabsContent>
 
             <TabsContent value="general" className="space-y-6 animate-fade-in">
               <AppearanceSettings />
