@@ -11,7 +11,7 @@ import { Moon, Sun, LayoutGrid, LayoutList, ZapOff, Zap, Code } from "lucide-rea
 
 const AppearanceSettings = () => {
   const { theme, setTheme } = useTheme();
-  const { preferences, updatePreferences } = useUserPreferences();
+  const { preferences, updatePreference } = useUserPreferences();
   const { matrixEnabled, toggleMatrix } = useMatrixTheme();
 
   const handleToggleDarkMode = () => {
@@ -73,7 +73,7 @@ const AppearanceSettings = () => {
               id="welcome-guide"
               checked={preferences.showWelcomeGuide}
               onCheckedChange={(checked) => 
-                updatePreferences({ showWelcomeGuide: checked })
+                updatePreference('showWelcomeGuide', checked)
               }
             />
           </div>
@@ -87,17 +87,17 @@ const AppearanceSettings = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Button
-                variant={preferences.taskView === "grid" ? "default" : "outline"}
+                variant={preferences.taskListView === "grid" ? "default" : "outline"}
                 size="sm"
-                onClick={() => updatePreferences({ taskView: "grid" })}
+                onClick={() => updatePreference('taskListView', 'grid')}
               >
                 <LayoutGrid className="h-4 w-4 mr-1" />
                 Grid
               </Button>
               <Button
-                variant={preferences.taskView === "list" ? "default" : "outline"}
+                variant={preferences.taskListView === "list" ? "default" : "outline"}
                 size="sm"
-                onClick={() => updatePreferences({ taskView: "list" })}
+                onClick={() => updatePreference('taskListView', 'list')}
               >
                 <LayoutList className="h-4 w-4 mr-1" />
                 List
@@ -115,12 +115,12 @@ const AppearanceSettings = () => {
             <div className="flex items-center gap-2">
               <Switch 
                 id="animations"
-                checked={preferences.enableAnimations}
+                checked={preferences.notificationsEnabled}
                 onCheckedChange={(checked) => 
-                  updatePreferences({ enableAnimations: checked })
+                  updatePreference('notificationsEnabled', checked)
                 }
               />
-              {preferences.enableAnimations ? (
+              {preferences.notificationsEnabled ? (
                 <Zap className="h-4 w-4 text-yellow-500" />
               ) : (
                 <ZapOff className="h-4 w-4" />
