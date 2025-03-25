@@ -21,12 +21,12 @@ function FloatingPaths({ position }: { position: number }) {
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className="w-full h-full"
+                className="w-full h-full text-[#00ff00]/30"
                 viewBox="0 0 696 316"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
             >
-                <title>Background Paths</title>
+                <title>DEVONN.AI Background Paths</title>
                 {paths.map((path) => (
                     <motion.path
                         key={path.id}
@@ -53,15 +53,15 @@ function FloatingPaths({ position }: { position: number }) {
 }
 
 export function BackgroundPaths({
-    title = "Background Paths",
+    title = "DEVONN.AI Moneyhub",
 }: {
     title?: string;
 }) {
     const words = title.split(" ");
 
     return (
-        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background text-foreground">
-            <div className="absolute inset-0 text-muted-foreground/30 dark:text-muted-foreground/10">
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a0a0a] text-white">
+            <div className="absolute inset-0 text-[#00ff00]/20">
                 <FloatingPaths position={1} />
                 <FloatingPaths position={-1} />
             </div>
@@ -73,7 +73,7 @@ export function BackgroundPaths({
                     transition={{ duration: 2 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-tighter text-foreground">
+                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-tighter text-[#00ff00]">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -104,10 +104,10 @@ export function BackgroundPaths({
                     <Button
                         size="lg"
                         variant="outline"
-                        className="group rounded-xl px-8 py-6 text-lg font-semibold transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                        className="group rounded-xl px-8 py-6 text-lg font-semibold transition-all duration-300 border-[#00ff00] text-[#00ff00] hover:bg-[#00ff00]/10 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)] hover:-translate-y-0.5"
                     >
                         <span className="opacity-90 group-hover:opacity-100 transition-opacity">
-                            Discover Excellence
+                            Explore Moneyhub
                         </span>
                         <span
                             className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5

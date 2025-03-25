@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -42,7 +43,7 @@ const App = () => {
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader size="lg" className="mx-auto border-primary" />
-          <p className="mt-4 text-lg text-gradient animate-pulse">Loading AutoEarn...</p>
+          <p className="mt-4 text-lg text-gradient animate-pulse">Loading DEVONN.AI Moneyhub...</p>
         </div>
       </div>
     );
