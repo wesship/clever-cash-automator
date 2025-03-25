@@ -1,4 +1,5 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+
+import React, { createContext, useContext, ReactNode, useCallback } from 'react';
 import useLocalStorage from './use-local-storage';
 import { toast } from "sonner";
 
@@ -63,7 +64,8 @@ export const UserPreferencesProvider: React.FC<{ children: ReactNode }> = ({ chi
     defaultPreferences
   );
 
-  const updatePreference = <K extends keyof UserPreferences>(
+  // Using useCallback to prevent unnecessary rerenders and potential infinite loops
+  const updatePreference = useCallback(<K extends keyof UserPreferences>(
     key: K,
     value: UserPreferences[K]
   ) => {
@@ -80,23 +82,23 @@ export const UserPreferencesProvider: React.FC<{ children: ReactNode }> = ({ chi
     } else if (key === 'emailNotificationsEnabled') {
       toast.info(`Email notifications ${value ? 'enabled' : 'disabled'}`);
     }
-  };
+  }, [setPreferences]);
 
-  const setMultiplePreferences = (updates: Partial<UserPreferences>) => {
+  const setMultiplePreferences = useCallback((updates: Partial<UserPreferences>) => {
     setPreferences((current) => ({
       ...current,
       ...updates,
     }));
     toast.success('Preferences updated successfully');
-  };
+  }, [setPreferences]);
 
-  const resetPreferences = () => {
+  const resetPreferences = useCallback(() => {
     setPreferences(defaultPreferences);
     toast.success('Preferences reset to defaults');
-  };
+  }, [setPreferences]);
   
   // Export preferences as a JSON string
-  const exportPreferences = (): string => {
+  const exportPreferences = useCallback((): string => {
     try {
       return JSON.stringify(preferences);
     } catch (error) {
@@ -104,10 +106,10 @@ export const UserPreferencesProvider: React.FC<{ children: ReactNode }> = ({ chi
       console.error('Failed to export preferences:', error);
       return '';
     }
-  };
+  }, [preferences]);
   
   // Import preferences from a JSON string
-  const importPreferences = (jsonString: string): boolean => {
+  const importPreferences = useCallback((jsonString: string): boolean => {
     try {
       const imported = JSON.parse(jsonString) as UserPreferences;
       // Validate the imported data has the correct structure
@@ -128,7 +130,7 @@ export const UserPreferencesProvider: React.FC<{ children: ReactNode }> = ({ chi
       console.error('Failed to import preferences:', error);
       return false;
     }
-  };
+  }, [setPreferences]);
 
   return (
     <PreferencesContext.Provider

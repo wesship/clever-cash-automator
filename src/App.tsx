@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { UserPreferencesProvider } from "@/hooks/use-user-preferences";
 import { useState, useEffect } from "react";
@@ -31,6 +31,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Simulate initial loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -65,6 +66,7 @@ const App = () => {
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/departments" element={<Departments />} />
                   <Route path="/background-demo" element={<BackgroundDemo />} />
+                  <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

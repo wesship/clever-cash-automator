@@ -2,8 +2,12 @@
 import React from "react";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function BackgroundDemo() {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen relative overflow-hidden">
       <BackgroundPaths title="DEVONN.AI Moneyhub" />
@@ -19,6 +23,22 @@ export default function BackgroundDemo() {
           alt="DEVONN.AI Logo" 
           className="w-full h-auto object-contain shadow-xl rounded-lg"
         />
+        
+        <div className="mt-8 text-center">
+          <Button 
+            size="lg"
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="group rounded-xl px-8 py-6 text-lg font-semibold transition-all duration-300 border-[#00ff00] text-[#00ff00] hover:bg-[#00ff00]/10 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)] hover:-translate-y-0.5"
+          >
+            <span className="opacity-90 group-hover:opacity-100 transition-opacity">
+              Enter Moneyhub
+            </span>
+            <span className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300">
+              →
+            </span>
+          </Button>
+        </div>
       </motion.div>
     </div>
   );
