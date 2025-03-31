@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wifi, Bell, Shield, User, Settings as SettingsIcon } from "lucide-react";
+import { Wifi, Bell, Shield, User, Settings as SettingsIcon, BookOpen } from "lucide-react";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import Background3D from "@/components/ui/3d-background";
@@ -11,6 +11,7 @@ import SecuritySettings from "@/components/Settings/SecuritySettings";
 import NetworkSettings from "@/components/Settings/NetworkSettings";
 import AdvancedSettings from "@/components/Settings/AdvancedSettings";
 import AccountSettings from "@/components/Settings/AccountSettings";
+import KnowledgeBase from "@/components/Settings/KnowledgeBase";
 
 const Settings = () => {
   return (
@@ -48,6 +49,10 @@ const Settings = () => {
                 <Wifi className="h-4 w-4 mr-2" />
                 Network
               </TabsTrigger>
+              <TabsTrigger value="knowledge" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Knowledge Base
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="account" className="space-y-6 animate-fade-in">
@@ -69,6 +74,10 @@ const Settings = () => {
             <TabsContent value="network" className="space-y-6 animate-fade-in">
               <NetworkSettings />
               <AdvancedSettings />
+            </TabsContent>
+            
+            <TabsContent value="knowledge" className="space-y-6 animate-fade-in">
+              <KnowledgeBase />
             </TabsContent>
           </Tabs>
         </div>
