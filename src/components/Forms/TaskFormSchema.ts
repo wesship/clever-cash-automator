@@ -1,9 +1,27 @@
 
 import { z } from "zod";
+import { getPlatformAdapter } from "@/lib/platforms";
+import { PlatformType } from "@/lib/types";
 
-// Define the specific neobuxAdTypes as a constant to be reused
-const neobuxAdTypeEnum = z.enum(["standard", "micro", "fixed", "adprize"]);
-export type NeobuxAdType = z.infer<typeof neobuxAdTypeEnum>;
+// Create a base schema for website params
+const baseWebsiteParamsSchema = z.object({
+  useSpecificBrowser: z.enum(["chrome", "firefox", "edge"]).optional(),
+});
+
+// Dynamically build the website params schema by merging all adapter schemas
+const buildWebsiteParamsSchema = () => {
+  let schema = baseWebsiteParamsSchema;
+  
+  // Add all platform-specific schemas
+  Object.values(PlatformType).forEach(platform => {
+    const adapter = getPlatformAdapter(platform);
+    if (adapter) {
+      schema = schema.merge(adapter.getTaskSchema());
+    }
+  });
+  
+  return schema;
+};
 
 export const taskFormSchema = z.object({
   name: z.string().min(3, {
@@ -27,21 +45,29 @@ export const taskFormSchema = z.object({
   frequency: z.enum(["hourly", "daily", "weekly"], {
     required_error: "Please select a frequency.",
   }),
-  // Website-specific parameters
-  websiteParams: z.object({
-    clickworkerQualificationLevel: z.enum(["beginner", "intermediate", "expert"]).optional(),
-    taskMinimumPayment: z.coerce.number().min(0).optional(),
-    taskMaxDuration: z.coerce.number().min(1).optional(),
-    useSpecificBrowser: z.enum(["chrome", "firefox", "edge"]).optional(),
-    // Neobux specific parameters
-    neobuxMembershipType: z.enum(["standard", "golden", "ultimate", "pioneer"]).optional(),
-    neobuxAdTypes: z.array(neobuxAdTypeEnum).optional(),
-    neobuxClickDelay: z.coerce.number().min(3).max(30).optional(),
-    neobuxAutoRecycle: z.boolean().default(false).optional(),
-  }).optional(),
+  // Website-specific parameters using the dynamic schema
+  websiteParams: buildWebsiteParamsSchema().optional(),
 });
 
 export type TaskFormData = z.infer<typeof taskFormSchema>;
+
+// Collect default values from all adapters
+const collectDefaultWebsiteParams = () => {
+  const defaultParams: Record<string, any> = {};
+  
+  // Base browser preference
+  defaultParams.useSpecificBrowser = "chrome";
+  
+  // Add all platform-specific default values
+  Object.values(PlatformType).forEach(platform => {
+    const adapter = getPlatformAdapter(platform);
+    if (adapter) {
+      Object.assign(defaultParams, adapter.getDefaultValues());
+    }
+  });
+  
+  return defaultParams;
+};
 
 export const defaultTaskFormValues = {
   name: "",
@@ -53,15 +79,5 @@ export const defaultTaskFormValues = {
   captchaHandling: false,
   maxRuns: 5,
   frequency: "daily" as const,
-  websiteParams: {
-    clickworkerQualificationLevel: "intermediate" as const,
-    taskMinimumPayment: 0.5,
-    taskMaxDuration: 15,
-    useSpecificBrowser: "chrome" as const,
-    // Default Neobux parameters - ensure these match the enum type
-    neobuxMembershipType: "standard" as const,
-    neobuxAdTypes: ["standard", "micro"] as NeobuxAdType[],
-    neobuxClickDelay: 7,
-    neobuxAutoRecycle: true
-  }
+  websiteParams: collectDefaultWebsiteParams()
 };

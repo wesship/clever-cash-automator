@@ -26,21 +26,7 @@ export const useTaskManager = (initialTasks: Task[] = []) => {
           maxRuns: data.maxRuns,
         },
         // Add website-specific parameters to the task config
-        taskSpecific: {
-          // For Clickworker
-          clickworkerQualificationLevel: data.websiteParams?.clickworkerQualificationLevel,
-          taskMinimumPayment: data.websiteParams?.taskMinimumPayment,
-          taskMaxDuration: data.websiteParams?.taskMaxDuration,
-          
-          // For Neobux
-          neobuxMembershipType: data.websiteParams?.neobuxMembershipType,
-          neobuxAdTypes: data.websiteParams?.neobuxAdTypes,
-          neobuxClickDelay: data.websiteParams?.neobuxClickDelay,
-          neobuxAutoRecycle: data.websiteParams?.neobuxAutoRecycle,
-          
-          // Browser preference for any platform
-          useSpecificBrowser: data.websiteParams?.useSpecificBrowser,
-        }
+        taskSpecific: data.websiteParams || {},
       },
     };
 

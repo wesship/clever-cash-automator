@@ -30,6 +30,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   defaultValues,
   className
 }) => {
+  // Initialize form with default values and schema validation
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
