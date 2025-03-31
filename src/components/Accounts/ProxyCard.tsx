@@ -15,7 +15,16 @@ interface ProxyProps {
   usedBy: number;
 }
 
-const ProxyCard = ({ proxy }: { proxy: ProxyProps }) => {
+interface ProxyCardProps {
+  proxy: ProxyProps;
+  onDelete: (proxyId: string) => void;
+}
+
+const ProxyCard = ({ proxy, onDelete }: ProxyCardProps) => {
+  const handleDelete = () => {
+    onDelete(proxy.id);
+  };
+
   return (
     <Card key={proxy.id} className="bg-card/50 backdrop-blur-sm">
       <CardHeader className="pb-2">
@@ -44,7 +53,7 @@ const ProxyCard = ({ proxy }: { proxy: ProxyProps }) => {
           <Edit2 className="h-3 w-3" />
           Edit
         </Button>
-        <Button variant="destructive" size="sm" className="gap-1">
+        <Button variant="destructive" size="sm" className="gap-1" onClick={handleDelete}>
           <Trash2 className="h-3 w-3" />
           Delete
         </Button>
