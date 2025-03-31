@@ -5,12 +5,12 @@ import { PlatformError } from "@/lib/error-handling";
 
 // Base interface for platform adapters
 export interface PlatformAdapter {
-  getTaskSchema(): z.ZodTypeAny;
+  getTaskSchema(): z.ZodObject<any>;
   getDefaultValues(): Record<string, any>;
   executeTask(task: Task): Promise<void>;
   getFormFields(form: any): JSX.Element | null;
   
-  // New methods for error handling
+  // Methods for error handling
   handleExecutionError(error: unknown, task: Task): PlatformError;
   canRetryAfterError(error: PlatformError): boolean;
 }

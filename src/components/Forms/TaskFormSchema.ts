@@ -12,18 +12,23 @@ const baseWebsiteParamsSchema = z.object({
 // Dynamically build the website params schema by merging all adapter schemas
 const buildWebsiteParamsSchema = () => {
   // Start with the base schema
-  const schemas = [baseWebsiteParamsSchema];
+  let mergedSchema = baseWebsiteParamsSchema;
   
   // Add all platform-specific schemas
   Object.values(PlatformType).forEach(platform => {
     const adapter = getPlatformAdapter(platform);
     if (adapter) {
-      schemas.push(adapter.getTaskSchema());
+      // Safely merge the schemas using extend instead of merge
+      // This ensures type compatibility
+      const adapterSchema = adapter.getTaskSchema();
+      if (adapterSchema && adapterSchema instanceof z.ZodObject) {
+        // Create a new merged schema
+        mergedSchema = mergedSchema.extend(adapterSchema.shape);
+      }
     }
   });
   
-  // Merge all schemas together
-  return schemas.reduce((merged, schema) => merged.merge(schema), baseWebsiteParamsSchema.extend({}));
+  return mergedSchema;
 };
 
 export const taskFormSchema = z.object({
