@@ -17,7 +17,9 @@ interface AccountTasksProps {
 const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
   const [monitorOpen, setMonitorOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   const handleMonitorTask = (task: Task) => {
     setSelectedTask({
       ...task,
@@ -41,6 +43,11 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
 
   const handleStartTask = (task: Task) => {
     handleMonitorTask(task);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setIsEditing(true);
   };
 
   return (
@@ -103,6 +110,15 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
                 >
                   <MonitorCheck className="h-4 w-4" />
                   <span className="hidden sm:inline">Monitor</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleEditTask(task)}
+                  className="flex items-center gap-1"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span className="hidden sm:inline">Edit</span>
                 </Button>
               </div>
             </div>
