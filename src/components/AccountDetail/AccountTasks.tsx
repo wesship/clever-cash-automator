@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Task } from "@/types/account.types";
 import { generateMockTaskExecutionData } from "@/utils/account-utils";
 import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
-import { TaskType, PlatformType } from "@/lib/types";
+import { TaskType, PlatformType, Task as LibTask } from "@/lib/types";
 
 interface AccountTasksProps {
   tasks: Task[];
@@ -16,18 +17,23 @@ interface AccountTasksProps {
 
 const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
   const [monitorOpen, setMonitorOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<LibTask | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleMonitorTask = (task: Task) => {
-    setSelectedTask({
-      ...task,
+    // Convert Task from account.types.ts to Task from lib/types.ts
+    const libTask: LibTask = {
+      id: task.id,
+      name: task.name,
       type: TaskType.SURVEY,
       platform: PlatformType.SWAGBUCKS,
+      status: task.status === "active" ? "running" : "paused",
       createdAt: new Date(),
-      targetCompletions: task.total,
+      lastRun: undefined,
       completionCount: task.completions,
+      targetCompletions: task.total,
+      earnings: task.earnings,
       description: `Task for ${task.name}`,
       config: {
         proxyRequired: true,
@@ -37,7 +43,8 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
           maxRuns: 5
         }
       }
-    });
+    };
+    setSelectedTask(libTask);
     setMonitorOpen(true);
   };
 
@@ -131,7 +138,7 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
         <DialogContent className="sm:max-w-3xl">
           {selectedTask && (
             <TaskExecutionMonitor 
-              task={selectedTask as any}
+              task={selectedTask}
               onClose={() => setMonitorOpen(false)} 
             />
           )}
