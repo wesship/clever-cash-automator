@@ -1,5 +1,6 @@
 
-import { PlatformError, ErrorType } from "./types";
+import { ErrorType } from "./types";
+import { PlatformError } from "./platform-error";
 
 interface ErrorClassification {
   type: ErrorType;
