@@ -1,4 +1,4 @@
-import { Task, TaskStatus, TaskType } from "@/lib/types";
+import { Task, TaskStatus, TaskType, PlatformType } from "@/lib/types";
 import { toast } from "sonner";
 
 // Task execution states and configuration
@@ -86,9 +86,16 @@ class TaskExecutionEngine {
   }
 
   /**
-   * Execute the task based on its type
+   * Execute the task based on its type and platform
    */
   private static async executeTaskInBackground(task: Task): Promise<void> {
+    // First check if we have a specialized executor for this platform
+    if (this.hasSpecializedPlatformExecutor(task.platform)) {
+      await this.executePlatformSpecificTask(task);
+      return;
+    }
+    
+    // Otherwise, fall back to task type execution
     switch (task.type) {
       case TaskType.AD_CLICK:
         await this.executeAdClickTask(task);
@@ -109,6 +116,72 @@ class TaskExecutionEngine {
         this.logTaskProgress(task.id, `Unsupported task type: ${task.type}`);
         this.finishTask(task.id, false);
     }
+  }
+
+  /**
+   * Check if we have a specialized executor for this platform
+   */
+  private static hasSpecializedPlatformExecutor(platform: PlatformType): boolean {
+    return platform === PlatformType.CLICKWORKER;
+  }
+
+  /**
+   * Execute platform-specific task logic
+   */
+  private static async executePlatformSpecificTask(task: Task): Promise<void> {
+    switch (task.platform) {
+      case PlatformType.CLICKWORKER:
+        await this.executeClickworkerTask(task);
+        break;
+      default:
+        // Fallback if we somehow get here
+        this.logTaskProgress(task.id, `No specialized executor for: ${task.platform}`);
+        this.finishTask(task.id, false);
+    }
+  }
+
+  /**
+   * Execute a Clickworker task with specialized logic
+   */
+  private static async executeClickworkerTask(task: Task): Promise<void> {
+    const state = runningTasks.get(task.id);
+    if (!state) return;
+
+    this.logTaskProgress(task.id, "Starting Clickworker task execution");
+    
+    const browserType = task.config.taskSpecific?.useSpecificBrowser || "chrome";
+    this.logTaskProgress(task.id, `Using browser: ${browserType}`);
+
+    const steps = [
+      "Opening Clickworker in specified browser",
+      "Logging in with credentials",
+      "Navigating to available jobs section",
+      "Filtering tasks by qualification level",
+      "Setting minimum payment threshold",
+      "Scanning for eligible tasks",
+      "Checking task duration requirements",
+      "Starting highest paying eligible task",
+      "Reading task instructions carefully",
+      "Executing task requirements",
+      "Submitting work for review",
+      "Verifying submission status",
+      "Scanning for next available task"
+    ];
+    
+    // Log qualification level if it's set
+    const qualificationLevel = task.config.taskSpecific?.clickworkerQualificationLevel;
+    if (qualificationLevel) {
+      this.logTaskProgress(task.id, `Filtering for ${qualificationLevel} level tasks`);
+    }
+    
+    // Log minimum payment if it's set
+    const minPayment = task.config.taskSpecific?.taskMinimumPayment;
+    if (minPayment !== undefined && minPayment > 0) {
+      this.logTaskProgress(task.id, `Looking for tasks paying at least $${minPayment}`);
+    }
+    
+    // Execute with custom step timings for Clickworker
+    await this.executeTaskSteps(task, steps, 8000, 20000);
   }
 
   /**

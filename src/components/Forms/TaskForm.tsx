@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BasicInfoFields, DescriptionField, SchedulingFields, AdvancedOptions } from "./TaskFormFields";
+import WebsiteSpecificParams from "./TaskFormFields/WebsiteSpecificParams";
 import { taskFormSchema, TaskFormData, defaultTaskFormValues } from "./TaskFormSchema";
 
 interface TaskFormProps {
@@ -37,6 +38,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     },
   });
 
+  const [selectedPlatform, setSelectedPlatform] = useState<string>(defaultValues?.platform || "");
+
+  // Watch for platform changes
+  React.useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'platform') {
+        setSelectedPlatform(value.platform || "");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   const handleSubmit = (data: TaskFormData) => {
     onSubmit(data);
     toast.success("Task created successfully");
@@ -53,10 +66,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <BasicInfoFields form={form} />
             <DescriptionField form={form} />
+            
+            {selectedPlatform && (
+              <WebsiteSpecificParams form={form} platform={selectedPlatform} />
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <SchedulingFields form={form} />
               <AdvancedOptions form={form} />
             </div>
+            
             <CardFooter className="flex justify-between px-0 pb-0">
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel

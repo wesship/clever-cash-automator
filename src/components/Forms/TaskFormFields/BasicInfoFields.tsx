@@ -70,6 +70,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form }) => {
                 <SelectItem value={PlatformType.UPWORK}>Upwork</SelectItem>
                 <SelectItem value={PlatformType.FIVERR}>Fiverr</SelectItem>
                 <SelectItem value={PlatformType.YOUTUBE}>YouTube</SelectItem>
+                <SelectItem value={PlatformType.CLICKWORKER}>Clickworker</SelectItem>
                 <SelectItem value={PlatformType.CUSTOM}>Custom</SelectItem>
               </SelectContent>
             </Select>

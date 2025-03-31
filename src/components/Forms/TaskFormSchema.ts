@@ -23,6 +23,13 @@ export const taskFormSchema = z.object({
   frequency: z.enum(["hourly", "daily", "weekly"], {
     required_error: "Please select a frequency.",
   }),
+  // Website-specific parameters
+  websiteParams: z.object({
+    clickworkerQualificationLevel: z.enum(["beginner", "intermediate", "expert"]).optional(),
+    taskMinimumPayment: z.coerce.number().min(0).optional(),
+    taskMaxDuration: z.coerce.number().min(1).optional(),
+    useSpecificBrowser: z.enum(["chrome", "firefox", "edge"]).optional(),
+  }).optional(),
 });
 
 export type TaskFormData = z.infer<typeof taskFormSchema>;
@@ -37,4 +44,10 @@ export const defaultTaskFormValues = {
   captchaHandling: false,
   maxRuns: 5,
   frequency: "daily" as const,
+  websiteParams: {
+    clickworkerQualificationLevel: "intermediate" as const,
+    taskMinimumPayment: 0.5,
+    taskMaxDuration: 15,
+    useSpecificBrowser: "chrome" as const
+  }
 };

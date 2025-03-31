@@ -21,6 +21,7 @@ export enum PlatformType {
   UPWORK = "upwork",
   FIVERR = "fiverr",
   YOUTUBE = "youtube",
+  CLICKWORKER = "clickworker",
   CUSTOM = "custom"
 }
 

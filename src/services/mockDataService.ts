@@ -1,4 +1,3 @@
-
 import { Task, TaskStatus, TaskType, PlatformType, Statistics } from "@/lib/types";
 
 // Mock tasks data
@@ -126,6 +125,32 @@ export const mockTasks: Task[] = [
         frequency: "hourly",
         maxRuns: 12,
       },
+    },
+  },
+  {
+    id: "7",
+    name: "Clickworker Microtasks",
+    type: TaskType.CONTENT_CREATION,
+    platform: PlatformType.CLICKWORKER,
+    status: TaskStatus.PENDING,
+    createdAt: new Date(Date.now() - 86400000 * 1),
+    completionCount: 0,
+    targetCompletions: 50,
+    earnings: 0,
+    description: "Complete data labeling and text creation microtasks on Clickworker.",
+    config: {
+      proxyRequired: true,
+      captchaHandling: true,
+      schedule: {
+        frequency: "daily",
+        maxRuns: 8,
+      },
+      taskSpecific: {
+        clickworkerQualificationLevel: "intermediate",
+        taskMinimumPayment: 0.50,
+        taskMaxDuration: 10,
+        useSpecificBrowser: "chrome"
+      }
     },
   },
 ];

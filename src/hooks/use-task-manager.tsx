@@ -25,6 +25,15 @@ export const useTaskManager = (initialTasks: Task[] = []) => {
           frequency: data.frequency as "hourly" | "daily" | "weekly",
           maxRuns: data.maxRuns,
         },
+        // Add website-specific parameters to the task config
+        taskSpecific: {
+          // For Clickworker
+          clickworkerQualificationLevel: data.websiteParams?.clickworkerQualificationLevel,
+          taskMinimumPayment: data.websiteParams?.taskMinimumPayment,
+          taskMaxDuration: data.websiteParams?.taskMaxDuration,
+          // Browser preference for any platform
+          useSpecificBrowser: data.websiteParams?.useSpecificBrowser,
+        }
       },
     };
 
