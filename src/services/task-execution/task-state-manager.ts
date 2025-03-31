@@ -1,5 +1,5 @@
 
-import { Task } from "@/lib/types";
+import { Task, TaskStatus } from "@/lib/types";
 import { PlatformError } from "@/lib/error-handling";
 import { TaskExecutionState } from "./types";
 import { formatLogMessage } from "./utils";
@@ -110,6 +110,22 @@ export class TaskStateManager {
     
     return true;
   }
+  
+  /**
+   * Mark task as cancelled by user
+   */
+  static cancelTask(taskId: string): boolean {
+    if (!runningTasks.has(taskId)) {
+      return false;
+    }
+
+    const state = runningTasks.get(taskId)!;
+    state.isRunning = false;
+    state.endTime = new Date();
+    state.isCancelled = true;
+    
+    return true;
+  }
 
   /**
    * Prepare task for retry
@@ -127,5 +143,44 @@ export class TaskStateManager {
     state.lastError = undefined;
     
     return state.retryAttempts;
+  }
+  
+  /**
+   * Clear completed tasks from memory
+   * This can be called periodically to free up memory
+   */
+  static clearCompletedTasks(olderThanHours: number = 24): number {
+    let clearedCount = 0;
+    const now = new Date();
+    
+    for (const [taskId, state] of runningTasks.entries()) {
+      if (!state.isRunning && state.endTime) {
+        const hoursDifference = (now.getTime() - state.endTime.getTime()) / (1000 * 60 * 60);
+        if (hoursDifference >= olderThanHours) {
+          runningTasks.delete(taskId);
+          clearedCount++;
+        }
+      }
+    }
+    
+    return clearedCount;
+  }
+  
+  /**
+   * Get all task states (for admin purposes)
+   */
+  static getAllTaskStates(): Map<string, TaskExecutionState> {
+    return new Map(runningTasks);
+  }
+  
+  /**
+   * Get count of running tasks
+   */
+  static getRunningTaskCount(): number {
+    let count = 0;
+    for (const state of runningTasks.values()) {
+      if (state.isRunning) count++;
+    }
+    return count;
   }
 }

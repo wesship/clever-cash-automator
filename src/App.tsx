@@ -20,6 +20,7 @@ import Departments from "./pages/Departments";
 import DepartmentDetail from "./pages/DepartmentDetail";
 import NotFound from "./pages/NotFound";
 import BackgroundDemo from "./pages/BackgroundDemo";
+import TaskDetail from "./pages/TaskDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +74,7 @@ const App = () => {
                     <Route path="/departments" element={<Departments />} />
                     <Route path="/departments/:id" element={<DepartmentDetail />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/task/:id" element={<TaskDetail />} />
                     <Route path="/background-demo" element={<BackgroundDemo />} />
                     <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
                     <Route path="*" element={<NotFound />} />

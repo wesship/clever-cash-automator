@@ -16,6 +16,8 @@ export const useTaskExecution = (taskId?: string) => {
   const [endTime, setEndTime] = useState<Date | undefined>(undefined);
   const [executionTime, setExecutionTime] = useState<number>(0);
   const [recentLogs, setRecentLogs] = useState<string[]>([]);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [errorLogs, setErrorLogs] = useState<string[]>([]);
   
   // Poll for updates if we're watching a specific task
   useEffect(() => {
@@ -28,12 +30,16 @@ export const useTaskExecution = (taskId?: string) => {
         setIsRunning(state.isRunning);
         setProgress(state.progress);
         setCurrentStepDescription(state.currentStepDescription);
+        setIsCancelled(state.isCancelled || false);
         
         // Set logs and track recent logs (last 3)
         setLogs([...state.logs]);
         if (state.logs.length > 0) {
           setRecentLogs(state.logs.slice(-3));
         }
+        
+        // Set error logs
+        setErrorLogs(state.errors || []);
         
         // Get error information
         const error = state.lastError;
@@ -49,6 +55,9 @@ export const useTaskExecution = (taskId?: string) => {
           if (state.isRunning) {
             const currentTime = new Date();
             const elapsedMs = currentTime.getTime() - state.startTime.getTime();
+            setExecutionTime(Math.floor(elapsedMs / 1000));
+          } else if (state.endTime) {
+            const elapsedMs = state.endTime.getTime() - state.startTime.getTime();
             setExecutionTime(Math.floor(elapsedMs / 1000));
           }
         }
@@ -107,20 +116,57 @@ export const useTaskExecution = (taskId?: string) => {
     }
   }, []);
   
+  const cancelTask = useCallback((taskId: string) => {
+    try {
+      const result = TaskExecutionEngine.cancelTask(taskId);
+      if (result) {
+        toast.info(`Task cancelled`);
+        setIsCancelled(true);
+      }
+      return result;
+    } catch (error) {
+      toast.error(`Failed to cancel task: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
+    }
+  }, []);
+  
+  const startMultipleTasks = useCallback(async (tasks: Task[]) => {
+    try {
+      return await TaskExecutionEngine.startMultipleTasks(tasks);
+    } catch (error) {
+      toast.error(`Failed to start multiple tasks: ${error instanceof Error ? error.message : String(error)}`);
+      return 0;
+    }
+  }, []);
+  
+  const stopMultipleTasks = useCallback((taskIds: string[]) => {
+    try {
+      return TaskExecutionEngine.stopMultipleTasks(taskIds);
+    } catch (error) {
+      toast.error(`Failed to stop multiple tasks: ${error instanceof Error ? error.message : String(error)}`);
+      return 0;
+    }
+  }, []);
+  
   return {
     isRunning,
     progress,
     currentStepDescription,
     logs,
+    errorLogs,
     recentLogs,
     lastError,
     canRetry,
     startTime,
     endTime,
     executionTime,
+    isCancelled,
     startTask,
     stopTask,
-    retryTask
+    retryTask,
+    cancelTask,
+    startMultipleTasks,
+    stopMultipleTasks
   };
 };
 

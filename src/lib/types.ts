@@ -4,7 +4,8 @@ export enum TaskStatus {
   RUNNING = "running",
   COMPLETED = "completed",
   FAILED = "failed",
-  PAUSED = "paused"
+  PAUSED = "paused",
+  CANCELLED = "cancelled"
 }
 
 export enum TaskType {
@@ -41,6 +42,11 @@ export interface Task {
   config: TaskConfig;
 }
 
+export interface TaskDependency {
+  taskId: string;
+  condition: "completed" | "failed" | "any";
+}
+
 export interface TaskConfig {
   accountIds?: string[];
   proxyRequired: boolean;
@@ -52,6 +58,17 @@ export interface TaskConfig {
     maxRuns: number;
   };
   taskSpecific?: Record<string, any>;
+  taskTags?: string[];
+  dependencies?: TaskDependency[];
+  templateId?: string;
+  isTemplate?: boolean;
+  notifyOnCompletion?: boolean;
+  notifyOnFailure?: boolean;
+  priority?: 'low' | 'normal' | 'high';
+  retryStrategy?: {
+    maxRetries: number;
+    delayBetweenRetries: number;
+  };
 }
 
 export interface Account {

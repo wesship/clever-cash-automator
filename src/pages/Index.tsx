@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import Background3D from "@/components/ui/3d-background";
@@ -8,6 +8,9 @@ import { WelcomeGuide } from "@/components/ui/onboarding";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { TabsContent } from "@/components/ui/tabs";
 import useDashboardData from "@/hooks/use-dashboard-data";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import useTabNavigation from "@/hooks/use-tab-navigation";
+import { NotificationManager } from "@/services/notification-manager";
 
 // Newly created components
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
@@ -18,14 +21,32 @@ import CreateTaskTab from "@/components/Dashboard/CreateTaskTab";
 
 const Index = () => {
   const { preferences } = useUserPreferences();
+  const { activeTab, setActiveTab } = useTabNavigation("overview");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const {
-    activeTab,
-    setActiveTab,
     tasks,
     statistics,
     isLoading,
-    handleCreateTask
+    handleCreateTask,
+    handleDeleteTasks
   } = useDashboardData();
+
+  // Request notification permissions when app loads
+  useEffect(() => {
+    if (preferences.notificationsEnabled) {
+      NotificationManager.requestPermission();
+    }
+  }, [preferences.notificationsEnabled]);
+  
+  // Check for template ID in URL
+  useEffect(() => {
+    const templateId = searchParams.get('templateId');
+    if (templateId) {
+      setActiveTab("create");
+    }
+  }, [searchParams, setActiveTab]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -56,6 +77,8 @@ const Index = () => {
                 <TasksTab 
                   tasks={tasks}
                   onCreateTask={() => setActiveTab("create")}
+                  onDeleteTasks={handleDeleteTasks}
+                  onViewTaskDetails={(taskId) => navigate(`/task/${taskId}`)}
                 />
               </TabsContent>
               
@@ -63,6 +86,7 @@ const Index = () => {
                 <CreateTaskTab 
                   onSubmit={handleCreateTask}
                   onCancel={() => setActiveTab("tasks")}
+                  existingTasks={tasks}
                 />
               </TabsContent>
             </DashboardTabs>

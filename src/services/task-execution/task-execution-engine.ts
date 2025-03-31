@@ -53,6 +53,23 @@ export class TaskExecutionEngine {
     }
     return result;
   }
+  
+  /**
+   * Cancel a task completely
+   */
+  public static cancelTask(taskId: string): boolean {
+    // First stop the task if it's running
+    if (TaskStateManager.isTaskRunning(taskId)) {
+      this.stopTask(taskId);
+    }
+    
+    const result = TaskStateManager.cancelTask(taskId);
+    if (result) {
+      TaskStateManager.logTaskProgress(taskId, "Task cancelled by user");
+      toast.info("Task cancelled successfully");
+    }
+    return result;
+  }
 
   /**
    * Retry a failed task
@@ -106,6 +123,42 @@ export class TaskExecutionEngine {
     toast.info(`Retrying task "${task.name}"`);
     return true;
   }
+  
+  /**
+   * Start multiple tasks at once
+   */
+  public static async startMultipleTasks(tasks: Task[]): Promise<number> {
+    let successCount = 0;
+    
+    for (const task of tasks) {
+      const success = await this.startTask(task);
+      if (success) successCount++;
+    }
+    
+    if (successCount > 0) {
+      toast.success(`Started ${successCount} out of ${tasks.length} tasks`);
+    }
+    
+    return successCount;
+  }
+  
+  /**
+   * Stop multiple tasks at once
+   */
+  public static stopMultipleTasks(taskIds: string[]): number {
+    let successCount = 0;
+    
+    for (const taskId of taskIds) {
+      const success = this.stopTask(taskId);
+      if (success) successCount++;
+    }
+    
+    if (successCount > 0) {
+      toast.info(`Paused ${successCount} out of ${taskIds.length} tasks`);
+    }
+    
+    return successCount;
+  }
 
   /**
    * Execute the task using the appropriate adapter
@@ -122,6 +175,11 @@ export class TaskExecutionEngine {
         // If execution completed successfully
         if (TaskStateManager.isTaskRunning(taskId)) {
           TaskFinisher.finishTask(taskId, true);
+          
+          // Send notification if configured
+          if (task.config.notifyOnCompletion) {
+            toast.success(`Task "${task.name}" completed successfully!`);
+          }
         }
       } catch (error) {
         // Handle execution error
@@ -132,6 +190,11 @@ export class TaskExecutionEngine {
         
         // Show error notification
         ErrorHandler.showErrorNotification(platformError);
+        
+        // Send notification if configured
+        if (task.config.notifyOnFailure) {
+          toast.error(`Task "${task.name}" failed: ${platformError.getUserFriendlyMessage()}`);
+        }
         
         // Finish the task with error
         TaskFinisher.finishTask(taskId, false, platformError);
@@ -176,5 +239,21 @@ export class TaskExecutionEngine {
    */
   public static getLastError(taskId: string): PlatformError | undefined {
     return TaskStateManager.getLastError(taskId);
+  }
+  
+  /**
+   * Get the execution logs for a task
+   */
+  public static getTaskLogs(taskId: string): string[] {
+    const state = TaskStateManager.getTaskState(taskId);
+    return state?.logs || [];
+  }
+  
+  /**
+   * Get the error logs for a task
+   */
+  public static getTaskErrorLogs(taskId: string): string[] {
+    const state = TaskStateManager.getTaskState(taskId);
+    return state?.errors || [];
   }
 }
