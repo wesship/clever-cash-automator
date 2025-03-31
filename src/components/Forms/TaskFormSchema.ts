@@ -5,7 +5,7 @@ import { TaskType, PlatformType } from "@/lib/types";
 export const taskFormSchema = z.object({
   name: z.string().min(1, "Task name is required"),
   description: z.string().optional(),
-  type: z.nativeEnum(TaskType),
+  type: z.string(),
   platform: z.nativeEnum(PlatformType),
   targetCompletions: z.coerce.number().int().min(1, "Must be at least 1"),
   proxyRequired: z.boolean().default(false),

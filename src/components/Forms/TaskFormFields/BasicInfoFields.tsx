@@ -8,9 +8,10 @@ import { UseFormReturn } from "react-hook-form";
 
 interface BasicInfoFieldsProps {
   form: UseFormReturn<any>;
+  customTaskTypes?: string[];
 }
 
-const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form }) => {
+const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form, customTaskTypes = [] }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <FormField
@@ -45,6 +46,10 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form }) => {
                 <SelectItem value={TaskType.VIDEO_WATCH}>Video Watch</SelectItem>
                 <SelectItem value={TaskType.CONTENT_CREATION}>Content Creation</SelectItem>
                 <SelectItem value={TaskType.AFFILIATE}>Affiliate</SelectItem>
+                <SelectItem value={TaskType.CUSTOM}>Custom</SelectItem>
+                {customTaskTypes.map((type) => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />

@@ -26,6 +26,7 @@ interface TaskFormProps {
   defaultValues?: Partial<TaskFormData>;
   className?: string;
   existingTasks?: Task[];
+  customTaskTypes?: string[];
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({
@@ -33,7 +34,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   defaultValues,
   className,
-  existingTasks = []
+  existingTasks = [],
+  customTaskTypes = []
 }) => {
   const [searchParams] = useSearchParams();
   const { getTemplateById } = useTaskTemplates();
@@ -97,7 +99,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <BasicInfoFields form={form} />
+            <BasicInfoFields form={form} customTaskTypes={customTaskTypes} />
             <DescriptionField form={form} />
             
             <TagsField form={form} />
