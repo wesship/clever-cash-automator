@@ -17,8 +17,9 @@ const buildWebsiteParamsSchema = () => {
   Object.values(PlatformType).forEach(platform => {
     const adapter = getPlatformAdapter(platform);
     if (adapter) {
-      // Use merge for proper type handling
-      schema = schema.merge(adapter.getTaskSchema());
+      // Use merge for proper type handling - be explicit about the return type
+      const adapterSchema = adapter.getTaskSchema();
+      schema = schema.merge(adapterSchema);
     }
   });
   

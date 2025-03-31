@@ -3,6 +3,7 @@ import { PlatformType } from "@/lib/types";
 import { PlatformRegistry } from "./types";
 import { NeobuxAdapter } from "./neobux.adapter";
 import { ClickworkerAdapter } from "./clickworker.adapter";
+import { MTurkAdapter } from "./mturk.adapter";
 import { BaseAdapter } from "./base.adapter";
 
 // Initialize and register all platform adapters
@@ -12,6 +13,9 @@ export function initializePlatformAdapters() {
   
   // Register the Clickworker adapter
   PlatformRegistry.register(PlatformType.CLICKWORKER, new ClickworkerAdapter());
+  
+  // Register the Amazon Mechanical Turk adapter
+  PlatformRegistry.register(PlatformType.AMAZON_MECHANICAL_TURK, new MTurkAdapter());
   
   // You can register more adapters for other platforms here
 }
@@ -28,6 +32,7 @@ export function getPlatformAdapter(platform: string) {
 export { PlatformRegistry } from "./types";
 export { NeobuxAdapter } from "./neobux.adapter";
 export { ClickworkerAdapter } from "./clickworker.adapter";
+export { MTurkAdapter } from "./mturk.adapter";
 export { BaseAdapter } from "./base.adapter";
 export type { NeobuxAdType } from "./neobux.adapter";
 export { neobuxAdTypeEnum } from "./neobux.adapter";
