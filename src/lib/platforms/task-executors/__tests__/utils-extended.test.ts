@@ -74,5 +74,17 @@ describe('Task Executor Utilities', () => {
       const formattedMessage = formatLogMessage('');
       expect(formattedMessage).toMatch(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] $/);
     });
+    
+    it('should include nested structure in messages', () => {
+      const nestedMessage = 'Parent > Child > Grandchild';
+      const formattedMessage = formatLogMessage(nestedMessage);
+      expect(formattedMessage).toContain('Parent > Child > Grandchild');
+    });
+    
+    it('should properly format messages with special characters', () => {
+      const specialMessage = 'Test: "quotes" and [brackets] & symbols!';
+      const formattedMessage = formatLogMessage(specialMessage);
+      expect(formattedMessage).toContain('Test: "quotes" and [brackets] & symbols!');
+    });
   });
 });
