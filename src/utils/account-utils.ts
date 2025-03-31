@@ -52,3 +52,42 @@ export const generateMockAccountData = (id: string): Account => {
     }
   };
 };
+
+/**
+ * Generates execution data for mocked tasks
+ */
+export const generateMockTaskExecutionData = (task: Task) => {
+  const minutesAgo = Math.floor(Math.random() * 60) + 5;
+  const startTime = new Date(Date.now() - minutesAgo * 60000);
+  const endTime = task.status === 'active' ? undefined : new Date(startTime.getTime() + Math.floor(Math.random() * 30) * 60000);
+  
+  const logs = [
+    `[${startTime.toISOString()}] Task execution started`,
+    `[${new Date(startTime.getTime() + 3000).toISOString()}] Initializing browser automation`,
+    `[${new Date(startTime.getTime() + 8000).toISOString()}] Setting up proxy connection`,
+    `[${new Date(startTime.getTime() + 12000).toISOString()}] Successfully authenticated with target platform`,
+  ];
+  
+  if (task.status === 'failed') {
+    logs.push(`[${new Date(startTime.getTime() + 15000).toISOString()}] ERROR: Failed to complete required action`);
+    logs.push(`[${new Date(startTime.getTime() + 16000).toISOString()}] Task execution failed`);
+  } else if (task.status === 'completed' || task.status === 'inactive') {
+    logs.push(`[${new Date(startTime.getTime() + 25000).toISOString()}] Task actions completed successfully`);
+    logs.push(`[${new Date(startTime.getTime() + 27000).toISOString()}] Verifying results`);
+    logs.push(`[${new Date(startTime.getTime() + 30000).toISOString()}] Task execution completed successfully`);
+  } else {
+    logs.push(`[${new Date(startTime.getTime() + 15000).toISOString()}] Task actions in progress...`);
+  }
+  
+  return {
+    startTime,
+    endTime,
+    logs,
+    progress: task.status === 'active' ? Math.floor(Math.random() * 70) + 10 : 
+              task.status === 'completed' ? 100 : 
+              task.status === 'failed' ? Math.floor(Math.random() * 50) : 0,
+    currentStepDescription: task.status === 'active' ? "Processing task actions..." :
+                           task.status === 'completed' ? "Task completed successfully" :
+                           task.status === 'failed' ? "Task failed to complete" : "Task not started"
+  };
+};

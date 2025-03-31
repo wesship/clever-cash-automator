@@ -1,11 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, MonitorCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Task } from "@/types/account.types";
+import { generateMockTaskExecutionData } from "@/utils/account-utils";
+import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
 
 interface AccountTasksProps {
   tasks: Task[];
@@ -13,6 +15,35 @@ interface AccountTasksProps {
 }
 
 const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
+  const [monitorOpen, setMonitorOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  
+  const handleMonitorTask = (task: Task) => {
+    setSelectedTask({
+      ...task,
+      // Add properties expected by TaskExecutionMonitor
+      type: "survey", // Dummy value
+      platform: "swagbucks", // Dummy value
+      createdAt: new Date(),
+      targetCompletions: task.total,
+      completionCount: task.completions,
+      description: `Task for ${task.name}`,
+      config: {
+        proxyRequired: true,
+        captchaHandling: true,
+        schedule: {
+          frequency: "daily",
+          maxRuns: 5
+        }
+      }
+    });
+    setMonitorOpen(true);
+  };
+
+  const handleStartTask = (task: Task) => {
+    handleMonitorTask(task);
+  };
+
   return (
     <Card className="bg-card/50 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -58,15 +89,39 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => task.status === "active" ? null : handleStartTask(task)}
+                >
                   {task.status === "active" ? "Pause" : "Resume"}
                 </Button>
-                <Button variant="outline" size="sm">Details</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleMonitorTask(task)}
+                  className="flex items-center gap-1"
+                >
+                  <MonitorCheck className="h-4 w-4" />
+                  <span className="hidden sm:inline">Monitor</span>
+                </Button>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
+
+      {/* Task Execution Monitor Dialog */}
+      <Dialog open={monitorOpen} onOpenChange={setMonitorOpen}>
+        <DialogContent className="sm:max-w-3xl">
+          {selectedTask && (
+            <TaskExecutionMonitor 
+              task={selectedTask as any}
+              onClose={() => setMonitorOpen(false)} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
