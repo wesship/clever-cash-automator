@@ -1,10 +1,10 @@
-
 import React from "react";
 import { z } from "zod";
 import { PlatformAdapter } from "./types";
 import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Task, TaskType } from "@/lib/types";
+import { PlatformError, withErrorHandling, ErrorType } from "@/lib/error-handling";
 
 export class BaseAdapter implements PlatformAdapter {
   getTaskSchema() {
@@ -22,26 +22,81 @@ export class BaseAdapter implements PlatformAdapter {
   async executeTask(task: Task): Promise<void> {
     console.log("Executing basic task with ID:", task.id);
     
-    // Execute based on task type
-    switch (task.type) {
-      case TaskType.AD_CLICK:
-        await this.executeAdClickTask(task);
-        break;
-      case TaskType.SURVEY:
-        await this.executeSurveyTask(task);
-        break;
-      case TaskType.VIDEO_WATCH:
-        await this.executeVideoWatchTask(task);
-        break;
-      case TaskType.CONTENT_CREATION:
-        await this.executeContentCreationTask(task);
-        break;
-      case TaskType.AFFILIATE:
-        await this.executeAffiliateTask(task);
-        break;
-      default:
-        console.log(`Unsupported task type: ${task.type}`);
+    // Execute with error handling
+    await withErrorHandling(
+      task.platform,
+      async () => {
+        // Execute based on task type
+        switch (task.type) {
+          case TaskType.AD_CLICK:
+            await this.executeAdClickTask(task);
+            break;
+          case TaskType.SURVEY:
+            await this.executeSurveyTask(task);
+            break;
+          case TaskType.VIDEO_WATCH:
+            await this.executeVideoWatchTask(task);
+            break;
+          case TaskType.CONTENT_CREATION:
+            await this.executeContentCreationTask(task);
+            break;
+          case TaskType.AFFILIATE:
+            await this.executeAffiliateTask(task);
+            break;
+          default:
+            throw new Error(`Unsupported task type: ${task.type}`);
+        }
+      },
+      (error) => this.handleExecutionError(error, task)
+    );
+  }
+
+  // Implementation of error handling method from the interface
+  handleExecutionError(error: unknown, task: Task): PlatformError {
+    // If already a PlatformError, return it
+    if (error instanceof PlatformError) {
+      return error;
     }
+    
+    // Otherwise examine the error and categorize it
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    if (errorMessage.includes('network') || errorMessage.includes('connection') || 
+        errorMessage.includes('timeout') || errorMessage.includes('unreachable')) {
+      return PlatformError.network(
+        `Network error while executing task ${task.id}`, 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('credentials') || errorMessage.includes('login') || 
+        errorMessage.includes('auth') || errorMessage.includes('password')) {
+      return PlatformError.authentication(
+        `Authentication failed while executing task ${task.id}`, 
+        task.platform,
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    // Default to unknown error
+    return new PlatformError(
+      `Error executing task ${task.id}: ${errorMessage}`, 
+      { 
+        type: ErrorType.UNKNOWN, 
+        recoverable: false, 
+        platformId: task.platform,
+        details: { taskId: task.id },
+        cause: error instanceof Error ? error : undefined
+      }
+    );
+  }
+
+  // Determine if the error allows retry
+  canRetryAfterError(error: PlatformError): boolean {
+    return error.recoverable;
   }
 
   // Ad clicking task implementation

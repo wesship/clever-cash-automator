@@ -6,6 +6,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Task } from "@/lib/types";
+import { PlatformError, ErrorType } from "@/lib/error-handling";
 
 export class ClickworkerAdapter implements PlatformAdapter {
   getTaskSchema() {
@@ -59,6 +60,67 @@ export class ClickworkerAdapter implements PlatformAdapter {
     const tasksCompleted = Math.floor(Math.random() * 5) + 1;
     const totalEarnings = (Math.random() * 15).toFixed(2);
     console.log(`Completed ${tasksCompleted} tasks for a total of $${totalEarnings}`);
+  }
+
+  // Implementation of error handling method required by interface
+  handleExecutionError(error: unknown, task: Task): PlatformError {
+    if (error instanceof PlatformError) {
+      return error;
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // Clickworker-specific errors
+    if (errorMessage.includes('account level')) {
+      return PlatformError.authorization(
+        "Your Clickworker account level is not high enough for this task", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('payment') || errorMessage.includes('payout')) {
+      return PlatformError.platformUnavailable(
+        "There was an issue with the payment system", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('no tasks available')) {
+      return PlatformError.platformUnavailable(
+        "No tasks matching your criteria are currently available", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    // Default to base adapter error handling
+    return new PlatformError(
+      `Error executing Clickworker task: ${errorMessage}`,
+      {
+        type: ErrorType.UNKNOWN,
+        recoverable: false,
+        platformId: task.platform,
+        details: { taskId: task.id },
+        cause: error instanceof Error ? error : undefined
+      }
+    );
+  }
+
+  // Determine if the error allows retry
+  canRetryAfterError(error: PlatformError): boolean {
+    // Clickworker specific retry logic
+    if (error.type === ErrorType.PLATFORM_UNAVAILABLE && 
+        (error.message.includes('no tasks available') || 
+         error.message.includes('payment system'))) {
+      return true;
+    }
+    
+    return error.recoverable;
   }
 
   getFormFields(form: any) {

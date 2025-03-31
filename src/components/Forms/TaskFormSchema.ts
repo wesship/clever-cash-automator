@@ -11,19 +11,19 @@ const baseWebsiteParamsSchema = z.object({
 
 // Dynamically build the website params schema by merging all adapter schemas
 const buildWebsiteParamsSchema = () => {
-  let schema = baseWebsiteParamsSchema;
+  // Start with the base schema
+  const schemas = [baseWebsiteParamsSchema];
   
   // Add all platform-specific schemas
   Object.values(PlatformType).forEach(platform => {
     const adapter = getPlatformAdapter(platform);
     if (adapter) {
-      // Use merge for proper type handling - be explicit about the return type
-      const adapterSchema = adapter.getTaskSchema();
-      schema = schema.merge(adapterSchema);
+      schemas.push(adapter.getTaskSchema());
     }
   });
   
-  return schema;
+  // Merge all schemas together
+  return schemas.reduce((merged, schema) => merged.merge(schema), baseWebsiteParamsSchema.extend({}));
 };
 
 export const taskFormSchema = z.object({

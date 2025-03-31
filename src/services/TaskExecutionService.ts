@@ -1,6 +1,7 @@
 import { Task, TaskStatus } from "@/lib/types";
 import { toast } from "sonner";
 import { getPlatformAdapter } from "@/lib/platforms";
+import { PlatformError, ErrorType } from "@/lib/error-handling";
 
 // Task execution states and configuration
 interface TaskExecutionState {
@@ -11,6 +12,8 @@ interface TaskExecutionState {
   endTime?: Date;
   logs: string[];
   errors: string[];
+  lastError?: PlatformError;
+  retryAttempts: number;
 }
 
 // Store for all running tasks
@@ -20,6 +23,9 @@ const runningTasks = new Map<string, TaskExecutionState>();
  * Manages execution of tasks using platform-specific adapters
  */
 class TaskExecutionEngine {
+  
+  // Maximum number of retry attempts
+  private static MAX_RETRY_ATTEMPTS = 3;
   
   /**
    * Start executing a task
@@ -38,7 +44,8 @@ class TaskExecutionEngine {
       currentStepDescription: "Initializing task...",
       startTime: new Date(),
       logs: [],
-      errors: []
+      errors: [],
+      retryAttempts: 0
     };
 
     // Store the task state
@@ -87,6 +94,57 @@ class TaskExecutionEngine {
   }
 
   /**
+   * Get the latest error for a task
+   */
+  public static getLastError(taskId: string): PlatformError | undefined {
+    return runningTasks.get(taskId)?.lastError;
+  }
+
+  /**
+   * Retry a failed task
+   */
+  public static async retryTask(taskId: string): Promise<boolean> {
+    const state = runningTasks.get(taskId);
+    if (!state || state.isRunning || !state.lastError) {
+      return false;
+    }
+    
+    const task = this.getTaskFromId(taskId);
+    if (!task) {
+      return false;
+    }
+    
+    // Check if error is retryable
+    const adapter = getPlatformAdapter(task.platform);
+    if (!adapter.canRetryAfterError(state.lastError)) {
+      toast.error(`Cannot retry task "${task.name}": ${state.lastError.getUserFriendlyMessage()}`);
+      return false;
+    }
+    
+    // Increment retry attempts
+    state.retryAttempts++;
+    if (state.retryAttempts > this.MAX_RETRY_ATTEMPTS) {
+      toast.error(`Maximum retry attempts (${this.MAX_RETRY_ATTEMPTS}) reached for task "${task.name}"`);
+      return false;
+    }
+    
+    // Reset execution state for retry
+    state.isRunning = true;
+    state.progress = 0;
+    state.currentStepDescription = `Retrying task (attempt ${state.retryAttempts} of ${this.MAX_RETRY_ATTEMPTS})...`;
+    state.lastError = undefined;
+    
+    // Log retry
+    this.logTaskProgress(taskId, `Retrying task execution (attempt ${state.retryAttempts} of ${this.MAX_RETRY_ATTEMPTS})`);
+    
+    // Execute the task
+    this.executeTaskInBackground(task);
+    
+    toast.info(`Retrying task "${task.name}"`);
+    return true;
+  }
+
+  /**
    * Execute the task using the appropriate adapter
    */
   private static async executeTaskInBackground(task: Task): Promise<void> {
@@ -125,15 +183,58 @@ class TaskExecutionEngine {
           this.finishTask(task.id, true);
         }
       } catch (error) {
-        // Handle execution error
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        this.logTaskProgress(task.id, `Execution error: ${errorMessage}`, true);
+        // Handle execution error using the adapter's error handling
+        let platformError: PlatformError;
+        
+        try {
+          platformError = adapter.handleExecutionError(error, task);
+        } catch (handlingError) {
+          // Fallback if error handling itself fails
+          platformError = new PlatformError(
+            `Unhandled error during task execution: ${error instanceof Error ? error.message : String(error)}`,
+            { 
+              type: ErrorType.UNKNOWN, 
+              recoverable: false, 
+              platformId: task.platform,
+              cause: error instanceof Error ? error : undefined
+            }
+          );
+        }
+        
+        // Store the error in state
+        state.lastError = platformError;
+        
+        // Log the error with user-friendly message
+        this.logTaskProgress(task.id, `Execution error: ${platformError.getUserFriendlyMessage()}`, true);
+        
+        // Show appropriate toast message based on error type
+        if (platformError.recoverable) {
+          toast.error(`${platformError.getUserFriendlyMessage()} ${platformError.getRecoverySuggestion()}`);
+        } else {
+          toast.error(platformError.getUserFriendlyMessage());
+        }
+        
         this.finishTask(task.id, false);
       }
     } catch (error) {
       // Handle preparation error
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : String(error);
       this.logTaskProgress(task.id, `Preparation error: ${errorMessage}`, true);
+      
+      // Store generic error
+      const state = runningTasks.get(task.id);
+      if (state) {
+        state.lastError = new PlatformError(
+          `Error preparing task execution: ${errorMessage}`,
+          { 
+            type: ErrorType.UNKNOWN, 
+            recoverable: true, 
+            platformId: task.platform,
+            cause: error instanceof Error ? error : undefined
+          }
+        );
+      }
+      
       this.finishTask(task.id, false);
     }
   }
@@ -157,6 +258,36 @@ class TaskExecutionEngine {
   }
 
   /**
+   * Helper function to get a task by ID (in a real app, this would retrieve from database)
+   */
+  private static getTaskFromId(taskId: string): Task | null {
+    // This is a mock implementation
+    // In a real application, this would retrieve the task from a store or database
+    const mockTask: Task = {
+      id: taskId,
+      name: "Mock Task",
+      type: "survey" as any, // Using 'as any' for brevity in this mock
+      platform: "amazon_mturk" as any,
+      status: TaskStatus.RUNNING,
+      createdAt: new Date(),
+      completionCount: 0,
+      targetCompletions: 10,
+      earnings: 0,
+      description: "Mock task for retry testing",
+      config: {
+        proxyRequired: false,
+        captchaHandling: false,
+        schedule: {
+          frequency: "daily",
+          maxRuns: 5
+        }
+      }
+    };
+    
+    return mockTask;
+  }
+
+  /**
    * Complete a task execution
    */
   private static finishTask(taskId: string, success: boolean): void {
@@ -165,7 +296,7 @@ class TaskExecutionEngine {
 
     state.isRunning = false;
     state.endTime = new Date();
-    state.progress = 100;
+    state.progress = success ? 100 : 0;
     
     if (success) {
       state.currentStepDescription = "Task completed successfully";
@@ -174,7 +305,12 @@ class TaskExecutionEngine {
     } else {
       state.currentStepDescription = "Task failed";
       this.logTaskProgress(taskId, "Task execution failed");
-      toast.error("Task failed to complete");
+      
+      // Don't show another toast here since we already show specific error toasts
+      // We only want to show a generic one if we didn't catch a specific error
+      if (!state.lastError) {
+        toast.error("Task failed to complete");
+      }
     }
 
     // Keep the task in the running tasks map for history/reference

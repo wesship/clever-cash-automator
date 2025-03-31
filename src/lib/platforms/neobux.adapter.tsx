@@ -1,4 +1,3 @@
-
 import React from "react";
 import { z } from "zod";
 import { PlatformAdapter } from "./types";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Task } from "@/lib/types";
+import { PlatformError, ErrorType } from "@/lib/error-handling";
 
 // Define the specific neobuxAdTypes as a constant to be reused
 export const neobuxAdTypeEnum = z.enum(["standard", "micro", "fixed", "adprize"]);
@@ -89,6 +89,69 @@ export class NeobuxAdapter implements PlatformAdapter {
       const recycledAds = Math.floor(Math.random() * 5);
       console.log(`Recycled ${recycledAds} advertisements for next session`);
     }
+  }
+
+  handleExecutionError(error: unknown, task: Task): PlatformError {
+    if (error instanceof PlatformError) {
+      return error;
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // Neobux-specific errors
+    if (errorMessage.includes('no ads available') || errorMessage.includes('view limit')) {
+      return PlatformError.platformUnavailable(
+        "No ads are currently available or you've reached your daily view limit", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('click patterns') || errorMessage.includes('suspicious')) {
+      return PlatformError.validation(
+        "Your clicking patterns were flagged as suspicious by Neobux", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('membership expired')) {
+      return PlatformError.authentication(
+        "Your Neobux membership has expired", 
+        task.platform, 
+        { taskId: task.id },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    // Default to base adapter error handling
+    return new PlatformError(
+      `Error executing Neobux task: ${errorMessage}`,
+      {
+        type: ErrorType.UNKNOWN,
+        recoverable: true,
+        platformId: task.platform,
+        details: { taskId: task.id },
+        cause: error instanceof Error ? error : undefined
+      }
+    );
+  }
+
+  canRetryAfterError(error: PlatformError): boolean {
+    // Neobux specific retry logic
+    if (error.type === ErrorType.PLATFORM_UNAVAILABLE && 
+        error.message.includes('no ads available')) {
+      return true; // Can retry later when ads refresh
+    }
+    
+    if (error.type === ErrorType.VALIDATION && 
+        error.message.includes('clicking patterns')) {
+      return false; // Don't retry suspicious pattern errors
+    }
+    
+    return error.recoverable;
   }
 
   getFormFields(form: any) {

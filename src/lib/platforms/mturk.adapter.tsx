@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Task } from "@/lib/types";
 import { Slider } from "@/components/ui/slider";
+import { PlatformError, ErrorType } from "@/lib/error-handling";
 
 export class MTurkAdapter implements PlatformAdapter {
   getTaskSchema() {
@@ -76,6 +77,85 @@ export class MTurkAdapter implements PlatformAdapter {
   // Helper method for creating delays
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Implementation of error handling method required by interface
+  handleExecutionError(error: unknown, task: Task): PlatformError {
+    if (error instanceof PlatformError) {
+      return error;
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // MTurk-specific errors
+    if (errorMessage.includes('qualification')) {
+      return PlatformError.authorization(
+        "You don't meet the required qualifications for this HIT", 
+        task.platform, 
+        { taskId: task.id, errorDetails: errorMessage },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('account suspended') || errorMessage.includes('account review')) {
+      return PlatformError.authentication(
+        "Your MTurk account is suspended or under review", 
+        task.platform, 
+        { taskId: task.id, errorDetails: errorMessage },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    if (errorMessage.includes('no HITs available')) {
+      return PlatformError.platformUnavailable(
+        "No HITs matching your criteria are currently available", 
+        task.platform, 
+        { taskId: task.id, errorDetails: errorMessage },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    // Network errors
+    if (errorMessage.includes('network') || errorMessage.includes('connection') || 
+        errorMessage.includes('timeout')) {
+      return PlatformError.network(
+        "Network error while connecting to Amazon Mechanical Turk", 
+        task.platform, 
+        { taskId: task.id, errorDetails: errorMessage },
+        error instanceof Error ? error : undefined
+      );
+    }
+    
+    // Default to unknown error
+    return new PlatformError(
+      `Error executing MTurk task: ${errorMessage}`,
+      {
+        type: ErrorType.UNKNOWN,
+        recoverable: false,
+        platformId: task.platform,
+        details: { taskId: task.id },
+        cause: error instanceof Error ? error : undefined
+      }
+    );
+  }
+
+  // Determine if the error allows retry
+  canRetryAfterError(error: PlatformError): boolean {
+    // MTurk specific retry logic
+    if (error.type === ErrorType.NETWORK || 
+        error.type === ErrorType.PLATFORM_UNAVAILABLE || 
+        error.type === ErrorType.RATE_LIMIT) {
+      return true;
+    }
+    
+    // For authorization errors, only allow retry if it's about qualifications
+    // as the user might update their qualifications
+    if (error.type === ErrorType.AUTHORIZATION && 
+        error.message.includes('qualification')) {
+      return true;
+    }
+    
+    return error.recoverable;
   }
 
   getFormFields(form: any) {

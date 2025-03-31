@@ -6,7 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task } from "@/lib/types";
 import useTaskExecution from "@/hooks/use-task-execution";
 import { Button } from "@/components/ui/button";
-import { Loader2, Terminal } from "lucide-react";
+import { Loader2, Terminal, AlertTriangle, RefreshCw } from "lucide-react";
+import { PlatformError } from "@/lib/error-handling";
 
 interface TaskExecutionMonitorProps {
   task: Task;
@@ -14,7 +15,18 @@ interface TaskExecutionMonitorProps {
 }
 
 const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClose }) => {
-  const { isRunning, progress, currentStepDescription, logs } = useTaskExecution(task.id);
+  const { 
+    isRunning, 
+    progress, 
+    currentStepDescription, 
+    logs, 
+    lastError,
+    canRetry,
+    retryTask
+  } = useTaskExecution(task.id);
+
+  // Determine if we should show error details
+  const showErrorDetails = !!lastError && !isRunning;
 
   return (
     <Card className="w-full max-w-3xl bg-card/50 backdrop-blur-sm border-border/50">
@@ -41,6 +53,31 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
           <p className="text-sm">{currentStepDescription || "Not running"}</p>
         </div>
         
+        {/* Error details section */}
+        {showErrorDetails && (
+          <div className="bg-destructive/10 border border-destructive/30 p-3 rounded-md space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <p className="text-sm font-medium text-destructive">Error Details</p>
+            </div>
+            <p className="text-sm">{lastError.getUserFriendlyMessage()}</p>
+            {lastError.recoverable && (
+              <p className="text-sm text-muted-foreground">{lastError.getRecoverySuggestion()}</p>
+            )}
+            {canRetry && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => retryTask(task.id)}
+                className="mt-2 gap-1"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry Task
+              </Button>
+            )}
+          </div>
+        )}
+        
         <div>
           <div className="flex items-center gap-1 mb-2">
             <Terminal className="h-4 w-4" />
@@ -52,7 +89,10 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
                 <p className="text-muted-foreground italic">No logs yet</p>
               ) : (
                 logs.map((log, i) => (
-                  <div key={i} className="border-b border-border/25 pb-1">
+                  <div 
+                    key={i} 
+                    className={`border-b border-border/25 pb-1 ${log.includes("Error") ? "text-destructive" : ""}`}
+                  >
                     {log}
                   </div>
                 ))

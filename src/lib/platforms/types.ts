@@ -1,6 +1,7 @@
 
 import { z } from "zod";
 import { Task, PlatformType } from "@/lib/types";
+import { PlatformError } from "@/lib/error-handling";
 
 // Base interface for platform adapters
 export interface PlatformAdapter {
@@ -8,6 +9,10 @@ export interface PlatformAdapter {
   getDefaultValues(): Record<string, any>;
   executeTask(task: Task): Promise<void>;
   getFormFields(form: any): JSX.Element | null;
+  
+  // New methods for error handling
+  handleExecutionError(error: unknown, task: Task): PlatformError;
+  canRetryAfterError(error: PlatformError): boolean;
 }
 
 // Registry for platform adapters
