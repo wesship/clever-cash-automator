@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import useLocalStorage from '@/hooks/use-local-storage'; // Changed from named to default import
 import { TaskType, PlatformType } from '@/lib/types';
 import { toast } from 'sonner';
 

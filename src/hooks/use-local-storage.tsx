@@ -80,4 +80,8 @@ function useLocalStorage<T>(
   return [storedValue, setValue, removeValue];
 }
 
+// Change to default export
 export default useLocalStorage;
+
+// Also add named export for backwards compatibility
+export { useLocalStorage };

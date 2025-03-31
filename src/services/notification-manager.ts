@@ -1,159 +1,134 @@
 
-import { toast } from "sonner";
-import { TaskStatus, Task } from "@/lib/types";
+import { toast, ToastOptions, ExternalToast } from 'sonner';
 
-/**
- * Centralized notification manager for the application
- */
+export interface NotificationOptions {
+  title?: string;
+  message: string;
+  duration?: number;
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  type?: 'default' | 'success' | 'error' | 'warning' | 'info';
+}
+
 export class NotificationManager {
-  // Control whether notifications are enabled
-  private static _notificationsEnabled = true;
+  private static instance: NotificationManager;
+  private permissionGranted: boolean = false;
   
-  // Store users with permission granted status
-  private static hasNotificationPermission = false;
-  
-  /**
-   * Initialize notification system
-   */
-  static init() {
-    // Check if browser supports notifications
-    if ("Notification" in window) {
-      // Check if permission is already granted
-      if (Notification.permission === "granted") {
-        this.hasNotificationPermission = true;
-      }
-    }
+  private constructor() {
+    // Singleton pattern
   }
   
-  /**
-   * Request permission for browser notifications
-   */
-  static async requestPermission(): Promise<boolean> {
-    if (!("Notification" in window)) {
+  public static getInstance(): NotificationManager {
+    if (!NotificationManager.instance) {
+      NotificationManager.instance = new NotificationManager();
+    }
+    return NotificationManager.instance;
+  }
+  
+  public static async requestPermission(): Promise<boolean> {
+    if (!('Notification' in window)) {
+      console.warn('This browser does not support notifications');
       return false;
     }
     
     try {
-      const permission = await Notification.requestPermission();
-      this.hasNotificationPermission = permission === "granted";
-      return this.hasNotificationPermission;
+      if (Notification.permission === 'granted') {
+        NotificationManager.getInstance().permissionGranted = true;
+        return true;
+      }
+      
+      if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        const granted = permission === 'granted';
+        NotificationManager.getInstance().permissionGranted = granted;
+        return granted;
+      }
+      
+      return false;
     } catch (error) {
-      console.error("Error requesting notification permission:", error);
+      console.error('Error requesting notification permission:', error);
       return false;
     }
   }
   
-  /**
-   * Send a task status notification
-   */
-  static notifyTaskStatus(task: Task, status: TaskStatus) {
-    if (!this._notificationsEnabled) return;
+  public static showNotification(options: NotificationOptions): void {
+    // In-app notification using toast
+    this.showToast(options);
     
-    const title = `Task ${status}`;
-    let message = "";
-    let variant: "default" | "success" | "warning" | "error" | "info" = "default";
+    // Browser notification if permission is granted
+    if (NotificationManager.getInstance().permissionGranted) {
+      try {
+        new Notification(options.title || 'Notification', {
+          body: options.message,
+          icon: '/favicon.ico',
+        });
+      } catch (error) {
+        console.error('Error showing browser notification:', error);
+      }
+    }
+  }
+  
+  private static showToast(options: NotificationOptions): void {
+    const toastOptions: ToastOptions = {
+      duration: options.duration || 5000,
+      position: options.position as any || 'top-right',
+      id: `notification-${Date.now()}`
+    };
     
-    switch (status) {
-      case TaskStatus.COMPLETED:
-        message = `Task "${task.name}" completed successfully.`;
-        variant = "success";
+    switch (options.type) {
+      case 'success':
+        toast.success(options.message, {
+          ...toastOptions,
+          // Safe to include variant for custom styles that may be consumed by your app
+          // but it won't be passed to the ExternalToast type
+        });
         break;
-      case TaskStatus.FAILED:
-        message = `Task "${task.name}" failed.`;
-        variant = "error";
+      case 'error':
+        toast.error(options.message, {
+          ...toastOptions,
+        });
         break;
-      case TaskStatus.RUNNING:
-        message = `Task "${task.name}" is now running.`;
-        variant = "info";
+      case 'warning':
+        toast(options.message, {
+          ...toastOptions,
+          // Customize for warning
+          style: { backgroundColor: 'var(--vibrant-yellow)', color: 'var(--foreground)' }
+        });
         break;
-      case TaskStatus.PAUSED:
-        message = `Task "${task.name}" has been paused.`;
-        variant = "warning";
-        break;
-      case TaskStatus.CANCELLED:
-        message = `Task "${task.name}" has been cancelled.`;
-        variant = "warning";
+      case 'info':
+        toast.info(options.message, {
+          ...toastOptions,
+        });
         break;
       default:
-        message = `Task "${task.name}" status: ${status}`;
+        toast(options.message, toastOptions);
     }
-    
-    // Show toast notification
-    toast(title, {
-      description: message,
-      variant,
+  }
+  
+  public static notifyTaskSuccess(taskName: string): void {
+    this.showNotification({
+      title: 'Task Completed',
+      message: `Task "${taskName}" has completed successfully`,
+      type: 'success',
     });
-    
-    // Show browser notification if permission granted
-    if (this.hasNotificationPermission) {
-      new Notification(title, {
-        body: message,
-        icon: "/favicon.ico"
+  }
+  
+  public static notifyTaskFailure(taskName: string, error?: string): void {
+    this.showNotification({
+      title: 'Task Failed',
+      message: `Task "${taskName}" has failed${error ? `: ${error}` : ''}`,
+      type: 'error',
+    });
+  }
+  
+  public static notifyTaskProgress(taskName: string, progress: number): void {
+    if (progress % 25 === 0) { // Only notify at 25%, 50%, 75% and 100%
+      this.showNotification({
+        title: 'Task Progress',
+        message: `Task "${taskName}" is ${progress}% complete`,
+        type: 'info',
       });
     }
-  }
-  
-  /**
-   * Send an earnings notification
-   */
-  static notifyEarnings(task: Task, amount: number) {
-    if (!this._notificationsEnabled) return;
-    
-    const title = "Earnings Update";
-    const message = `You earned $${amount.toFixed(2)} from task "${task.name}".`;
-    
-    // Show toast notification
-    toast(title, {
-      description: message,
-      variant: "success",
-    });
-    
-    // Show browser notification if permission granted
-    if (this.hasNotificationPermission) {
-      new Notification(title, {
-        body: message,
-        icon: "/favicon.ico"
-      });
-    }
-  }
-  
-  /**
-   * Send a system notification
-   */
-  static notify(title: string, message: string, variant: "default" | "success" | "warning" | "error" | "info" = "default") {
-    if (!this._notificationsEnabled) return;
-    
-    // Show toast notification
-    toast(title, {
-      description: message,
-      variant,
-    });
-    
-    // Show browser notification if permission granted
-    if (this.hasNotificationPermission) {
-      new Notification(title, {
-        body: message,
-        icon: "/favicon.ico"
-      });
-    }
-  }
-  
-  /**
-   * Enable or disable notifications
-   */
-  static setNotificationsEnabled(enabled: boolean) {
-    this._notificationsEnabled = enabled;
-  }
-  
-  /**
-   * Check if notifications are enabled
-   */
-  static get notificationsEnabled(): boolean {
-    return this._notificationsEnabled;
   }
 }
-
-// Initialize notifications on import
-NotificationManager.init();
 
 export default NotificationManager;

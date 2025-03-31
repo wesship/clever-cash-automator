@@ -4,6 +4,17 @@ import { Task } from "@/lib/types";
 import TaskCard from "./TaskCard";
 import { Checkbox } from "@/components/ui/checkbox";
 
+interface TaskCardProps {
+  task: Task;
+  delay?: number;
+  isInView?: boolean;
+  className?: string;
+  onStartTask?: (taskId: string) => void;
+  onPauseTask?: (taskId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onEditTask?: (taskId: string) => void;
+}
+
 interface TaskGridViewProps {
   tasks: Task[];
   onStartTask?: (taskId: string) => void;

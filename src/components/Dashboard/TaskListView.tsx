@@ -1,13 +1,11 @@
 
 import React from "react";
-import { Task } from "@/lib/types";
-import { formatDistanceToNow } from "date-fns";
-import { Button } from "@/components/ui/button";
+import { Task, TaskStatus } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, Pause, Trash2, Edit, Eye } from "lucide-react";
-import TaskStatusBadge from "./TaskStatusBadge";
+import { Button } from "@/components/ui/button";
+import { Play, Pause, Trash, Edit2 } from "lucide-react";
 import TaskProgress from "./TaskProgress";
-import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 interface TaskListViewProps {
   tasks: Task[];
@@ -15,7 +13,7 @@ interface TaskListViewProps {
   onPauseTask?: (taskId: string) => void;
   onDeleteTask?: (taskId: string) => void;
   onEditTask?: (taskId: string) => void;
-  isInView?: boolean;
+  onViewTaskDetails?: (taskId: string) => void;
   bulkMode?: boolean;
   selectedTaskIds?: string[];
   onTaskSelect?: (taskId: string) => void;
@@ -27,119 +25,138 @@ const TaskListView: React.FC<TaskListViewProps> = ({
   onPauseTask,
   onDeleteTask,
   onEditTask,
-  isInView = true,
+  onViewTaskDetails,
   bulkMode = false,
   selectedTaskIds = [],
   onTaskSelect
 }) => {
-  const navigate = useNavigate();
-  
-  const handleViewDetails = (taskId: string) => {
-    navigate(`/task/${taskId}`);
+  const getStatusColor = (status: TaskStatus) => {
+    switch (status) {
+      case TaskStatus.RUNNING:
+        return "text-vibrant-green";
+      case TaskStatus.PAUSED:
+        return "text-muted-foreground";
+      case TaskStatus.COMPLETED:
+        return "text-vibrant-blue";
+      case TaskStatus.FAILED:
+        return "text-destructive";
+      default:
+        return "text-vibrant-yellow";
+    }
   };
-  
+
   return (
-    <div className="mt-6 space-y-3">
-      {tasks.map((task) => (
-        <div 
-          key={task.id}
-          className="group flex items-center justify-between bg-card/60 backdrop-blur-sm p-4 rounded-lg border border-border/40 hover:border-border/70 transition-colors animate-fade-in"
-        >
-          <div className="flex items-center space-x-4 flex-1">
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse mt-4">
+        <thead className="text-left bg-background-light">
+          <tr className="border-b border-border">
             {bulkMode && onTaskSelect && (
-              <Checkbox 
-                checked={selectedTaskIds.includes(task.id)} 
-                onCheckedChange={() => onTaskSelect(task.id)}
-                className="border-border"
-              />
-            )}
-            <div className="flex-1">
-              <div className="flex items-center">
-                <h3 className="font-medium">{task.name}</h3>
-                <TaskStatusBadge status={task.status} className="ml-2" />
-              </div>
-              <div className="flex items-center gap-4 mt-1">
-                <span className="text-xs text-muted-foreground">
-                  {task.platform} • {task.type.replace(/_/g, ' ')}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Created {formatDistanceToNow(task.createdAt, { addSuffix: true })}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-4">
-              <div className="w-32">
-                <TaskProgress 
-                  current={task.completionCount} 
-                  total={task.targetCompletions} 
+              <th className="py-2 px-4 font-medium text-muted-foreground">
+                <Checkbox 
+                  checked={false}
+                  onCheckedChange={() => {}}
+                  className="bg-background border-border h-4 w-4"
                 />
-              </div>
-              <div className="text-vibrant-green font-medium w-20 text-right">
+              </th>
+            )}
+            <th className="py-2 px-4 font-medium text-muted-foreground">Name</th>
+            <th className="py-2 px-4 font-medium text-muted-foreground">Status</th>
+            <th className="py-2 px-4 font-medium text-muted-foreground">Progress</th>
+            <th className="py-2 px-4 font-medium text-muted-foreground">Platform</th>
+            <th className="py-2 px-4 font-medium text-muted-foreground">Earnings</th>
+            <th className="py-2 px-4 font-medium text-muted-foreground">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map((task) => (
+            <tr key={task.id} className="border-b border-border hover:bg-accent/10">
+              {bulkMode && onTaskSelect && (
+                <td className="py-2 px-4">
+                  <Checkbox 
+                    checked={selectedTaskIds.includes(task.id)} 
+                    onCheckedChange={() => onTaskSelect(task.id)}
+                    className="bg-background border-border h-4 w-4"
+                  />
+                </td>
+              )}
+              <td className="py-2 px-4 font-medium">
+                <div 
+                  className="cursor-pointer hover:text-primary"
+                  onClick={() => onViewTaskDetails && onViewTaskDetails(task.id)}
+                >
+                  {task.name}
+                </div>
+              </td>
+              <td className="py-2 px-4">
+                <span className={`font-medium ${getStatusColor(task.status)}`}>
+                  {task.status}
+                </span>
+              </td>
+              <td className="py-2 px-4">
+                <TaskProgress 
+                  progress={Math.round((task.completionCount / task.targetCompletions) * 100)}
+                  status={task.status} 
+                />
+              </td>
+              <td className="py-2 px-4">
+                <Badge variant="outline" className="font-normal">
+                  {task.platform}
+                </Badge>
+              </td>
+              <td className="py-2 px-4 font-medium text-vibrant-green">
                 ${task.earnings.toFixed(2)}
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => handleViewDetails(task.id)}
-              >
-                <Eye className="h-4 w-4" />
-                <span className="sr-only">View Details</span>
-              </Button>
-              {onStartTask && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onStartTask(task.id)}
-                >
-                  <Play className="h-4 w-4" />
-                  <span className="sr-only">Start Task</span>
-                </Button>
-              )}
-              {onPauseTask && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onPauseTask(task.id)}
-                >
-                  <Pause className="h-4 w-4" />
-                  <span className="sr-only">Pause Task</span>
-                </Button>
-              )}
-              {onEditTask && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onEditTask(task.id)}
-                >
-                  <Edit className="h-4 w-4" />
-                  <span className="sr-only">Edit Task</span>
-                </Button>
-              )}
-              {onDeleteTask && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
-                  onClick={() => onDeleteTask(task.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Delete Task</span>
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
+              </td>
+              <td className="py-2 px-4">
+                <div className="flex items-center gap-1">
+                  {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.FAILED && (
+                    <>
+                      {task.status === TaskStatus.PAUSED || task.status === TaskStatus.PENDING ? (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => onStartTask && onStartTask(task.id)}
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => onPauseTask && onPauseTask(task.id)}
+                        >
+                          <Pause className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  {onEditTask && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      onClick={() => onEditTask(task.id)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onDeleteTask && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => onDeleteTask(task.id)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

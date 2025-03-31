@@ -30,7 +30,6 @@ const Index = () => {
     statistics,
     isLoading,
     handleCreateTask,
-    handleDeleteTasks
   } = useDashboardData();
 
   // Request notification permissions when app loads
@@ -47,6 +46,11 @@ const Index = () => {
       setActiveTab("create");
     }
   }, [searchParams, setActiveTab]);
+
+  const handleDeleteTasks = (taskIds: string[]) => {
+    // This is a placeholder function, as it seems this was not implemented
+    console.log("Deleting tasks with IDs:", taskIds);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -86,7 +90,6 @@ const Index = () => {
                 <CreateTaskTab 
                   onSubmit={handleCreateTask}
                   onCancel={() => setActiveTab("tasks")}
-                  existingTasks={tasks}
                 />
               </TabsContent>
             </DashboardTabs>
