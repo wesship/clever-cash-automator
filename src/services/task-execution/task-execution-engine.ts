@@ -7,6 +7,7 @@ import { TaskStateManager } from "./task-state-manager";
 import { ProgressSimulator } from "./progress-simulator";
 import { MockTaskProvider } from "./mock-task-provider";
 import { delay } from "./utils";
+import { TaskExecutionState } from "./types";
 
 /**
  * Manages execution of tasks using platform-specific adapters
