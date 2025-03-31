@@ -8,9 +8,13 @@ import Background3D from "@/components/ui/3d-background";
 import AccountsHeader from "@/components/Accounts/AccountsHeader";
 import AccountsList from "@/components/Accounts/AccountsList";
 import ProxiesList from "@/components/Accounts/ProxiesList";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import AccountForm from "@/components/Accounts/AccountForm";
+import ProxyForm from "@/components/Accounts/ProxyForm";
+import { toast } from "sonner";
 
 // Mock data for accounts
-const mockAccounts = [
+const initialAccounts = [
   {
     id: "1",
     platform: "Swagbucks",
@@ -64,7 +68,7 @@ const mockAccounts = [
 ];
 
 // Mock data for proxies
-const mockProxies = [
+const initialProxies = [
   {
     id: "1",
     name: "US Residential",
@@ -96,6 +100,35 @@ const mockProxies = [
 
 const Accounts = () => {
   const [activeTab, setActiveTab] = useState("accounts");
+  const [accounts, setAccounts] = useState(initialAccounts);
+  const [proxies, setProxies] = useState(initialProxies);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState<"account" | "proxy">("account");
+
+  const handleCreateAccount = (newAccount: any) => {
+    setAccounts([...accounts, newAccount]);
+    setIsDialogOpen(false);
+  };
+
+  const handleCreateProxy = (newProxy: any) => {
+    setProxies([...proxies, newProxy]);
+    setIsDialogOpen(false);
+  };
+
+  const handleAddNew = () => {
+    setDialogContent(activeTab === "accounts" ? "account" : "proxy");
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteAccount = (accountId: string) => {
+    setAccounts(accounts.filter(account => account.id !== accountId));
+    toast.success("Account deleted successfully");
+  };
+
+  const handleDeleteProxy = (proxyId: string) => {
+    setProxies(proxies.filter(proxy => proxy.id !== proxyId));
+    toast.success("Proxy deleted successfully");
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -104,7 +137,7 @@ const Accounts = () => {
       
       <main className="flex-1 pt-24 pb-16 px-4 md:px-8 relative">
         <div className="max-w-7xl mx-auto">
-          <AccountsHeader />
+          <AccountsHeader onAddNew={handleAddNew} />
 
           <Tabs defaultValue="accounts" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-card/50 backdrop-blur-sm">
@@ -119,17 +152,38 @@ const Accounts = () => {
             </TabsList>
 
             <TabsContent value="accounts" className="space-y-4 animate-fade-in">
-              <AccountsList accounts={mockAccounts} />
+              <AccountsList accounts={accounts} onDelete={handleDeleteAccount} />
             </TabsContent>
 
             <TabsContent value="proxies" className="space-y-4 animate-fade-in">
-              <ProxiesList proxies={mockProxies} />
+              <ProxiesList proxies={proxies} onDelete={handleDeleteProxy} />
             </TabsContent>
           </Tabs>
         </div>
       </main>
 
       <Footer />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {dialogContent === "account" ? "Add New Account" : "Add New Proxy"}
+            </DialogTitle>
+          </DialogHeader>
+          {dialogContent === "account" ? (
+            <AccountForm 
+              onSubmit={handleCreateAccount} 
+              onCancel={() => setIsDialogOpen(false)} 
+            />
+          ) : (
+            <ProxyForm 
+              onSubmit={handleCreateProxy} 
+              onCancel={() => setIsDialogOpen(false)} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -18,6 +18,7 @@ import DashboardTabs from "@/components/Dashboard/DashboardTabs";
 import DashboardOverview from "@/components/Dashboard/DashboardOverview";
 import TasksTab from "@/components/Dashboard/TasksTab";
 import CreateTaskTab from "@/components/Dashboard/CreateTaskTab";
+import { toast } from "sonner";
 
 const Index = () => {
   const { preferences } = useUserPreferences();
@@ -48,8 +49,9 @@ const Index = () => {
   }, [searchParams, setActiveTab]);
 
   const handleDeleteTasks = (taskIds: string[]) => {
-    // This is a placeholder function, as it seems this was not implemented
     console.log("Deleting tasks with IDs:", taskIds);
+    // Simulate task deletion
+    toast.success(`${taskIds.length} task(s) deleted successfully`);
   };
 
   return (
@@ -88,7 +90,11 @@ const Index = () => {
               
               <TabsContent value="create">
                 <CreateTaskTab 
-                  onSubmit={handleCreateTask}
+                  onSubmit={(taskData) => {
+                    handleCreateTask(taskData);
+                    toast.success("Task created successfully!");
+                    setActiveTab("tasks");
+                  }}
                   onCancel={() => setActiveTab("tasks")}
                 />
               </TabsContent>

@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, CheckCircle, Trash2 } from "lucide-react";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface AccountProps {
   id: string;
@@ -17,8 +19,14 @@ interface AccountProps {
   taskCount: number;
 }
 
-const AccountCard = ({ account }: { account: AccountProps }) => {
+interface AccountCardProps {
+  account: AccountProps;
+  onDelete: (id: string) => void;
+}
+
+const AccountCard = ({ account, onDelete }: AccountCardProps) => {
   const navigate = useNavigate();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   return (
     <Card key={account.id} className="bg-card/50 backdrop-blur-sm">
@@ -71,10 +79,34 @@ const AccountCard = ({ account }: { account: AccountProps }) => {
             Connect
           </Button>
         ) : (
-          <Button variant="destructive" size="sm" className="gap-1">
-            <Trash2 className="h-3 w-3" />
-            Delete
-          </Button>
+          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="gap-1">
+                <Trash2 className="h-3 w-3" />
+                Delete
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Account</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this account? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => {
+                    onDelete(account.id);
+                    setIsDeleteDialogOpen(false);
+                  }}
+                >
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
       </CardFooter>
     </Card>
