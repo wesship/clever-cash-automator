@@ -9,10 +9,10 @@ interface TaskCardProps {
   delay?: number;
   isInView?: boolean;
   className?: string;
-  onStartTask?: (taskId: string) => void;
-  onPauseTask?: (taskId: string) => void;
-  onDeleteTask?: (taskId: string) => void;
-  onEditTask?: (taskId: string) => void;
+  onStart?: (taskId: string) => void;
+  onPause?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void;
+  onEdit?: (taskId: string) => void;
 }
 
 interface TaskGridViewProps {
@@ -53,10 +53,10 @@ const TaskGridView: React.FC<TaskGridViewProps> = ({
           )}
           <TaskCard
             task={task}
-            onStartTask={onStartTask}
-            onPauseTask={onPauseTask}
-            onDeleteTask={onDeleteTask}
-            onEditTask={onEditTask}
+            onStart={onStartTask}
+            onPause={onPauseTask}
+            onDelete={onDeleteTask}
+            onEdit={onEditTask}
             delay={index * 100}
             isInView={isInView}
             className={bulkMode ? "pl-7" : ""}

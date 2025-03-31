@@ -14,6 +14,7 @@ interface TaskListViewProps {
   onDeleteTask?: (taskId: string) => void;
   onEditTask?: (taskId: string) => void;
   onViewTaskDetails?: (taskId: string) => void;
+  isInView?: boolean;
   bulkMode?: boolean;
   selectedTaskIds?: string[];
   onTaskSelect?: (taskId: string) => void;
@@ -94,8 +95,9 @@ const TaskListView: React.FC<TaskListViewProps> = ({
               </td>
               <td className="py-2 px-4">
                 <TaskProgress 
-                  progress={Math.round((task.completionCount / task.targetCompletions) * 100)}
-                  status={task.status} 
+                  completionCount={task.completionCount}
+                  targetCompletions={task.targetCompletions}
+                  status={task.status}
                 />
               </td>
               <td className="py-2 px-4">

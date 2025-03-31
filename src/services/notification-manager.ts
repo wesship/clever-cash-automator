@@ -1,5 +1,6 @@
 
-import { toast, ToastOptions, ExternalToast } from 'sonner';
+import { toast } from 'sonner';
+import type { ToasterToast } from "sonner";
 
 export interface NotificationOptions {
   title?: string;
@@ -12,6 +13,7 @@ export interface NotificationOptions {
 export class NotificationManager {
   private static instance: NotificationManager;
   private permissionGranted: boolean = false;
+  private static _notificationsEnabled: boolean = true;
   
   private constructor() {
     // Singleton pattern
@@ -50,7 +52,21 @@ export class NotificationManager {
     }
   }
   
+  // Add getter and setter for notificationsEnabled
+  public static get notificationsEnabled(): boolean {
+    return NotificationManager._notificationsEnabled;
+  }
+
+  public static setNotificationsEnabled(value: boolean): void {
+    NotificationManager._notificationsEnabled = value;
+  }
+  
   public static showNotification(options: NotificationOptions): void {
+    // Skip notifications if disabled
+    if (!NotificationManager._notificationsEnabled) {
+      return;
+    }
+
     // In-app notification using toast
     this.showToast(options);
     
@@ -68,7 +84,7 @@ export class NotificationManager {
   }
   
   private static showToast(options: NotificationOptions): void {
-    const toastOptions: ToastOptions = {
+    const toastOptions: Partial<ToasterToast> = {
       duration: options.duration || 5000,
       position: options.position as any || 'top-right',
       id: `notification-${Date.now()}`
@@ -102,6 +118,31 @@ export class NotificationManager {
       default:
         toast(options.message, toastOptions);
     }
+  }
+
+  public static notifyTaskStatus(task: any, status: any): void {
+    const statusMessages = {
+      COMPLETED: `Task "${task.name}" completed successfully`,
+      FAILED: `Task "${task.name}" failed`,
+      RUNNING: `Task "${task.name}" started running`,
+      PAUSED: `Task "${task.name}" paused`,
+    };
+
+    const statusTypes = {
+      COMPLETED: 'success',
+      FAILED: 'error',
+      RUNNING: 'info',
+      PAUSED: 'info',
+    };
+
+    const message = statusMessages[status] || `Task "${task.name}" status: ${status}`;
+    const type = statusTypes[status] || 'default';
+
+    this.showNotification({
+      title: 'Task Status Update',
+      message,
+      type: type as 'success' | 'error' | 'warning' | 'info' | 'default',
+    });
   }
   
   public static notifyTaskSuccess(taskName: string): void {
