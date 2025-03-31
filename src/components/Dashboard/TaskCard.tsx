@@ -15,6 +15,8 @@ interface TaskCardProps {
   onPause?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
   onEdit?: (taskId: string) => void;
+  delay?: number;
+  isInView?: boolean;
   className?: string;
 }
 
@@ -24,6 +26,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onPause,
   onDelete,
   onEdit,
+  delay,
+  isInView,
   className
 }) => {
   const isMobile = useIsMobile();

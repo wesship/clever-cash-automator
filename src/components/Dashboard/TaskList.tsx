@@ -2,29 +2,15 @@
 import React, { useState } from "react";
 import { Task } from "@/lib/types";
 import { toast } from "sonner";
-import { Plus, Play, Pause, Trash2, CheckSquare } from "lucide-react";
-import { useUserPreferences } from "@/hooks/use-user-preferences";
 import KeyboardShortcutsDialog from "@/components/ui/keyboard-shortcuts";
 import useKeyboardShortcuts from "@/hooks/use-keyboard-shortcuts";
 import useInView from "@/hooks/use-in-view";
 import useTaskData from "@/hooks/use-task-data";
 import TaskSearchFilters from "./TaskSearchFilters";
-import TaskEmptyState from "./TaskEmptyState";
-import TaskGridView from "./TaskGridView";
-import TaskListView from "./TaskListView";
-import { Button } from "@/components/ui/button";
+import { useUserPreferences } from "@/hooks/use-user-preferences";
 import useBulkTaskOperations from "@/hooks/use-bulk-task-operations";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import BulkOperationsBar from "./BulkOperationsBar";
+import TaskViewContainer from "./TaskViewContainer";
 
 interface TaskListProps {
   tasks: Task[];
@@ -44,17 +30,20 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [bulkModeActive, setBulkModeActive] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   
+  // Set up keyboard shortcuts
   const { helpVisible, setHelpVisible } = useKeyboardShortcuts({
     createTask: () => onCreateTask && onCreateTask(),
     toggleView: () => updatePreference('taskListView', preferences.taskListView === 'grid' ? 'list' : 'grid'),
     toggleHelp: () => setShortcutsDialogOpen(true)
   });
 
+  // Set up in-view detection for animations
   const [containerRef, isInView] = useInView<HTMLDivElement>({
     triggerOnce: true,
     threshold: 0.1,
   });
 
+  // Set up task filtering and sorting
   const {
     searchTerm,
     setSearchTerm,
@@ -67,6 +56,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     filteredTasks
   } = useTaskData(tasks);
   
+  // Set up bulk operations
   const {
     selectedTaskIds,
     selectTask,
@@ -78,6 +68,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     isProcessing
   } = useBulkTaskOperations(filteredTasks);
 
+  // Event handlers
   const handleStartTask = (taskId: string) => {
     if (bulkModeActive) {
       selectTask(taskId);
@@ -122,6 +113,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div className={className} ref={containerRef}>
       <div className="flex flex-col space-y-4">
+        {/* Search and filters section */}
         <TaskSearchFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -137,130 +129,40 @@ export const TaskList: React.FC<TaskListProps> = ({
           onCreateTask={onCreateTask}
         />
         
-        {/* Bulk Operations Bar */}
+        {/* Bulk operations bar */}
         {filteredTasks.length > 0 && (
-          <div className="flex items-center justify-between bg-muted/30 backdrop-blur-sm p-2 rounded-lg border border-border/40">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={bulkModeActive ? "secondary" : "outline"}
-                size="sm"
-                onClick={toggleBulkMode}
-                className="gap-1"
-              >
-                <CheckSquare className="h-4 w-4" />
-                {bulkModeActive ? "Exit Bulk Mode" : "Bulk Operations"}
-              </Button>
-              
-              {bulkModeActive && (
-                <>
-                  <span className="text-sm text-muted-foreground">
-                    {selectedTaskIds.length} tasks selected
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={selectAllTasks}
-                    disabled={isProcessing}
-                  >
-                    Select All
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={deselectAllTasks}
-                    disabled={isProcessing || selectedTaskIds.length === 0}
-                  >
-                    Deselect All
-                  </Button>
-                </>
-              )}
-            </div>
-            
-            {bulkModeActive && selectedTaskIds.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={startSelectedTasks}
-                  disabled={isProcessing}
-                  className="gap-1"
-                >
-                  <Play className="h-4 w-4" />
-                  Start
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={stopSelectedTasks}
-                  disabled={isProcessing}
-                  className="gap-1"
-                >
-                  <Pause className="h-4 w-4" />
-                  Pause
-                </Button>
-                <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isProcessing}
-                      className="gap-1 text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete {selectedTaskIds.length} tasks?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. These tasks will be permanently deleted.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteSelected}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
-          </div>
+          <BulkOperationsBar
+            bulkModeActive={bulkModeActive}
+            toggleBulkMode={toggleBulkMode}
+            selectedTaskIds={selectedTaskIds}
+            selectAllTasks={selectAllTasks}
+            deselectAllTasks={deselectAllTasks}
+            startSelectedTasks={startSelectedTasks}
+            stopSelectedTasks={stopSelectedTasks}
+            handleDeleteSelected={handleDeleteSelected}
+            isProcessing={isProcessing}
+            confirmDeleteOpen={confirmDeleteOpen}
+            setConfirmDeleteOpen={setConfirmDeleteOpen}
+          />
         )}
       </div>
 
-      {filteredTasks.length > 0 ? (
-        preferences.taskListView === 'grid' ? (
-          <TaskGridView
-            tasks={filteredTasks}
-            onStartTask={handleStartTask}
-            onPauseTask={handlePauseTask}
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
-            isInView={isInView}
-            bulkMode={bulkModeActive}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelect={selectTask}
-          />
-        ) : (
-          <TaskListView
-            tasks={filteredTasks}
-            onStartTask={handleStartTask}
-            onPauseTask={handlePauseTask}
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
-            isInView={isInView}
-            bulkMode={bulkModeActive}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelect={selectTask}
-          />
-        )
-      ) : (
-        <TaskEmptyState onCreateTask={onCreateTask} />
-      )}
+      {/* Task view (grid or list) */}
+      <TaskViewContainer
+        tasks={filteredTasks}
+        viewMode={preferences.taskListView}
+        isInView={isInView}
+        bulkModeActive={bulkModeActive}
+        selectedTaskIds={selectedTaskIds}
+        selectTask={selectTask}
+        onStartTask={handleStartTask}
+        onPauseTask={handlePauseTask}
+        onDeleteTask={handleDeleteTask}
+        onEditTask={handleEditTask}
+        onCreateTask={onCreateTask}
+      />
       
+      {/* Keyboard shortcuts dialog */}
       <KeyboardShortcutsDialog 
         open={shortcutsDialogOpen} 
         onOpenChange={setShortcutsDialogOpen} 

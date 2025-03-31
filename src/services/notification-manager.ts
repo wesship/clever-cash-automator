@@ -1,6 +1,5 @@
 
 import { toast } from 'sonner';
-import type { ToasterToast } from "sonner";
 
 export interface NotificationOptions {
   title?: string;
@@ -84,7 +83,7 @@ export class NotificationManager {
   }
   
   private static showToast(options: NotificationOptions): void {
-    const toastOptions: Partial<ToasterToast> = {
+    const toastOptions: any = {
       duration: options.duration || 5000,
       position: options.position as any || 'top-right',
       id: `notification-${Date.now()}`
