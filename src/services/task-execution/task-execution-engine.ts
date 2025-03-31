@@ -1,7 +1,7 @@
 
 import { Task } from "@/lib/types";
 import { toast } from "sonner";
-import { PlatformError } from "@/lib/error-handling";
+import { PlatformError, ErrorType } from "@/lib/error-handling";
 import { TaskStateManager } from "./task-state-manager";
 import { MockTaskProvider } from "./mock-task-provider";
 import { TaskExecutionState } from "./types";

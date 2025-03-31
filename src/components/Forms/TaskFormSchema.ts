@@ -1,3 +1,4 @@
+
 // Fix for the ZodObject typing issue
 // This is likely just a partial snippet of the file, but we're focusing on fixing the type error
 
@@ -40,3 +41,18 @@ export function getWebsiteParamsSchema(platform: PlatformType | string): z.ZodOb
 }
 
 export type TaskFormValues = z.infer<typeof taskFormSchema>;
+
+// Export these explicitly for TaskForm.tsx
+export type TaskFormData = TaskFormValues;
+export const defaultTaskFormValues: TaskFormValues = {
+  name: "",
+  type: TaskType.AD_CLICK,
+  platform: PlatformType.NEOBUX,
+  targetCompletions: 1,
+  description: "",
+  proxyRequired: false,
+  captchaHandling: false,
+  frequency: 'daily',
+  maxRuns: 5,
+  websiteParams: {}
+};

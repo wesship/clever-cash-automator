@@ -1,4 +1,6 @@
 
+import { delay } from "./utils";
+
 /**
  * Ad clicking task implementation
  */
@@ -22,9 +24,4 @@ export async function executeAdClickTask(): Promise<void> {
     console.log(`Step: ${step}`);
     await delay(Math.random() * 2000 + 1000);
   }
-}
-
-// Helper method for creating delays
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
