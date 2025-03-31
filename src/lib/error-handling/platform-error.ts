@@ -1,148 +1,136 @@
 
 import { ErrorType } from "./types";
 
+// Error properties interface
+interface PlatformErrorOptions {
+  type: ErrorType;
+  platformId: string;
+  details?: Record<string, any>;
+  recoverable?: boolean; // Indicates if retrying the operation might succeed
+  cause?: Error;
+}
+
 /**
- * Standardized error structure for platform operations
+ * Custom error class for platform-related errors
  */
 export class PlatformError extends Error {
-  public readonly type: ErrorType;
-  public readonly recoverable: boolean;
-  public readonly platformId: string;
-  public readonly details?: Record<string, any>;
+  readonly type: ErrorType;
+  readonly platformId: string;
+  readonly details: Record<string, any>;
+  readonly recoverable: boolean;
+  readonly cause?: Error;
 
-  constructor(message: string, options: {
-    type: ErrorType,
-    recoverable?: boolean,
-    platformId: string,
-    details?: Record<string, any>,
-    cause?: Error
-  }) {
-    // Pass only the cause option to super
-    super(message, { cause: options.cause });
+  constructor(message: string, options: PlatformErrorOptions) {
+    super(message);
     this.name = 'PlatformError';
     this.type = options.type;
-    this.recoverable = options.recoverable ?? false;
     this.platformId = options.platformId;
-    this.details = options.details;
+    this.details = options.details || {};
+    this.recoverable = options.recoverable !== undefined ? options.recoverable : false;
+    this.cause = options.cause;
+
+    // Maintains proper stack trace for where error was thrown (V8 engines)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, PlatformError);
+    }
   }
 
-  /**
-   * Helper for creating network errors
-   */
+  // Factory methods for common error types
   static network(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.NETWORK, 
+      platformId, 
+      details, 
       recoverable: true, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Helper for creating authentication errors
-   */
   static authentication(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.AUTHENTICATION, 
+      platformId, 
+      details, 
       recoverable: false, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Helper for creating authorization errors
-   */
   static authorization(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.AUTHORIZATION, 
+      platformId, 
+      details, 
       recoverable: false, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Helper for creating rate limit errors
-   */
   static rateLimit(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.RATE_LIMIT, 
+      platformId, 
+      details, 
       recoverable: true, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Helper for creating platform unavailable errors
-   */
   static platformUnavailable(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.PLATFORM_UNAVAILABLE, 
+      platformId, 
+      details, 
       recoverable: true, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Helper for creating validation errors
-   */
   static validation(message: string, platformId: string, details?: Record<string, any>, cause?: Error): PlatformError {
     return new PlatformError(message, { 
       type: ErrorType.VALIDATION, 
+      platformId, 
+      details, 
       recoverable: false, 
-      platformId,
-      details,
-      cause
+      cause 
     });
   }
 
-  /**
-   * Get a user-friendly error message
-   */
+  // Returns a user-friendly error message 
   getUserFriendlyMessage(): string {
     switch (this.type) {
       case ErrorType.NETWORK:
-        return `Network error on ${this.platformId}: Please check your internet connection and try again.`;
+        return `Network error: ${this.message}`;
       case ErrorType.AUTHENTICATION:
-        return `Authentication failed on ${this.platformId}: Please check your credentials and try again.`;
+        return `Authentication error: ${this.message}`;
       case ErrorType.AUTHORIZATION:
-        return `Authorization error on ${this.platformId}: Your account doesn't have permission for this action.`;
+        return `Authorization error: ${this.message}`;
       case ErrorType.RATE_LIMIT:
-        return `Rate limit exceeded on ${this.platformId}: Please wait before trying again.`;
+        return `Rate limit exceeded: ${this.message}`;
       case ErrorType.PLATFORM_UNAVAILABLE:
-        return `${this.platformId} is currently unavailable: Please try again later.`;
+        return `Platform unavailable: ${this.message}`;
       case ErrorType.VALIDATION:
-        return `Invalid task configuration for ${this.platformId}: Please check your settings.`;
+        return `Validation error: ${this.message}`;
       default:
-        return this.message;
+        return `Error: ${this.message}`;
     }
   }
 
-  /**
-   * Get recovery suggestion based on error type
-   */
+  // Returns a suggestion for recovery if applicable
   getRecoverySuggestion(): string {
-    if (!this.recoverable) {
-      return "This issue requires manual intervention.";
-    }
-
     switch (this.type) {
       case ErrorType.NETWORK:
-        return "Check your internet connection and try again.";
+        return "Please check your internet connection and try again.";
+      case ErrorType.AUTHENTICATION:
+        return "Please verify your login credentials.";
+      case ErrorType.AUTHORIZATION:
+        return "You don't have permission to perform this action.";
       case ErrorType.RATE_LIMIT:
-        return "Wait a few minutes before attempting this task again.";
+        return "Please wait a moment before trying again.";
       case ErrorType.PLATFORM_UNAVAILABLE:
-        return "Try again later or check if the platform is experiencing downtime.";
+        return "The platform may be temporarily unavailable. Try again later.";
       default:
-        return "Try again or check the task configuration.";
+        return "";
     }
   }
 }

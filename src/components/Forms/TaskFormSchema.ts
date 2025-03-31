@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 import { getPlatformAdapter } from "@/lib/platforms";
 import { PlatformType } from "@/lib/types";
@@ -10,25 +11,28 @@ const baseWebsiteParamsSchema = z.object({
 // Dynamically build the website params schema by merging all adapter schemas
 const buildWebsiteParamsSchema = () => {
   // Start with the base schema
-  let mergedSchema = baseWebsiteParamsSchema;
+  let websiteParamsSchema = baseWebsiteParamsSchema;
   
   // Add all platform-specific schemas
   Object.values(PlatformType).forEach(platform => {
     const adapter = getPlatformAdapter(platform);
     if (adapter) {
-      // Get the adapter schema
-      const adapterSchema = adapter.getTaskSchema();
-      
-      if (adapterSchema) {
-        // Use extend() to correctly merge schemas
-        // This preserves type information properly
-        const shape = adapterSchema.shape || {};
-        mergedSchema = mergedSchema.extend(shape);
+      // Get the adapter schema and safely merge it
+      try {
+        const adapterSchema = adapter.getTaskSchema();
+        if (adapterSchema && adapterSchema.shape) {
+          // Create a new schema that extends the current one
+          websiteParamsSchema = websiteParamsSchema.extend({
+            ...adapterSchema.shape
+          });
+        }
+      } catch (error) {
+        console.error(`Error merging schema for platform ${platform}:`, error);
       }
     }
   });
   
-  return mergedSchema;
+  return websiteParamsSchema;
 };
 
 export const taskFormSchema = z.object({
