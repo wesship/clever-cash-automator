@@ -1,6 +1,10 @@
 
 import { z } from "zod";
 
+// Define the specific neobuxAdTypes as a constant to be reused
+const neobuxAdTypeEnum = z.enum(["standard", "micro", "fixed", "adprize"]);
+export type NeobuxAdType = z.infer<typeof neobuxAdTypeEnum>;
+
 export const taskFormSchema = z.object({
   name: z.string().min(3, {
     message: "Task name must be at least 3 characters.",
@@ -31,7 +35,7 @@ export const taskFormSchema = z.object({
     useSpecificBrowser: z.enum(["chrome", "firefox", "edge"]).optional(),
     // Neobux specific parameters
     neobuxMembershipType: z.enum(["standard", "golden", "ultimate", "pioneer"]).optional(),
-    neobuxAdTypes: z.array(z.enum(["standard", "micro", "fixed", "adprize"])).optional(),
+    neobuxAdTypes: z.array(neobuxAdTypeEnum).optional(),
     neobuxClickDelay: z.coerce.number().min(3).max(30).optional(),
     neobuxAutoRecycle: z.boolean().default(false).optional(),
   }).optional(),
@@ -54,9 +58,9 @@ export const defaultTaskFormValues = {
     taskMinimumPayment: 0.5,
     taskMaxDuration: 15,
     useSpecificBrowser: "chrome" as const,
-    // Default Neobux parameters
+    // Default Neobux parameters - ensure these match the enum type
     neobuxMembershipType: "standard" as const,
-    neobuxAdTypes: ["standard", "micro"],
+    neobuxAdTypes: ["standard", "micro"] as NeobuxAdType[],
     neobuxClickDelay: 7,
     neobuxAutoRecycle: true
   }

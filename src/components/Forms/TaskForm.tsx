@@ -34,7 +34,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       ...defaultTaskFormValues,
-      ...defaultValues,
+      ...(defaultValues || {}),
     },
   });
 
