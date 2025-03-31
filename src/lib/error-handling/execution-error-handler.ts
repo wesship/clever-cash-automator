@@ -26,13 +26,16 @@ export class ExecutionErrorHandler {
       errorMessage.includes("connection") ||
       errorMessage.includes("timeout") ||
       errorMessage.includes("ECONNREFUSED") ||
-      errorMessage.includes("socket")
+      errorMessage.includes("socket") ||
+      errorMessage.includes("unreachable") ||
+      errorMessage.includes("DNS") ||
+      errorMessage.includes("proxy")
     ) {
       return {
         type: ErrorType.NETWORK,
         recoverable: true,
         message: `Network error while connecting to ${platformId}: ${errorMessage}`,
-        suggestion: "Check your internet connection and try again"
+        suggestion: "Check your internet connection or proxy settings and try again"
       };
     }
     
@@ -43,13 +46,14 @@ export class ExecutionErrorHandler {
       errorMessage.includes("credentials") ||
       errorMessage.includes("password") ||
       errorMessage.includes("unauthorized") ||
-      errorMessage.includes("401")
+      errorMessage.includes("401") ||
+      errorMessage.includes("token")
     ) {
       return {
         type: ErrorType.AUTHENTICATION,
         recoverable: false,
         message: `Authentication failed on ${platformId}: ${errorMessage}`,
-        suggestion: "Verify your login credentials"
+        suggestion: "Verify your login credentials or reset your account authentication"
       };
     }
     
@@ -58,13 +62,15 @@ export class ExecutionErrorHandler {
       errorMessage.includes("rate") ||
       errorMessage.includes("limit") ||
       errorMessage.includes("too many") ||
-      errorMessage.includes("429")
+      errorMessage.includes("429") ||
+      errorMessage.includes("throttled") ||
+      errorMessage.includes("quota")
     ) {
       return {
         type: ErrorType.RATE_LIMIT,
         recoverable: true,
         message: `Rate limit reached on ${platformId}: ${errorMessage}`,
-        suggestion: "Wait a moment before trying again"
+        suggestion: "Wait a moment before trying again or reduce request frequency"
       };
     }
     
@@ -73,7 +79,10 @@ export class ExecutionErrorHandler {
       errorMessage.includes("unavailable") ||
       errorMessage.includes("down") ||
       errorMessage.includes("maintenance") ||
-      errorMessage.includes("503")
+      errorMessage.includes("503") ||
+      errorMessage.includes("502") ||
+      errorMessage.includes("overloaded") ||
+      errorMessage.includes("server")
     ) {
       return {
         type: ErrorType.PLATFORM_UNAVAILABLE,
@@ -88,13 +97,51 @@ export class ExecutionErrorHandler {
       errorMessage.includes("captcha") ||
       errorMessage.includes("verification") ||
       errorMessage.includes("challenge") ||
-      errorMessage.includes("robot")
+      errorMessage.includes("robot") ||
+      errorMessage.includes("human") ||
+      errorMessage.includes("prove")
     ) {
       return {
         type: ErrorType.VALIDATION,
         recoverable: true,
         message: `Captcha or verification challenge encountered: ${errorMessage}`,
-        suggestion: "You may need to manually verify your account"
+        suggestion: "You may need to manually verify your account or solve a captcha"
+      };
+    }
+    
+    // Content restrictions or violations
+    if (
+      errorMessage.includes("content") ||
+      errorMessage.includes("violation") ||
+      errorMessage.includes("policy") ||
+      errorMessage.includes("guidelines") ||
+      errorMessage.includes("terms") ||
+      errorMessage.includes("banned") ||
+      errorMessage.includes("restricted")
+    ) {
+      return {
+        type: ErrorType.VALIDATION,
+        recoverable: false,
+        message: `Content policy violation: ${errorMessage}`,
+        suggestion: "Review the platform's content policies and adjust your task accordingly"
+      };
+    }
+    
+    // Browser or rendering issues
+    if (
+      errorMessage.includes("browser") ||
+      errorMessage.includes("render") ||
+      errorMessage.includes("display") ||
+      errorMessage.includes("screen") ||
+      errorMessage.includes("element") ||
+      errorMessage.includes("DOM") ||
+      errorMessage.includes("script")
+    ) {
+      return {
+        type: ErrorType.UNKNOWN,
+        recoverable: true,
+        message: `Browser rendering issue: ${errorMessage}`,
+        suggestion: "Try using a different browser or update your browser settings"
       };
     }
     
