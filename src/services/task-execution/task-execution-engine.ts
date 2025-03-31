@@ -1,16 +1,17 @@
 
 import { Task } from "@/lib/types";
 import { toast } from "sonner";
-import { getPlatformAdapter } from "@/lib/platforms";
-import { PlatformError, ErrorType } from "@/lib/error-handling";
+import { PlatformError } from "@/lib/error-handling";
 import { TaskStateManager } from "./task-state-manager";
-import { ProgressSimulator } from "./progress-simulator";
 import { MockTaskProvider } from "./mock-task-provider";
-import { delay } from "./utils";
 import { TaskExecutionState } from "./types";
+import { getPlatformAdapter } from "@/lib/platforms";
+import { TaskExecutor } from "./task-executor";
+import { ErrorHandler } from "./error-handler";
+import { TaskFinisher } from "./task-finisher";
 
 /**
- * Manages execution of tasks using platform-specific adapters
+ * Orchestrates task execution workflow
  */
 export class TaskExecutionEngine {
   
@@ -114,74 +115,30 @@ export class TaskExecutionEngine {
       const taskId = task.id;
       if (!TaskStateManager.isTaskRunning(taskId)) return;
       
-      // Update current step
-      TaskStateManager.updateProgress(taskId, 10, "Preparing execution environment");
-      TaskStateManager.logTaskProgress(taskId, "Setting up execution environment");
-      
-      // Get the platform adapter for this task
-      const adapter = getPlatformAdapter(task.platform);
-      
-      // Simulate preparation time
-      await delay(1000);
-      
-      if (!TaskStateManager.isTaskRunning(taskId)) return; // Check if task was stopped
-      
-      // Update progress
-      TaskStateManager.updateProgress(taskId, 20, "Starting task execution");
-      TaskStateManager.logTaskProgress(taskId, `Using ${task.platform} adapter for execution`);
-      
-      // Execute the task with the appropriate adapter
+      // Execute the task with the TaskExecutor
       try {
-        // Update progress during execution
-        await ProgressSimulator.simulateProgress(taskId, 20, 90);
-        
-        if (!TaskStateManager.isTaskRunning(taskId)) return; // Check if task was stopped
-        
-        // Execute the task via the adapter
-        await adapter.executeTask(task);
+        await TaskExecutor.executeTask(task);
         
         // If execution completed successfully
         if (TaskStateManager.isTaskRunning(taskId)) {
-          this.finishTask(taskId, true);
+          TaskFinisher.finishTask(taskId, true);
         }
       } catch (error) {
-        // Handle execution error using the adapter's error handling
-        let platformError: PlatformError;
+        // Handle execution error
+        const platformError = ErrorHandler.handleExecutionError(error, task);
         
-        try {
-          platformError = adapter.handleExecutionError(error, task);
-        } catch (handlingError) {
-          // Fallback if error handling itself fails
-          platformError = new PlatformError(
-            `Unhandled error during task execution: ${error instanceof Error ? error.message : String(error)}`,
-            { 
-              type: ErrorType.UNKNOWN, 
-              recoverable: false, 
-              platformId: task.platform,
-              cause: error instanceof Error ? error : undefined
-            }
-          );
-        }
+        // Log the error
+        ErrorHandler.logErrorToTask(taskId, platformError);
         
-        // Log the error with user-friendly message
-        TaskStateManager.logTaskProgress(
-          taskId, 
-          `Execution error: ${platformError.getUserFriendlyMessage()}`, 
-          true
-        );
+        // Show error notification
+        ErrorHandler.showErrorNotification(platformError);
         
-        // Show appropriate toast message based on error type
-        if (platformError.recoverable) {
-          toast.error(`${platformError.getUserFriendlyMessage()} ${platformError.getRecoverySuggestion()}`);
-        } else {
-          toast.error(platformError.getUserFriendlyMessage());
-        }
-        
-        this.finishTask(taskId, false, platformError);
+        // Finish the task with error
+        TaskFinisher.finishTask(taskId, false, platformError);
       }
     } catch (error) {
-      const taskId = task.id;
       // Handle preparation error
+      const taskId = task.id;
       const errorMessage = error instanceof Error ? error.message : String(error);
       TaskStateManager.logTaskProgress(taskId, `Preparation error: ${errorMessage}`, true);
       
@@ -196,29 +153,7 @@ export class TaskExecutionEngine {
         }
       );
       
-      this.finishTask(taskId, false, platformError);
-    }
-  }
-
-  /**
-   * Complete a task execution
-   */
-  private static finishTask(taskId: string, success: boolean, error?: PlatformError): void {
-    TaskStateManager.finishTask(taskId, success, error);
-    
-    if (success) {
-      TaskStateManager.updateProgress(taskId, 100, "Task completed successfully");
-      TaskStateManager.logTaskProgress(taskId, "Task execution completed successfully");
-      toast.success("Task completed successfully");
-    } else {
-      TaskStateManager.updateProgress(taskId, 0, "Task failed");
-      TaskStateManager.logTaskProgress(taskId, "Task execution failed");
-      
-      // Don't show another toast here since we already show specific error toasts
-      // We only want to show a generic one if we didn't catch a specific error
-      if (!error) {
-        toast.error("Task failed to complete");
-      }
+      TaskFinisher.finishTask(taskId, false, platformError);
     }
   }
 
