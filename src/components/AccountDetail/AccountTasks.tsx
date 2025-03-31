@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Task } from "@/types/account.types";
 import { generateMockTaskExecutionData } from "@/utils/account-utils";
 import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
-import { TaskType, PlatformType, Task as LibTask } from "@/lib/types";
+import { TaskType, PlatformType, Task as LibTask, TaskStatus } from "@/lib/types";
 
 interface AccountTasksProps {
   tasks: Task[];
@@ -28,7 +28,7 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
       name: task.name,
       type: TaskType.SURVEY,
       platform: PlatformType.SWAGBUCKS,
-      status: task.status === "active" ? "running" : "paused",
+      status: task.status === "active" ? TaskStatus.RUNNING : TaskStatus.PAUSED,
       createdAt: new Date(),
       lastRun: undefined,
       completionCount: task.completions,
