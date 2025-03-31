@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,6 +8,7 @@ import useTaskExecution from "@/hooks/use-task-execution";
 import { Button } from "@/components/ui/button";
 import { Loader2, Terminal, AlertTriangle, RefreshCw } from "lucide-react";
 import { PlatformError } from "@/lib/error-handling";
+import TaskExecutionProgress from "./TaskExecutionProgress";
 
 interface TaskExecutionMonitorProps {
   task: Task;
@@ -24,6 +25,85 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
     canRetry,
     retryTask
   } = useTaskExecution(task.id);
+
+  // Track execution steps
+  const [executionSteps, setExecutionSteps] = useState<Array<{
+    name: string;
+    status: "pending" | "in-progress" | "completed" | "error";
+    duration?: number;
+    message?: string;
+  }>>([]);
+  
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  // Parse logs to track step progress
+  useEffect(() => {
+    if (logs.length === 0) return;
+    
+    const stepRegex = /Step(?:\s+(\d+)\/(\d+))?:?\s+(.+?)(?:\s+\((\d+)%.*\))?$/;
+    const steps: Record<string, {
+      name: string;
+      status: "pending" | "in-progress" | "completed" | "error";
+      index?: number;
+      totalSteps?: number;
+      progress?: number;
+      duration?: number;
+      message?: string;
+    }> = {};
+    
+    let currentActive = 0;
+    
+    // Process logs to extract step information
+    logs.forEach((log, i) => {
+      const match = log.match(stepRegex);
+      if (match) {
+        const [_, stepNumStr, totalStepsStr, stepName, progressStr] = match;
+        
+        const stepIndex = stepNumStr ? parseInt(stepNumStr, 10) - 1 : Object.keys(steps).length;
+        const progress = progressStr ? parseInt(progressStr, 10) : undefined;
+        
+        steps[stepName] = {
+          name: stepName,
+          status: "completed",
+          index: stepIndex,
+          totalSteps: totalStepsStr ? parseInt(totalStepsStr, 10) : undefined,
+          progress
+        };
+        
+        // If this log is from the last 3 entries, consider it active
+        if (i >= logs.length - 3) {
+          currentActive = stepIndex;
+          steps[stepName].status = "in-progress";
+        }
+      }
+      
+      // Check for error logs
+      if (log.toLowerCase().includes("error")) {
+        // Find which step had the error
+        Object.values(steps).forEach(step => {
+          if (step.status === "in-progress") {
+            step.status = "error";
+            step.message = log;
+          }
+        });
+      }
+    });
+    
+    // Convert to array and sort by index
+    const stepsArray = Object.values(steps)
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
+      .map(step => ({
+        name: step.name,
+        status: step.status,
+        duration: step.duration,
+        message: step.message
+      }));
+    
+    if (stepsArray.length > 0) {
+      setExecutionSteps(stepsArray);
+      setCurrentStepIndex(currentActive);
+    }
+  }, [logs]);
 
   // Determine if we should show error details
   const showErrorDetails = !!lastError && !isRunning;
@@ -52,6 +132,15 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
           <p className="text-sm font-medium">Current Operation:</p>
           <p className="text-sm">{currentStepDescription || "Not running"}</p>
         </div>
+        
+        {/* Step Progress Visualization */}
+        {executionSteps.length > 0 && (
+          <TaskExecutionProgress
+            steps={executionSteps}
+            currentStepIndex={currentStepIndex}
+            overallProgress={progress}
+          />
+        )}
         
         {/* Error details section */}
         {showErrorDetails && (

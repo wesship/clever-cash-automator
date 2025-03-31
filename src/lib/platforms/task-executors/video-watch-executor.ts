@@ -9,19 +9,28 @@ export async function executeVideoWatchTask(): Promise<void> {
   
   const steps = [
     "Opening browser with configured user agent",
+    "Connecting to proxy server",
     "Loading video platform",
-    "Authenticating account",
-    "Searching for target videos",
+    "Logging in to account",
+    "Finding recommended videos",
     "Starting video playback",
-    "Ensuring video volume is appropriate",
-    "Monitoring video playback",
-    "Handling any ads or interruptions",
-    "Logging engagement actions",
-    "Verifying view was counted"
+    "Monitoring watch progress",
+    "Verifying view count registered",
+    "Engaging with video (like/comment)",
+    "Watching related video recommendations"
   ];
   
+  // Track progress percentage for more detailed reporting
+  let progress = 0;
+  const stepIncrement = 100 / steps.length;
+  
   for (const step of steps) {
-    console.log(`Step: ${step}`);
+    console.log(`Step: ${step} (${Math.round(progress)}% complete)`);
+    progress += stepIncrement;
+    
+    // Generate random delay between 1-3 seconds for more realistic execution
     await delay(Math.random() * 2000 + 1000);
   }
+  
+  console.log("Video watch task completed successfully");
 }

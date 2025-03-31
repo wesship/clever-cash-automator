@@ -1,5 +1,5 @@
 
-import { delay } from "./utils";
+import { delay, withTimeout } from "./utils";
 
 /**
  * Ad clicking task implementation
@@ -20,8 +20,28 @@ export async function executeAdClickTask(): Promise<void> {
     "Moving to next ad"
   ];
   
+  // Track progress for detailed reporting
+  let stepIndex = 0;
+  const totalSteps = steps.length;
+  
   for (const step of steps) {
-    console.log(`Step: ${step}`);
-    await delay(Math.random() * 2000 + 1000);
+    stepIndex++;
+    const progressPercent = Math.round((stepIndex / totalSteps) * 100);
+    
+    console.log(`Step ${stepIndex}/${totalSteps}: ${step} (${progressPercent}% complete)`);
+    
+    try {
+      // Use withTimeout to ensure steps don't hang indefinitely
+      await withTimeout(
+        () => delay(Math.random() * 2000 + 1000),
+        10000,
+        `Timeout while executing step: ${step}`
+      );
+    } catch (error) {
+      console.error(`Error during step "${step}":`, error);
+      throw error;
+    }
   }
+  
+  console.log("Ad click task completed successfully");
 }
