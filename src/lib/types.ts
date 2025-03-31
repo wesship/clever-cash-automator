@@ -1,4 +1,3 @@
-
 export enum TaskStatus {
   PENDING = "pending",
   RUNNING = "running",
@@ -13,7 +12,8 @@ export enum TaskType {
   SURVEY = "survey",
   VIDEO_WATCH = "video_watch",
   CONTENT_CREATION = "content_creation",
-  AFFILIATE = "affiliate"
+  AFFILIATE = "affiliate",
+  CUSTOM = "custom"
 }
 
 export enum PlatformType {
