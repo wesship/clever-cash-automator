@@ -5,6 +5,7 @@ import { PlatformError } from "@/lib/error-handling";
 
 // Base interface for platform adapters
 export interface PlatformAdapter {
+  // Specify proper return type for getTaskSchema
   getTaskSchema(): z.ZodObject<any>;
   getDefaultValues(): Record<string, any>;
   executeTask(task: Task): Promise<void>;

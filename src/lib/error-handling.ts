@@ -28,6 +28,7 @@ export class PlatformError extends Error {
     details?: Record<string, any>,
     cause?: Error
   }) {
+    // Fix: Pass only the cause option to super
     super(message, { cause: options.cause });
     this.name = 'PlatformError';
     this.type = options.type;

@@ -1,8 +1,6 @@
-
 import { z } from "zod";
 import { getPlatformAdapter } from "@/lib/platforms";
 import { PlatformType } from "@/lib/types";
-import { neobuxAdTypeEnum, NeobuxAdType } from "@/lib/platforms";
 
 // Create a base schema for website params
 const baseWebsiteParamsSchema = z.object({
@@ -18,12 +16,14 @@ const buildWebsiteParamsSchema = () => {
   Object.values(PlatformType).forEach(platform => {
     const adapter = getPlatformAdapter(platform);
     if (adapter) {
-      // Safely merge the schemas using extend instead of merge
-      // This ensures type compatibility
+      // Get the adapter schema
       const adapterSchema = adapter.getTaskSchema();
-      if (adapterSchema && adapterSchema instanceof z.ZodObject) {
-        // Create a new merged schema
-        mergedSchema = mergedSchema.extend(adapterSchema.shape);
+      
+      if (adapterSchema) {
+        // Use extend() to correctly merge schemas
+        // This preserves type information properly
+        const shape = adapterSchema.shape || {};
+        mergedSchema = mergedSchema.extend(shape);
       }
     }
   });

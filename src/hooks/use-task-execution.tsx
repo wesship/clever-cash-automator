@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import TaskExecutionEngine from '@/services/TaskExecutionService';
+import { TaskExecutionEngine } from '@/services/task-execution';
 import { Task } from '@/lib/types';
 import { PlatformError } from '@/lib/error-handling';
 
