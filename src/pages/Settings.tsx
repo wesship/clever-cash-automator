@@ -28,7 +28,7 @@ const Settings = () => {
           </div>
 
           <Tabs defaultValue="account" className="space-y-6">
-            <TabsList className="bg-card/50 backdrop-blur-sm">
+            <TabsList className="bg-card/50 backdrop-blur-sm overflow-x-auto flex w-full sm:w-auto">
               <TabsTrigger value="account" className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white">
                 <User className="h-4 w-4 mr-2" />
                 Account
