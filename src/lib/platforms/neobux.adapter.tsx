@@ -33,7 +33,62 @@ export class NeobuxAdapter implements PlatformAdapter {
 
   async executeTask(task: Task): Promise<void> {
     console.log("Executing Neobux task with ID:", task.id);
-    // The actual execution logic would be moved here from TaskExecutionService
+    
+    // Get task-specific parameters
+    const membershipType = task.config.taskSpecific?.neobuxMembershipType || "standard";
+    const adTypes = task.config.taskSpecific?.neobuxAdTypes || ["standard"];
+    const clickDelay = task.config.taskSpecific?.neobuxClickDelay || 7;
+    const autoRecycle = task.config.taskSpecific?.neobuxAutoRecycle || false;
+    const browserType = task.config.taskSpecific?.useSpecificBrowser || "chrome";
+
+    // Log execution details
+    console.log(`Using browser: ${browserType}`);
+    console.log(`Account membership: ${membershipType}`);
+    console.log(`Selected ad types: ${adTypes.join(", ")}`);
+    console.log(`Click delay: ${clickDelay} seconds`);
+    console.log(`Auto-recycle enabled: ${autoRecycle}`);
+
+    // In a real implementation, this would use automation tools to:
+    // 1. Open the browser
+    // 2. Navigate to Neobux
+    // 3. Login with credentials
+    // 4. Click ads based on the configuration
+    
+    // For this simulation, we'll just log the process
+    console.log("Simulating Neobux ad clicking process");
+    
+    // Calculate simulated earnings based on membership type and ad types
+    const totalClicks = Math.floor(Math.random() * 20) + 10;
+    let totalEarnings = 0;
+    
+    // Calculate earnings based on membership type and ad types
+    const adValues: Record<string, number> = {
+      standard: membershipType === "standard" ? 0.001 : 
+                (membershipType === "golden" ? 0.01 : 
+                (membershipType === "ultimate" ? 0.02 : 0.03)),
+      micro: 0.001,
+      fixed: 0.001,
+      adprize: membershipType === "standard" ? 0 : 0.05
+    };
+
+    // Log each ad type clicked
+    adTypes.forEach(adType => {
+      const adTypeClicks = Math.floor(totalClicks / adTypes.length);
+      const adValue = adValues[adType as keyof typeof adValues];
+      const adEarnings = adTypeClicks * adValue;
+      totalEarnings += adEarnings;
+      
+      console.log(`Clicked ${adTypeClicks} ${adType} ads for $${adEarnings.toFixed(4)}`);
+    });
+
+    console.log(`Total earnings: $${totalEarnings.toFixed(4)}`);
+    
+    // Handle auto-recycling if enabled
+    if (autoRecycle) {
+      console.log("Performing auto-recycle operation");
+      const recycledAds = Math.floor(Math.random() * 5);
+      console.log(`Recycled ${recycledAds} advertisements for next session`);
+    }
   }
 
   getFormFields(form: any) {

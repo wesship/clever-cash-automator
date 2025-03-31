@@ -26,6 +26,8 @@ export function getPlatformAdapter(platform: string) {
 
 // Export for direct imports
 export { PlatformRegistry } from "./types";
-export { NeobuxAdapter, neobuxAdTypeEnum, NeobuxAdType } from "./neobux.adapter";
+export { NeobuxAdapter } from "./neobux.adapter";
 export { ClickworkerAdapter } from "./clickworker.adapter";
 export { BaseAdapter } from "./base.adapter";
+export type { NeobuxAdType } from "./neobux.adapter";
+export { neobuxAdTypeEnum } from "./neobux.adapter";
