@@ -1,12 +1,14 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchBar from "./SearchBar";
 import UserGuides from "./UserGuides";
 import FAQSection from "./FAQSection";
 import APIDocumentation from "./APIDocumentation";
+import GuideDetail from "./GuideDetail";
 import useKnowledgeBase from "./useKnowledgeBase";
+import { GuideType } from "./types";
 
 const KnowledgeBase = () => {
   const { 
@@ -18,6 +20,16 @@ const KnowledgeBase = () => {
     filteredFaqCategories, 
     filteredEndpoints 
   } = useKnowledgeBase();
+
+  const [selectedGuide, setSelectedGuide] = useState<GuideType | null>(null);
+
+  const handleSelectGuide = (guide: GuideType) => {
+    setSelectedGuide(guide);
+  };
+
+  const handleBackToGuides = () => {
+    setSelectedGuide(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -41,7 +53,11 @@ const KnowledgeBase = () => {
             </div>
             
             <TabsContent value="guides" className="space-y-4">
-              <UserGuides filteredGuides={filteredGuides} />
+              {selectedGuide ? (
+                <GuideDetail guide={selectedGuide} onBack={handleBackToGuides} />
+              ) : (
+                <UserGuides filteredGuides={filteredGuides} onSelectGuide={handleSelectGuide} />
+              )}
             </TabsContent>
             
             <TabsContent value="faq" className="space-y-4">

@@ -8,9 +8,10 @@ import { GuideType } from "./types";
 
 interface UserGuidesProps {
   filteredGuides: GuideType[];
+  onSelectGuide: (guide: GuideType) => void;
 }
 
-const UserGuides = ({ filteredGuides }: UserGuidesProps) => {
+const UserGuides = ({ filteredGuides, onSelectGuide }: UserGuidesProps) => {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {filteredGuides.length > 0 ? (
@@ -28,7 +29,12 @@ const UserGuides = ({ filteredGuides }: UserGuidesProps) => {
                 <span>Last updated: {guide.updated}</span>
                 <span>{guide.timeToRead} min read</span>
               </div>
-              <Button variant="ghost" size="sm" className="mt-2 w-full justify-between">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="mt-2 w-full justify-between"
+                onClick={() => onSelectGuide(guide)}
+              >
                 Read guide <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
