@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Task } from "@/types/account.types";
 import { generateMockTaskExecutionData } from "@/utils/account-utils";
 import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
+import { TaskType, PlatformType } from "@/lib/types";
 
 interface AccountTasksProps {
   tasks: Task[];
@@ -21,9 +21,8 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
   const handleMonitorTask = (task: Task) => {
     setSelectedTask({
       ...task,
-      // Add properties expected by TaskExecutionMonitor
-      type: "survey", // Dummy value
-      platform: "swagbucks", // Dummy value
+      type: TaskType.SURVEY,
+      platform: PlatformType.SWAGBUCKS,
       createdAt: new Date(),
       targetCompletions: task.total,
       completionCount: task.completions,
