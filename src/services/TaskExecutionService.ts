@@ -1,3 +1,4 @@
+
 import { Task, TaskStatus, TaskType, PlatformType } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -122,7 +123,7 @@ class TaskExecutionEngine {
    * Check if we have a specialized executor for this platform
    */
   private static hasSpecializedPlatformExecutor(platform: PlatformType): boolean {
-    return platform === PlatformType.CLICKWORKER;
+    return platform === PlatformType.CLICKWORKER || platform === PlatformType.NEOBUX;
   }
 
   /**
@@ -133,10 +134,102 @@ class TaskExecutionEngine {
       case PlatformType.CLICKWORKER:
         await this.executeClickworkerTask(task);
         break;
+      case PlatformType.NEOBUX:
+        await this.executeNeobuxTask(task);
+        break;
       default:
         // Fallback if we somehow get here
         this.logTaskProgress(task.id, `No specialized executor for: ${task.platform}`);
         this.finishTask(task.id, false);
+    }
+  }
+
+  /**
+   * Execute a Neobux task with specialized logic
+   */
+  private static async executeNeobuxTask(task: Task): Promise<void> {
+    const state = runningTasks.get(task.id);
+    if (!state) return;
+
+    this.logTaskProgress(task.id, "Starting Neobux task execution");
+    
+    const browserType = task.config.taskSpecific?.useSpecificBrowser || "chrome";
+    this.logTaskProgress(task.id, `Using browser: ${browserType}`);
+
+    // Get Neobux-specific parameters
+    const membershipType = task.config.taskSpecific?.neobuxMembershipType || "standard";
+    const adTypes = task.config.taskSpecific?.neobuxAdTypes || ["standard"];
+    const clickDelay = task.config.taskSpecific?.neobuxClickDelay || 7;
+    const autoRecycle = task.config.taskSpecific?.neobuxAutoRecycle || false;
+    
+    // Log the configuration
+    this.logTaskProgress(task.id, `Account membership: ${membershipType}`);
+    this.logTaskProgress(task.id, `Selected ad types: ${adTypes.join(", ")}`);
+    this.logTaskProgress(task.id, `Click delay: ${clickDelay} seconds`);
+    this.logTaskProgress(task.id, `Auto-recycle enabled: ${autoRecycle}`);
+
+    const steps = [
+      "Opening Neobux in specified browser",
+      "Logging in with account credentials",
+      "Navigating to advertisement page",
+      "Scanning available advertisements",
+      "Filtering for selected ad types",
+      "Beginning ad click sequence",
+      "Waiting for verification images",
+      "Processing verification prompts",
+      "Waiting for required view time",
+      "Confirming ad credit"
+    ];
+
+    if (autoRecycle) {
+      steps.push("Checking for recyclable ads");
+      steps.push("Processing recyclable advertisements");
+    }
+
+    // Custom step execution for Neobux with variable timing based on membership
+    const baseStepTime = membershipType === "standard" ? 10000 : 
+                        (membershipType === "golden" ? 8000 :
+                        (membershipType === "ultimate" ? 7000 : 6000));
+                        
+    // Execute steps with custom timing based on membership level
+    await this.executeTaskSteps(task, steps, baseStepTime - 2000, baseStepTime + 5000);
+
+    // If the task completed successfully and we're still running
+    const taskState = runningTasks.get(task.id);
+    if (taskState && taskState.isRunning) {
+      // Log earnings based on membership and ad types
+      let totalClicks = Math.floor(Math.random() * 20) + 10; // Random number of ad clicks
+      let totalEarnings = 0;
+      
+      // Calculate earnings based on membership type and ad types
+      const adValues = {
+        standard: membershipType === "standard" ? 0.001 : 
+                 (membershipType === "golden" ? 0.01 : 
+                 (membershipType === "ultimate" ? 0.02 : 0.03)),
+        micro: 0.001,
+        fixed: 0.001,
+        adprize: membershipType === "standard" ? 0 : 0.05
+      };
+
+      // Log each ad type clicked
+      adTypes.forEach(adType => {
+        const adTypeClicks = Math.floor(totalClicks / adTypes.length);
+        const adValue = adValues[adType as keyof typeof adValues];
+        const adEarnings = adTypeClicks * adValue;
+        totalEarnings += adEarnings;
+        
+        this.logTaskProgress(task.id, `Clicked ${adTypeClicks} ${adType} ads for $${adEarnings.toFixed(4)}`);
+      });
+
+      this.logTaskProgress(task.id, `Total earnings: $${totalEarnings.toFixed(4)}`);
+      
+      // Handle auto-recycling if enabled
+      if (autoRecycle) {
+        this.logTaskProgress(task.id, "Performing auto-recycle operation");
+        await this.delay(5000);
+        const recycledAds = Math.floor(Math.random() * 5);
+        this.logTaskProgress(task.id, `Recycled ${recycledAds} advertisements for next session`);
+      }
     }
   }
 

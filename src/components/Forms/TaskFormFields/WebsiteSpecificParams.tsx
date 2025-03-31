@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { PlatformType } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface WebsiteSpecificParamsProps {
   form: UseFormReturn<any>;
@@ -20,6 +20,20 @@ const WebsiteSpecificParams: React.FC<WebsiteSpecificParamsProps> = ({ form, pla
       if (!form.getValues('websiteParams.clickworkerQualificationLevel')) {
         form.setValue('websiteParams.clickworkerQualificationLevel', 'intermediate');
       }
+    } else if (platform === PlatformType.NEOBUX) {
+      // Set default values for Neobux if not already set
+      if (!form.getValues('websiteParams.neobuxMembershipType')) {
+        form.setValue('websiteParams.neobuxMembershipType', 'standard');
+      }
+      if (!form.getValues('websiteParams.neobuxAdTypes')) {
+        form.setValue('websiteParams.neobuxAdTypes', ['standard', 'micro']);
+      }
+      if (!form.getValues('websiteParams.neobuxClickDelay')) {
+        form.setValue('websiteParams.neobuxClickDelay', 7);
+      }
+      if (form.getValues('websiteParams.neobuxAutoRecycle') === undefined) {
+        form.setValue('websiteParams.neobuxAutoRecycle', true);
+      }
     }
   }, [platform, form]);
 
@@ -27,6 +41,13 @@ const WebsiteSpecificParams: React.FC<WebsiteSpecificParamsProps> = ({ form, pla
   if (!platform || platform === PlatformType.CUSTOM) {
     return null;
   }
+
+  const adTypeOptions = [
+    { id: "standard", label: "Standard Ads" },
+    { id: "micro", label: "Micro Ads" },
+    { id: "fixed", label: "Fixed Ads" },
+    { id: "adprize", label: "AdPrize" },
+  ];
 
   return (
     <Card>
@@ -95,6 +116,122 @@ const WebsiteSpecificParams: React.FC<WebsiteSpecificParamsProps> = ({ form, pla
           </>
         )}
 
+        {platform === PlatformType.NEOBUX && (
+          <>
+            <FormField
+              control={form.control}
+              name="websiteParams.neobuxMembershipType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Membership Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || "standard"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select membership type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="standard">Standard</SelectItem>
+                      <SelectItem value="golden">Golden</SelectItem>
+                      <SelectItem value="ultimate">Ultimate</SelectItem>
+                      <SelectItem value="pioneer">Pioneer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Your Neobux membership level
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="websiteParams.neobuxClickDelay"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Click Delay (seconds)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      min="3" 
+                      max="30" 
+                      {...field} 
+                      onChange={e => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Time to wait between clicks (3-30 seconds)
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="websiteParams.neobuxAutoRecycle"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Auto-recycle ads</FormLabel>
+                    <FormDescription>
+                      Automatically recycle ads when available
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-3">
+              <FormLabel>Ad Types to Click</FormLabel>
+              <FormDescription>
+                Select which ad types to include
+              </FormDescription>
+              <div className="grid grid-cols-2 gap-2">
+                {adTypeOptions.map((option) => (
+                  <FormField
+                    key={option.id}
+                    control={form.control}
+                    name="websiteParams.neobuxAdTypes"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={option.id}
+                          className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(option.id)}
+                              onCheckedChange={(checked) => {
+                                const currentValue = field.value || [];
+                                return checked
+                                  ? field.onChange([...currentValue, option.id])
+                                  : field.onChange(
+                                      currentValue.filter(
+                                        (value) => value !== option.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {option.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
         {platform === PlatformType.AMAZON_MECHANICAL_TURK && (
           <p className="text-sm text-muted-foreground">
             Amazon MTurk specific parameters will be shown here
@@ -103,7 +240,7 @@ const WebsiteSpecificParams: React.FC<WebsiteSpecificParamsProps> = ({ form, pla
 
         {/* Add more platform-specific fields as needed */}
         
-        {!([PlatformType.CLICKWORKER, PlatformType.AMAZON_MECHANICAL_TURK].includes(platform as PlatformType)) && (
+        {!([PlatformType.CLICKWORKER, PlatformType.AMAZON_MECHANICAL_TURK, PlatformType.NEOBUX].includes(platform as PlatformType)) && (
           <p className="text-sm text-muted-foreground">
             No specific parameters available for this platform yet
           </p>

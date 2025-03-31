@@ -31,6 +31,13 @@ export const useTaskManager = (initialTasks: Task[] = []) => {
           clickworkerQualificationLevel: data.websiteParams?.clickworkerQualificationLevel,
           taskMinimumPayment: data.websiteParams?.taskMinimumPayment,
           taskMaxDuration: data.websiteParams?.taskMaxDuration,
+          
+          // For Neobux
+          neobuxMembershipType: data.websiteParams?.neobuxMembershipType,
+          neobuxAdTypes: data.websiteParams?.neobuxAdTypes,
+          neobuxClickDelay: data.websiteParams?.neobuxClickDelay,
+          neobuxAutoRecycle: data.websiteParams?.neobuxAutoRecycle,
+          
           // Browser preference for any platform
           useSpecificBrowser: data.websiteParams?.useSpecificBrowser,
         }

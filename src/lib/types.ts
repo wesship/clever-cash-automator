@@ -22,6 +22,7 @@ export enum PlatformType {
   FIVERR = "fiverr",
   YOUTUBE = "youtube",
   CLICKWORKER = "clickworker",
+  NEOBUX = "neobux",
   CUSTOM = "custom"
 }
 

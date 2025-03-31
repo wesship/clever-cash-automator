@@ -29,6 +29,11 @@ export const taskFormSchema = z.object({
     taskMinimumPayment: z.coerce.number().min(0).optional(),
     taskMaxDuration: z.coerce.number().min(1).optional(),
     useSpecificBrowser: z.enum(["chrome", "firefox", "edge"]).optional(),
+    // Neobux specific parameters
+    neobuxMembershipType: z.enum(["standard", "golden", "ultimate", "pioneer"]).optional(),
+    neobuxAdTypes: z.array(z.enum(["standard", "micro", "fixed", "adprize"])).optional(),
+    neobuxClickDelay: z.coerce.number().min(3).max(30).optional(),
+    neobuxAutoRecycle: z.boolean().default(false).optional(),
   }).optional(),
 });
 
@@ -48,6 +53,11 @@ export const defaultTaskFormValues = {
     clickworkerQualificationLevel: "intermediate" as const,
     taskMinimumPayment: 0.5,
     taskMaxDuration: 15,
-    useSpecificBrowser: "chrome" as const
+    useSpecificBrowser: "chrome" as const,
+    // Default Neobux parameters
+    neobuxMembershipType: "standard" as const,
+    neobuxAdTypes: ["standard", "micro"],
+    neobuxClickDelay: 7,
+    neobuxAutoRecycle: true
   }
 };

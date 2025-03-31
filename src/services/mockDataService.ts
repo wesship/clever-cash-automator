@@ -1,3 +1,4 @@
+
 import { Task, TaskStatus, TaskType, PlatformType, Statistics } from "@/lib/types";
 
 // Mock tasks data
@@ -130,8 +131,8 @@ export const mockTasks: Task[] = [
   {
     id: "7",
     name: "Clickworker Microtasks",
-    type: TaskType.CONTENT_CREATION,
     platform: PlatformType.CLICKWORKER,
+    type: TaskType.CONTENT_CREATION,
     status: TaskStatus.PENDING,
     createdAt: new Date(Date.now() - 86400000 * 1),
     completionCount: 0,
@@ -153,6 +154,33 @@ export const mockTasks: Task[] = [
       }
     },
   },
+  {
+    id: "8",
+    name: "Neobux Ad Clicking",
+    platform: PlatformType.NEOBUX,
+    type: TaskType.AD_CLICK,
+    status: TaskStatus.PENDING,
+    createdAt: new Date(Date.now() - 86400000 * 1),
+    completionCount: 0,
+    targetCompletions: 30,
+    earnings: 0,
+    description: "Automatically click ads on Neobux to generate daily revenue.",
+    config: {
+      proxyRequired: true,
+      captchaHandling: true,
+      schedule: {
+        frequency: "daily",
+        maxRuns: 1,
+      },
+      taskSpecific: {
+        neobuxMembershipType: "golden",
+        neobuxAdTypes: ["standard", "micro", "fixed", "adprize"],
+        neobuxClickDelay: 7,
+        neobuxAutoRecycle: true,
+        useSpecificBrowser: "firefox"
+      }
+    },
+  }
 ];
 
 // Mock statistics data
