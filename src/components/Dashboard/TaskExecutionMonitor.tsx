@@ -5,6 +5,7 @@ import { Task } from "@/lib/types";
 import useTaskExecution from "@/hooks/use-task-execution";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlatformError } from "@/lib/error-handling";
+import { parseStepsFromLogs } from "./TaskExecution/utils";
 
 // Import our new components
 import TaskStatusBadge from "./TaskExecution/TaskStatusBadge";
@@ -35,15 +36,8 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
   const [activeTab, setActiveTab] = useState<string>("progress");
   const [executionTime, setExecutionTime] = useState<number>(0);
 
-  // Track execution steps
-  const [executionSteps, setExecutionSteps] = useState<Array<{
-    name: string;
-    status: "pending" | "in-progress" | "completed" | "error";
-    duration?: number;
-    message?: string;
-  }>>([]);
-  
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  // Use parseStepsFromLogs utility
+  const { steps: executionSteps, currentStepIndex } = parseStepsFromLogs(logs);
 
   // Start a timer to track execution time
   useEffect(() => {
@@ -61,82 +55,6 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
       }
     };
   }, [isRunning]);
-
-  // Format execution time as mm:ss
-  const formatExecutionTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Parse logs to track step progress
-  useEffect(() => {
-    if (logs.length === 0) return;
-    
-    const stepRegex = /Step(?:\s+(\d+)\/(\d+))?:?\s+(.+?)(?:\s+\((\d+)%.*\))?$/;
-    const steps: Record<string, {
-      name: string;
-      status: "pending" | "in-progress" | "completed" | "error";
-      index?: number;
-      totalSteps?: number;
-      progress?: number;
-      duration?: number;
-      message?: string;
-    }> = {};
-    
-    let currentActive = 0;
-    
-    // Process logs to extract step information
-    logs.forEach((log, i) => {
-      const match = log.match(stepRegex);
-      if (match) {
-        const [_, stepNumStr, totalStepsStr, stepName, progressStr] = match;
-        
-        const stepIndex = stepNumStr ? parseInt(stepNumStr, 10) - 1 : Object.keys(steps).length;
-        const progress = progressStr ? parseInt(progressStr, 10) : undefined;
-        
-        steps[stepName] = {
-          name: stepName,
-          status: "completed",
-          index: stepIndex,
-          totalSteps: totalStepsStr ? parseInt(totalStepsStr, 10) : undefined,
-          progress
-        };
-        
-        // If this log is from the last 3 entries, consider it active
-        if (i >= logs.length - 3) {
-          currentActive = stepIndex;
-          steps[stepName].status = "in-progress";
-        }
-      }
-      
-      // Check for error logs
-      if (log.toLowerCase().includes("error")) {
-        // Find which step had the error
-        Object.values(steps).forEach(step => {
-          if (step.status === "in-progress") {
-            step.status = "error";
-            step.message = log;
-          }
-        });
-      }
-    });
-    
-    // Convert to array and sort by index
-    const stepsArray = Object.values(steps)
-      .sort((a, b) => (a.index || 0) - (b.index || 0))
-      .map(step => ({
-        name: step.name,
-        status: step.status,
-        duration: step.duration,
-        message: step.message
-      }));
-    
-    if (stepsArray.length > 0) {
-      setExecutionSteps(stepsArray);
-      setCurrentStepIndex(currentActive);
-    }
-  }, [logs]);
 
   // Determine if we should show error details
   const showErrorDetails = !!lastError && !isRunning;
@@ -156,7 +74,7 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
           <p className="text-sm text-muted-foreground">
             {task.platform} • {task.type} • 
             {isRunning && (
-              <span className="ml-1 text-blue-500">{formatExecutionTime(executionTime)} elapsed</span>
+              <span className="ml-1 text-blue-500">{executionTime}s elapsed</span>
             )}
           </p>
         </div>

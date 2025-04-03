@@ -3,22 +3,20 @@ import React from "react";
 import { Clock, Loader2, Check, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDuration } from "./utils";
 
-interface StepStatus {
-  name: string;
-  status: "pending" | "in-progress" | "completed" | "error";
-  duration?: number;
-  message?: string;
-  startTime?: Date;
-}
-
-interface StepListItemProps {
-  step: StepStatus;
+interface StepProps {
+  step: {
+    name: string;
+    status: "pending" | "in-progress" | "completed" | "error";
+    duration?: number;
+    message?: string;
+  };
   isActive: boolean;
   isPast: boolean;
 }
 
-const StepListItem: React.FC<StepListItemProps> = ({ step, isActive, isPast }) => {
+const StepListItem: React.FC<StepProps> = ({ step, isActive, isPast }) => {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -48,7 +46,7 @@ const StepListItem: React.FC<StepListItemProps> = ({ step, isActive, isPast }) =
               <div className="flex items-center gap-2">
                 {step.duration && (
                   <span className="text-xs text-muted-foreground">
-                    {step.duration}s
+                    {formatDuration(step.duration)}
                   </span>
                 )}
                 {step.message && (

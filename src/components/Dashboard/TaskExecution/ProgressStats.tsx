@@ -2,6 +2,7 @@
 import React from "react";
 import { Clock, Hourglass, Check, Loader2, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { formatTime } from "./utils";
 
 interface ProgressStatsProps {
   overallProgress: number;
@@ -16,13 +17,6 @@ const ProgressStats: React.FC<ProgressStatsProps> = ({
   timeRemaining,
   stepCounts 
 }) => {
-  // Format elapsed time as mm:ss
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center text-sm">

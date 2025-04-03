@@ -2,6 +2,7 @@
 import React from "react";
 import { Progress } from "@/components/ui/progress";
 import TaskExecutionProgress from "./TaskExecutionProgress";
+import { formatTime } from "./utils";
 
 interface TaskProgressTabProps {
   progress: number;
