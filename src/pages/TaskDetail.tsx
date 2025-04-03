@@ -140,7 +140,7 @@ const TaskDetail = () => {
             />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TaskDetailTabs activeTab={activeTab} />
+              <TaskDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
               
               <CardContent className="pt-6">
                 <TabsContent value="overview" className="mt-0 space-y-4">
