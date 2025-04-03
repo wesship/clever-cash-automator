@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Task } from "@/lib/types";
 import useTaskExecution from "@/hooks/use-task-execution";
-import { Button } from "@/components/ui/button";
-import { Loader2, Terminal, AlertTriangle, RefreshCw, Play, Pause, XCircle, CheckCircle, Clock } from "lucide-react";
-import { PlatformError } from "@/lib/error-handling";
-import TaskExecutionProgress from "./TaskExecutionProgress";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { PlatformError } from "@/lib/error-handling";
+
+// Import our new components
+import TaskStatusBadge from "./TaskExecution/TaskStatusBadge";
+import TaskControlButtons from "./TaskExecution/TaskControlButtons";
+import TaskProgressTab from "./TaskExecution/TaskProgressTab";
+import TaskLogsTab from "./TaskExecution/TaskLogsTab";
+import TaskErrorsTab from "./TaskExecution/TaskErrorsTab";
+import TaskDetailsTab from "./TaskExecution/TaskDetailsTab";
 
 interface TaskExecutionMonitorProps {
   task: Task;
@@ -138,58 +138,6 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
     }
   }, [logs]);
 
-  // Determine task status
-  const getTaskStatusInfo = () => {
-    if (isRunning) {
-      return { 
-        label: "Running", 
-        icon: <Loader2 className="h-4 w-4 animate-spin" />,
-        color: "bg-blue-500/10 text-blue-500 border-blue-500/20"
-      };
-    } else if (lastError) {
-      return { 
-        label: "Failed", 
-        icon: <XCircle className="h-4 w-4" />,
-        color: "bg-destructive/10 text-destructive border-destructive/20"
-      };
-    } else if (progress >= 100) {
-      return { 
-        label: "Completed", 
-        icon: <CheckCircle className="h-4 w-4" />,
-        color: "bg-green-500/10 text-green-500 border-green-500/20" 
-      };
-    } else if (progress > 0) {
-      return { 
-        label: "Paused", 
-        icon: <Pause className="h-4 w-4" />,
-        color: "bg-amber-500/10 text-amber-500 border-amber-500/20"
-      };
-    }
-    return { 
-      label: "Pending", 
-      icon: <Clock className="h-4 w-4" />,
-      color: "bg-muted text-muted-foreground border-muted-foreground/20"
-    };
-  };
-
-  const statusInfo = getTaskStatusInfo();
-
-  // Handle task control
-  const handleTaskControl = () => {
-    if (isRunning) {
-      stopTask(task.id);
-      toast.info(`Paused task: ${task.name}`);
-    } else {
-      if (lastError && canRetry) {
-        retryTask(task.id);
-        toast.info(`Retrying task: ${task.name}`);
-      } else if (!lastError) {
-        startTask(task);
-        toast.success(`Started task: ${task.name}`);
-      }
-    }
-  };
-
   // Determine if we should show error details
   const showErrorDetails = !!lastError && !isRunning;
 
@@ -199,12 +147,11 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
         <div className="space-y-1">
           <CardTitle className="text-lg flex items-center gap-2">
             {task.name}
-            <Badge className={cn("ml-2 text-xs", statusInfo.color)}>
-              <span className="flex items-center gap-1">
-                {statusInfo.icon}
-                {statusInfo.label}
-              </span>
-            </Badge>
+            <TaskStatusBadge 
+              isRunning={isRunning} 
+              lastError={lastError}
+              progress={progress} 
+            />
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             {task.platform} • {task.type} • 
@@ -213,33 +160,18 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isRunning ? "outline" : "default"}
-            onClick={handleTaskControl}
-            disabled={!isRunning && lastError && !canRetry}
-            size="sm"
-            className="gap-1"
-          >
-            {isRunning ? (
-              <>
-                <Pause className="h-4 w-4" />
-                Pause
-              </>
-            ) : lastError && canRetry ? (
-              <>
-                <RefreshCw className="h-4 w-4" />
-                Retry
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4" />
-                {progress > 0 ? "Resume" : "Start"}
-              </>
-            )}
-          </Button>
-          <Button variant="ghost" onClick={onClose} size="sm">Close</Button>
-        </div>
+        <TaskControlButtons 
+          isRunning={isRunning}
+          lastError={lastError}
+          canRetry={canRetry}
+          taskId={task.id}
+          taskName={task.name}
+          onStartTask={startTask}
+          onStopTask={stopTask}
+          onRetryTask={retryTask}
+          onClose={onClose}
+          progress={progress}
+        />
       </CardHeader>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -260,129 +192,33 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
 
         <CardContent className="space-y-4 pt-6">
           <TabsContent value="progress" className="mt-0 space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{Math.round(progress)}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-            
-            <div className="bg-background/50 p-3 rounded-md">
-              <p className="text-sm font-medium">Current Operation:</p>
-              <p className="text-sm">{currentStepDescription || "Not running"}</p>
-            </div>
-            
-            {/* Step Progress Visualization */}
-            {executionSteps.length > 0 && (
-              <TaskExecutionProgress
-                steps={executionSteps}
-                currentStepIndex={currentStepIndex}
-                overallProgress={progress}
-                startTime={isRunning ? new Date(Date.now() - executionTime * 1000) : undefined}
+            <TaskProgressTab 
+              progress={progress}
+              currentStepDescription={currentStepDescription}
+              executionSteps={executionSteps}
+              currentStepIndex={currentStepIndex}
+              isRunning={isRunning}
+              executionTime={executionTime}
+            />
+          </TabsContent>
+
+          <TabsContent value="logs" className="mt-0">
+            <TaskLogsTab logs={logs} />
+          </TabsContent>
+
+          <TabsContent value="errors" className="mt-0">
+            {showErrorDetails && lastError && (
+              <TaskErrorsTab 
+                lastError={lastError as PlatformError}
+                canRetry={canRetry}
+                onRetryTask={retryTask}
+                taskId={task.id}
               />
             )}
           </TabsContent>
 
-          <TabsContent value="logs" className="mt-0">
-            <div>
-              <div className="flex items-center gap-1 mb-2">
-                <Terminal className="h-4 w-4" />
-                <p className="text-sm font-medium">Execution Log</p>
-              </div>
-              <ScrollArea className="h-64 bg-background/50 rounded-md p-2">
-                <div className="font-mono text-xs space-y-1">
-                  {logs.length === 0 ? (
-                    <p className="text-muted-foreground italic">No logs yet</p>
-                  ) : (
-                    logs.map((log, i) => (
-                      <div 
-                        key={i} 
-                        className={`border-b border-border/25 pb-1 ${log.includes("Error") ? "text-destructive" : ""}`}
-                      >
-                        {log}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="errors" className="mt-0">
-            {showErrorDetails && (
-              <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-md space-y-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-destructive" />
-                  <p className="font-medium text-destructive">Error Details</p>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Message</h3>
-                  <p className="text-sm bg-background/50 p-3 rounded-md">
-                    {lastError.getUserFriendlyMessage()}
-                  </p>
-                </div>
-                {lastError.recoverable && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Recovery Suggestion</h3>
-                    <p className="text-sm bg-background/50 p-3 rounded-md">
-                      {lastError.getRecoverySuggestion()}
-                    </p>
-                  </div>
-                )}
-                <div className="pt-2">
-                  {canRetry && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => retryTask(task.id)}
-                      className="gap-1"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      Retry Task
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </TabsContent>
-
           <TabsContent value="details" className="mt-0">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-background/50 p-3 rounded-md">
-                  <p className="text-xs text-muted-foreground">Task ID</p>
-                  <p className="text-sm font-mono">{task.id}</p>
-                </div>
-                <div className="bg-background/50 p-3 rounded-md">
-                  <p className="text-xs text-muted-foreground">Platform</p>
-                  <p className="text-sm">{task.platform}</p>
-                </div>
-                <div className="bg-background/50 p-3 rounded-md">
-                  <p className="text-xs text-muted-foreground">Type</p>
-                  <p className="text-sm">{task.type}</p>
-                </div>
-                <div className="bg-background/50 p-3 rounded-md">
-                  <p className="text-xs text-muted-foreground">Created</p>
-                  <p className="text-sm">{task.createdAt?.toLocaleString() || 'Unknown'}</p>
-                </div>
-              </div>
-              
-              {task.description && (
-                <div className="bg-background/50 p-3 rounded-md">
-                  <p className="text-xs text-muted-foreground">Description</p>
-                  <p className="text-sm">{task.description}</p>
-                </div>
-              )}
-              
-              <div className="bg-background/50 p-3 rounded-md">
-                <p className="text-xs text-muted-foreground mb-1">Configuration</p>
-                <ScrollArea className="h-32">
-                  <pre className="text-xs whitespace-pre-wrap">
-                    {JSON.stringify(task.config, null, 2)}
-                  </pre>
-                </ScrollArea>
-              </div>
-            </div>
+            <TaskDetailsTab task={task} />
           </TabsContent>
         </CardContent>
       </Tabs>
