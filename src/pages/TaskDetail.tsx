@@ -12,8 +12,9 @@ import { Task } from "@/lib/types";
 import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
 import { MockTaskProvider } from "@/services/task-execution/mock-task-provider";
 import { TaskExecutionEngine } from "@/services/task-execution";
+import useTaskExecution from "@/hooks/use-task-execution";
 
-// Import new components
+// Import components
 import TaskDetailHeader from "@/components/TaskDetail/TaskDetailHeader";
 import TaskDetailCard from "@/components/TaskDetail/TaskDetailCard";
 import TaskDetailTabs from "@/components/TaskDetail/TaskDetailTabs";
@@ -21,14 +22,24 @@ import TaskOverviewTab from "@/components/TaskDetail/tabs/TaskOverviewTab";
 import TaskConfigurationTab from "@/components/TaskDetail/tabs/TaskConfigurationTab";
 import TaskDetailLoading from "@/components/TaskDetail/TaskDetailLoading";
 import TaskTemplateDialog from "@/components/TaskDetail/TaskTemplateDialog";
+import TaskProgressIndicator from "@/components/TaskDetail/TaskProgressIndicator";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [task, setTask] = useState<Task | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  
+  // Use the task execution hook instead of manual state management
+  const {
+    isRunning,
+    progress,
+    startTask,
+    stopTask,
+    retryTask,
+    cancelTask,
+  } = useTaskExecution(id);
 
   useEffect(() => {
     if (!id) return;
@@ -37,53 +48,30 @@ const TaskDetail = () => {
     const fetchedTask = MockTaskProvider.getTaskFromId(id);
     if (fetchedTask) {
       setTask(fetchedTask);
-      
-      // Check if task is currently running
-      setIsRunning(TaskExecutionEngine.isTaskRunning(id));
     } else {
       toast.error("Task not found");
       navigate("/");
     }
-    
-    // Setup interval to check if task is running
-    const interval = setInterval(() => {
-      if (!id) return;
-      setIsRunning(TaskExecutionEngine.isTaskRunning(id));
-    }, 1000);
-    
-    return () => clearInterval(interval);
   }, [id, navigate]);
 
   const handleStartTask = () => {
     if (!task) return;
-    
-    TaskExecutionEngine.startTask(task);
-    setIsRunning(true);
-    toast.success(`Started task: ${task.name}`);
+    startTask(task);
   };
 
   const handleStopTask = () => {
     if (!id) return;
-    
-    TaskExecutionEngine.stopTask(id);
-    setIsRunning(false);
-    toast.info("Task paused");
+    stopTask(id);
   };
   
   const handleCancelTask = () => {
     if (!id) return;
-    
-    TaskExecutionEngine.stopTask(id);
-    setIsRunning(false);
-    toast.info("Task cancelled");
+    cancelTask(id);
   };
   
   const handleRetryTask = () => {
-    if (!id || !task) return;
-    
-    TaskExecutionEngine.retryTask(id);
-    setIsRunning(true);
-    toast.success(`Retrying task: ${task.name}`);
+    if (!id) return;
+    retryTask(id);
   };
   
   const handleSaveAsTemplate = () => {
@@ -116,6 +104,8 @@ const TaskDetail = () => {
     );
   }
 
+  const taskProgress = (task.completionCount / task.targetCompletions) * 100;
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Background3D />
@@ -133,11 +123,19 @@ const TaskDetail = () => {
             setTemplateDialogOpen={setTemplateDialogOpen}
           />
           
-          <Card className="bg-card/50 backdrop-blur-sm border border-border/50">
+          <Card className="bg-card/50 backdrop-blur-sm border border-border/50 mb-6">
             <TaskDetailCard 
               task={task} 
               handleCopyToClipboard={handleCopyToClipboard} 
             />
+            
+            {/* Show progress indicator at the top of the card */}
+            <div className="px-6 pb-4">
+              <TaskProgressIndicator 
+                status={task.status}
+                progress={isRunning ? progress : taskProgress}
+              />
+            </div>
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TaskDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
