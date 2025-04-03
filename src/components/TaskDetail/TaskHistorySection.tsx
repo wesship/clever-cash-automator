@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 
-interface TaskHistoryEvent {
+export interface TaskHistoryEvent {
   timestamp: Date;
   event: string;
   user?: string;

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { TagIcon, BarChart3 } from "lucide-react";
 import { Task, TaskStatus } from "@/lib/types";
 import { TaskExecutionEngine } from "@/services/task-execution";
-import TaskHistorySection from "@/components/TaskDetail/TaskHistorySection";
+import TaskHistorySection, { TaskHistoryEvent } from "@/components/TaskDetail/TaskHistorySection";
 import TaskProgressIndicator from "@/components/TaskDetail/TaskProgressIndicator";
 
 interface TaskOverviewTabProps {
@@ -14,7 +14,7 @@ interface TaskOverviewTabProps {
 
 // Generate mock history events for demo purposes
 const generateMockHistory = (task: Task) => {
-  const events = [
+  const events: TaskHistoryEvent[] = [
     {
       timestamp: new Date(task.createdAt),
       event: "Task Created",
