@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, PauseCircle, RefreshCw, Settings, Trash2, MonitorCheck } from "lucide-react";
-import { TaskStatus } from "@/lib/types";
+import { TaskStatus, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -30,7 +30,7 @@ export const TaskActions: React.FC<TaskActionsProps> = ({
   const isRunning = status === TaskStatus.RUNNING;
   const { startTask, stopTask } = useTaskExecution();
   const [monitorOpen, setMonitorOpen] = useState(false);
-  const [currentTask, setCurrentTask] = useState<any>(null);
+  const [currentTask, setCurrentTask] = useState<Task | null>(null);
 
   const handleStart = async (taskId: string) => {
     // Here we simulate getting the full task object

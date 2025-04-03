@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { Task } from "@/lib/types";
 
 interface TaskControlButtonsProps {
   isRunning: boolean;
@@ -10,11 +11,12 @@ interface TaskControlButtonsProps {
   canRetry: boolean;
   taskId: string;
   taskName: string;
-  onStartTask: (taskId: string) => void;
+  onStartTask: ((taskId: string) => void) | ((task: Task) => Promise<boolean>);
   onStopTask: (taskId: string) => void;
   onRetryTask: (taskId: string) => void;
   onClose: () => void;
   progress: number;
+  task?: Task;
 }
 
 const TaskControlButtons: React.FC<TaskControlButtonsProps> = ({
@@ -27,7 +29,8 @@ const TaskControlButtons: React.FC<TaskControlButtonsProps> = ({
   onStopTask,
   onRetryTask,
   onClose,
-  progress
+  progress,
+  task
 }) => {
   // Handle task control
   const handleTaskControl = () => {
@@ -39,7 +42,14 @@ const TaskControlButtons: React.FC<TaskControlButtonsProps> = ({
         onRetryTask(taskId);
         toast.info(`Retrying task: ${taskName}`);
       } else if (!lastError) {
-        onStartTask(taskId);
+        // Check if we have a task object and if onStartTask expects a task
+        if (task) {
+          // Call with task object if available
+          (onStartTask as (task: Task) => Promise<boolean>)(task);
+        } else {
+          // Fall back to using the taskId
+          (onStartTask as (taskId: string) => void)(taskId);
+        }
         toast.success(`Started task: ${taskName}`);
       }
     }

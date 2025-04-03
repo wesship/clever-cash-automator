@@ -171,6 +171,7 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
           onRetryTask={retryTask}
           onClose={onClose}
           progress={progress}
+          task={task} // Pass the task object
         />
       </CardHeader>
 
