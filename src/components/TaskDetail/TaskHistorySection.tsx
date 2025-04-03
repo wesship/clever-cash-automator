@@ -8,7 +8,7 @@ interface TaskHistoryEvent {
   timestamp: Date;
   event: string;
   user?: string;
-  details?: string;
+  details?: string;  // Added the optional details property here
 }
 
 interface TaskHistoryProps {
