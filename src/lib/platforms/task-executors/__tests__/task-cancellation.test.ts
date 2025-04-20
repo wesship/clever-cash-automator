@@ -1,6 +1,6 @@
 
 import { TaskExecutionEngine } from "@/services/task-execution";
-import { Task, TaskType, PlatformType, TaskStatus } from "@/lib/types";
+import { Task, TaskType, PlatformType, TaskStatus, TaskPriority } from "@/lib/types";
 
 describe('Task Cancellation', () => {
   let mockTask: Task;
@@ -18,6 +18,7 @@ describe('Task Cancellation', () => {
       targetCompletions: 10,
       earnings: 0,
       description: "Test task for cancellation testing",
+      priority: TaskPriority.MEDIUM, // Add priority
       config: {
         proxyRequired: false,
         captchaHandling: false,

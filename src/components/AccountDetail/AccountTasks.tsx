@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Task } from "@/types/account.types";
 import { generateMockTaskExecutionData } from "@/utils/account-utils";
 import TaskExecutionMonitor from "@/components/Dashboard/TaskExecutionMonitor";
-import { TaskType, PlatformType, Task as LibTask, TaskStatus } from "@/lib/types";
+import { TaskType, PlatformType, Task as LibTask, TaskStatus, TaskPriority } from "@/lib/types";
 
 interface AccountTasksProps {
   tasks: Task[];
@@ -35,6 +35,7 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
       targetCompletions: task.total,
       earnings: task.earnings,
       description: `Task for ${task.name}`,
+      priority: TaskPriority.MEDIUM, // Add default priority
       config: {
         proxyRequired: true,
         captchaHandling: true,

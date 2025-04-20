@@ -1,6 +1,6 @@
 
 import { NotificationManager } from "@/services/notification-manager";
-import { Task, TaskType, PlatformType, TaskStatus } from "@/lib/types";
+import { Task, TaskType, PlatformType, TaskStatus, TaskPriority } from "@/lib/types";
 
 // Test notification functionality (mocked)
 describe('Notification Manager', () => {
@@ -34,6 +34,7 @@ describe('Notification Manager', () => {
       targetCompletions: 10,
       earnings: 0,
       description: "Test task for notification testing",
+      priority: TaskPriority.MEDIUM, // Add priority
       config: {
         proxyRequired: false,
         captchaHandling: false,
@@ -67,6 +68,7 @@ describe('Notification Manager', () => {
       targetCompletions: 10,
       earnings: 0,
       description: "Test task for notification testing",
+      priority: TaskPriority.LOW, // Add priority
       config: {
         proxyRequired: false,
         captchaHandling: false,

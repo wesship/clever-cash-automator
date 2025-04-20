@@ -1,5 +1,5 @@
 
-import { Task, TaskStatus, TaskType, PlatformType, Statistics } from "@/lib/types";
+import { Task, TaskStatus, TaskType, PlatformType, Statistics, TaskPriority } from "@/lib/types";
 
 // Mock tasks data
 export const mockTasks: Task[] = [
@@ -15,6 +15,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 100,
     earnings: 12.50,
     description: "Automatically click on Swagbucks ads to earn SB points.",
+    priority: TaskPriority.HIGH,
     config: {
       proxyRequired: true,
       captchaHandling: true,
@@ -35,6 +36,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 20,
     earnings: 0,
     description: "Automatically complete simple surveys on Amazon Mechanical Turk.",
+    priority: TaskPriority.MEDIUM,
     config: {
       proxyRequired: false,
       captchaHandling: true,
@@ -56,6 +58,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 50,
     earnings: 25.75,
     description: "Watch YouTube videos to increase view count and engagement metrics.",
+    priority: TaskPriority.LOW,
     config: {
       proxyRequired: true,
       captchaHandling: false,
@@ -77,6 +80,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 30,
     earnings: 0,
     description: "Automatically generate and submit proposals for relevant Upwork jobs.",
+    priority: TaskPriority.MEDIUM,
     config: {
       proxyRequired: false,
       captchaHandling: true,
@@ -98,6 +102,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 40,
     earnings: 32.20,
     description: "Post affiliate links on relevant forums and social media groups.",
+    priority: TaskPriority.HIGH,
     config: {
       proxyRequired: true,
       captchaHandling: true,
@@ -119,6 +124,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 25,
     earnings: 45.60,
     description: "Automatically manage and respond to Fiverr orders and messages.",
+    priority: TaskPriority.HIGH,
     config: {
       proxyRequired: false,
       captchaHandling: false,
@@ -139,6 +145,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 50,
     earnings: 0,
     description: "Complete data labeling and text creation microtasks on Clickworker.",
+    priority: TaskPriority.LOW,
     config: {
       proxyRequired: true,
       captchaHandling: true,
@@ -165,6 +172,7 @@ export const mockTasks: Task[] = [
     targetCompletions: 30,
     earnings: 0,
     description: "Automatically click ads on Neobux to generate daily revenue.",
+    priority: TaskPriority.MEDIUM,
     config: {
       proxyRequired: true,
       captchaHandling: true,

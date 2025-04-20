@@ -167,7 +167,8 @@ const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({ tasks, onVi
               onMonthChange={setCurrentDate}
               className="rounded-md border"
               components={{
-                Day: ({ date, ...props }) => {
+                Day: ({ day, ...props }) => {
+                  const date = day; // Rename day to date to fix the issue
                   const taskCount = getTaskCountForDate(date);
                   const isCurrentDay = isToday(date);
                   return (

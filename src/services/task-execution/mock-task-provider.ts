@@ -1,5 +1,5 @@
 
-import { Task, TaskStatus, TaskType, PlatformType } from "@/lib/types";
+import { Task, TaskStatus, TaskType, PlatformType, TaskPriority } from "@/lib/types";
 
 /**
  * Mock task data provider for development/testing
@@ -22,6 +22,7 @@ export class MockTaskProvider {
       targetCompletions: 10,
       earnings: 0,
       description: "Mock task for retry testing",
+      priority: TaskPriority.MEDIUM, // Add priority
       config: {
         proxyRequired: false,
         captchaHandling: false,

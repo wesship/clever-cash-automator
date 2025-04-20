@@ -2,7 +2,7 @@
 import { TaskController } from "../task-controller";
 import { TaskStateManager } from "../task-state-manager";
 import { TaskExecutor } from "../task-executor";
-import { Task, TaskStatus, TaskType, PlatformType } from "@/lib/types";
+import { Task, TaskStatus, TaskType, PlatformType, TaskPriority } from "@/lib/types";
 import { toast } from "sonner";
 
 // Mocks
@@ -26,6 +26,7 @@ describe("TaskController", () => {
     targetCompletions: 5,
     earnings: 0,
     description: "Test task description",
+    priority: TaskPriority.MEDIUM, // Add priority
     config: {
       proxyRequired: false,
       captchaHandling: false,
