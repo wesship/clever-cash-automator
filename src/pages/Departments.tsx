@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import Footer from "@/components/Layout/Footer";
 import Background3D from "@/components/ui/3d-background";
 import { Building, Users, BriefcaseBusiness, LucideIcon, Search, ShoppingCart, Newspaper, BarChart4, Code, HelpCircle, ScreenShare, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import DepartmentAIHelper from '@/components/Departments/DepartmentAIHelper';
 
 interface DepartmentInfo {
   id: string;
@@ -46,7 +46,7 @@ const departments: DepartmentInfo[] = [
       {
         name: "Priya Patel",
         role: "Content Creator",
-        image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
+        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
       }
     ],
     tasks: [
@@ -179,6 +179,10 @@ const departments: DepartmentInfo[] = [
 ];
 
 const Departments = () => {
+  const handleDescriptionGenerated = (description: string) => {
+    toast.info("Generated description: " + description);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Background3D />
