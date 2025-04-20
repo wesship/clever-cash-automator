@@ -6,6 +6,8 @@ import { GenerationType } from '@/types/ai-types';
 import APIKeyManager from './APIKeyManager';
 import GenerationTypeSelect from './GenerationTypeSelect';
 import GenerationForm from './GenerationForm';
+import ErrorBoundary from "@/components/ui/error-boundary";
+import DepartmentAIHelperError from './DepartmentAIHelperError';
 
 interface DepartmentAIHelperProps {
   onDescriptionGenerated: (description: string) => void;
@@ -16,23 +18,27 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
   const [selectedType, setSelectedType] = useState<GenerationType>('description');
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle>AI Department Assistant</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <APIKeyManager />
-        <GenerationTypeSelect 
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
-        />
-        <GenerationForm
-          apiKey={apiKey}
-          selectedType={selectedType}
-          onGenerate={onDescriptionGenerated}
-        />
-      </CardContent>
-    </Card>
+    <ErrorBoundary
+      fallback={DepartmentAIHelperError}
+    >
+      <Card className="bg-card/50 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle>AI Department Assistant</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <APIKeyManager />
+          <GenerationTypeSelect 
+            selectedType={selectedType}
+            onTypeChange={setSelectedType}
+          />
+          <GenerationForm
+            apiKey={apiKey}
+            selectedType={selectedType}
+            onGenerate={onDescriptionGenerated}
+          />
+        </CardContent>
+      </Card>
+    </ErrorBoundary>
   );
 };
 

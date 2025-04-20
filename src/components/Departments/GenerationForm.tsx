@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from 'lucide-react';
 import { toast } from "sonner";
 import { GENERATION_OPTIONS, GenerationType } from '@/types/ai-types';
 
@@ -19,6 +21,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
 }) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getCurrentOption = () => {
     return GENERATION_OPTIONS.find(option => option.type === selectedType)!;
@@ -35,8 +38,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
       return;
     }
 
-    const option = getCurrentOption();
     setIsLoading(true);
+    setError(null);
+    const option = getCurrentOption();
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -63,15 +67,17 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate content');
+        throw new Error(response.statusText || 'Failed to generate content');
       }
 
       const data = await response.json();
       const generatedContent = data.choices[0].message.content;
       onGenerate(generatedContent);
       toast.success(`${option.label} generated successfully!`);
+      setPrompt('');
     } catch (error) {
       console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate content');
       toast.error("Failed to generate content. Please check your API key and try again.");
     } finally {
       setIsLoading(false);
@@ -80,15 +86,23 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <Input
         placeholder={getCurrentOption().placeholder}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
+        disabled={isLoading}
       />
 
       <Button 
         onClick={handleGenerate} 
-        disabled={isLoading}
+        disabled={isLoading || !prompt}
         className="w-full"
       >
         {isLoading ? (
