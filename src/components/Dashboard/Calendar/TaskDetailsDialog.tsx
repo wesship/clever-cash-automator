@@ -11,6 +11,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import TaskList from "./TaskList";
+import { useCalendarTasks } from "@/hooks/use-calendar-tasks";
 
 interface TaskDetailsDialogProps {
   open: boolean;
@@ -20,16 +21,22 @@ interface TaskDetailsDialogProps {
   onViewTask: (taskId: string) => void;
 }
 
-const TaskDetailsDialog: React.FC<TaskDetailsDialogProps> = ({
+const TaskDetailsDialog: React.FC<TaskDetailsDialogProps> = React.memo(({
   open,
   onOpenChange,
   selectedDate,
   tasks,
   onViewTask,
 }) => {
+  const { getTasksByDate } = useCalendarTasks(tasks);
+  const tasksForSelectedDate = selectedDate ? getTasksByDate(selectedDate) : [];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md"
+        aria-label={`Tasks for ${selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : ""}`}
+      >
         <DialogHeader>
           <DialogTitle>
             Tasks for {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : ""}
@@ -37,11 +44,14 @@ const TaskDetailsDialog: React.FC<TaskDetailsDialogProps> = ({
         </DialogHeader>
         <Separator />
         <ScrollArea className="h-[300px] pr-4">
-          <TaskList tasks={tasks} onViewTask={onViewTask} />
+          <TaskList tasks={tasksForSelectedDate} onViewTask={onViewTask} />
         </ScrollArea>
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+TaskDetailsDialog.displayName = "TaskDetailsDialog";
 
 export default TaskDetailsDialog;
+
