@@ -27,6 +27,12 @@ export enum PlatformType {
   CUSTOM = "custom"
 }
 
+export enum TaskPriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high"
+}
+
 export interface Task {
   id: string;
   name: string;
@@ -39,6 +45,7 @@ export interface Task {
   targetCompletions: number;
   earnings: number;
   description: string;
+  priority: TaskPriority;
   config: TaskConfig;
 }
 

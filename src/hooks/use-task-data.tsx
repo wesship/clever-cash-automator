@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Task } from '@/lib/types';
 
@@ -26,6 +25,15 @@ export const useTaskData = (tasks: Task[]) => {
           return sortOrder === "asc" 
             ? a.earnings - b.earnings
             : b.earnings - a.earnings;
+        } else if (sortBy === "priority") {
+          const priorityOrder = {
+            [TaskPriority.HIGH]: 3,
+            [TaskPriority.MEDIUM]: 2,
+            [TaskPriority.LOW]: 1
+          };
+          return sortOrder === "asc"
+            ? priorityOrder[a.priority] - priorityOrder[b.priority]
+            : priorityOrder[b.priority] - priorityOrder[a.priority];
         }
         return 0;
       });

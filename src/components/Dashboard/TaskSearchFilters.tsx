@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Search, SortAsc, SortDesc, LayoutGrid, List, Keyboard, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Task, TaskStatus } from "@/lib/types";
+import { Task, TaskStatus, TaskPriority } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -104,6 +103,12 @@ export const TaskSearchFilters: React.FC<TaskSearchFiltersProps> = ({
               onCheckedChange={() => onSortByChange("earnings")}
             >
               Earnings
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={sortBy === "priority"}
+              onCheckedChange={() => onSortByChange("priority")}
+            >
+              Priority
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Sort Order</DropdownMenuLabel>

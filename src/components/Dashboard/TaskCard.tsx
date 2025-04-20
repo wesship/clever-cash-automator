@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Task } from "@/lib/types";
 import Card3D, { CardContent3D, CardFooter3D, CardHeader3D, CardTitle3D } from "@/components/ui/3d-card";
@@ -8,6 +7,7 @@ import TaskStatusBadge from "./TaskStatusBadge";
 import TaskProgress from "./TaskProgress";
 import TaskMetadata from "./TaskMetadata";
 import TaskActions from "./TaskActions";
+import TaskPriorityBadge from "./TaskPriorityBadge";
 
 interface TaskCardProps {
   task: Task;
@@ -61,11 +61,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <div className="flex items-start justify-between">
           <div>
             <CardTitle3D className="text-lg">{task.name}</CardTitle3D>
-            <p className="text-sm text-muted-foreground mt-1">
-              {task.description.length > (isMobile ? 40 : 60) 
-                ? `${task.description.substring(0, isMobile ? 40 : 60)}...` 
-                : task.description}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <TaskPriorityBadge priority={task.priority} />
+              <p className="text-sm text-muted-foreground">
+                {task.description.length > (isMobile ? 40 : 60) 
+                  ? `${task.description.substring(0, isMobile ? 40 : 60)}...` 
+                  : task.description}
+              </p>
+            </div>
           </div>
           <TaskStatusBadge status={task.status} />
         </div>
