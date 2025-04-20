@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Task, TaskStatus, TaskType, PlatformType } from "@/lib/types";
+import { Task, TaskStatus, TaskType, PlatformType, TaskPriority } from "@/lib/types";
 import { toast } from "sonner";
 
 export const useTaskManager = (initialTasks: Task[] = []) => {
@@ -18,15 +18,33 @@ export const useTaskManager = (initialTasks: Task[] = []) => {
       targetCompletions: data.targetCompletions,
       earnings: 0,
       description: data.description || "",
+      priority: data.priority || TaskPriority.MEDIUM,
       config: {
         proxyRequired: data.proxyRequired,
         captchaHandling: data.captchaHandling,
-        schedule: {
-          frequency: data.frequency as "hourly" | "daily" | "weekly",
+        schedule: data.scheduleConfig || {
+          frequency: data.frequency as "hourly" | "daily" | "weekly" | "monthly" | "custom",
+          timeOfDay: data.timeOfDay,
+          daysOfWeek: data.daysOfWeek,
+          daysOfMonth: data.daysOfMonth,
+          startDate: data.startDate,
+          endDate: data.endDate,
           maxRuns: data.maxRuns,
+          recurrencePattern: data.recurrencePattern,
+          repeatEvery: data.repeatEvery,
+          recurrenceEndAfter: data.recurrenceEndAfter,
+          customCron: data.customCron,
         },
         // Add website-specific parameters to the task config
         taskSpecific: data.websiteParams || {},
+        taskTags: data.taskTags || [],
+        dependencies: data.dependencies || [],
+        notifyOnCompletion: data.notifyOnCompletion !== undefined ? data.notifyOnCompletion : true,
+        notifyOnFailure: data.notifyOnFailure !== undefined ? data.notifyOnFailure : true,
+        retryStrategy: data.retryStrategy || {
+          maxRetries: 3,
+          delayBetweenRetries: 5000,
+        },
       },
     };
 

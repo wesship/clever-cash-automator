@@ -18,7 +18,7 @@ import { BasicInfoFields, DescriptionField, SchedulingFields, AdvancedOptions, T
 import WebsiteSpecificParams from "./TaskFormFields/WebsiteSpecificParams";
 import { taskFormSchema, TaskFormData, defaultTaskFormValues } from "./TaskFormSchema";
 import { useTaskTemplates } from "@/hooks/use-task-templates";
-import { Task } from "@/lib/types";
+import { Task, TaskStatus, TaskSchedule } from "@/lib/types";
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormData) => void;
@@ -86,7 +86,52 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   }, [templateId, getTemplateById, form]);
 
   const handleSubmit = (data: TaskFormData) => {
-    onSubmit(data);
+    // Convert form data to task schedule format
+    const schedule: TaskSchedule = {
+      frequency: data.frequency,
+      timeOfDay: data.timeOfDay,
+      maxRuns: data.maxRuns,
+    };
+    
+    if (data.startDate) {
+      schedule.startDate = data.startDate;
+    }
+    
+    if (data.endDate) {
+      schedule.endDate = data.endDate;
+    }
+    
+    if (data.daysOfWeek) {
+      schedule.daysOfWeek = data.daysOfWeek;
+    }
+    
+    if (data.daysOfMonth) {
+      schedule.daysOfMonth = data.daysOfMonth;
+    }
+    
+    if (data.recurrencePattern) {
+      schedule.recurrencePattern = data.recurrencePattern;
+    }
+    
+    if (data.repeatEvery) {
+      schedule.repeatEvery = data.repeatEvery;
+    }
+    
+    if (data.recurrenceEndType === "after" && data.recurrenceEndAfter) {
+      schedule.recurrenceEndAfter = data.recurrenceEndAfter;
+    }
+    
+    if (data.customCron) {
+      schedule.customCron = data.customCron;
+    }
+    
+    // Submit both the original form data and the processed schedule
+    const enhancedData = {
+      ...data,
+      scheduleConfig: schedule
+    };
+    
+    onSubmit(enhancedData);
     toast.success("Task created successfully");
   };
 
@@ -108,13 +153,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               <WebsiteSpecificParams form={form} platform={selectedPlatform} />
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="col-span-3 md:col-span-1">
-                <SchedulingFields form={form} />
-              </div>
-              <div className="col-span-3 md:col-span-2">
-                <AdvancedOptions form={form} />
-              </div>
+            <div className="border border-border/50 rounded-lg p-4">
+              <SchedulingFields form={form} />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              <AdvancedOptions form={form} />
             </div>
             
             {existingTasks.length > 0 && (

@@ -1,3 +1,4 @@
+
 export enum TaskStatus {
   PENDING = "pending",
   RUNNING = "running",
@@ -33,6 +34,13 @@ export enum TaskPriority {
   HIGH = "high"
 }
 
+export enum RecurrencePattern {
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  CUSTOM = "custom"
+}
+
 export interface Task {
   id: string;
   name: string;
@@ -54,16 +62,25 @@ export interface TaskDependency {
   condition: "completed" | "failed" | "any";
 }
 
+export interface TaskSchedule {
+  frequency: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'custom';
+  timeOfDay?: string;
+  daysOfWeek?: number[];
+  daysOfMonth?: number[];
+  startDate?: Date;
+  endDate?: Date;
+  maxRuns: number;
+  recurrencePattern?: RecurrencePattern;
+  repeatEvery?: number; // e.g., every 2 days, every 3 weeks
+  recurrenceEndAfter?: number; // end after X occurrences
+  customCron?: string; // For advanced scheduling using cron expressions
+}
+
 export interface TaskConfig {
   accountIds?: string[];
   proxyRequired: boolean;
   captchaHandling: boolean;
-  schedule?: {
-    frequency: 'hourly' | 'daily' | 'weekly';
-    timeOfDay?: string;
-    daysOfWeek?: number[];
-    maxRuns: number;
-  };
+  schedule?: TaskSchedule;
   taskSpecific?: Record<string, any>;
   taskTags?: string[];
   dependencies?: TaskDependency[];

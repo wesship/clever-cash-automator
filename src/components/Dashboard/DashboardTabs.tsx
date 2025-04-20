@@ -1,59 +1,52 @@
 
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutDashboard, ListTodo, CalendarDays, PlusCircle, Settings } from "lucide-react";
 
 interface DashboardTabsProps {
+  children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  children: React.ReactNode;
+  settings?: boolean;
+  calendar?: boolean;
 }
 
 const DashboardTabs: React.FC<DashboardTabsProps> = ({ 
+  children, 
   activeTab, 
-  setActiveTab, 
-  children 
+  setActiveTab,
+  settings = false,
+  calendar = false
 }) => {
   return (
-    <Tabs 
-      defaultValue="overview" 
-      value={activeTab} 
-      onValueChange={setActiveTab} 
-      className="space-y-6"
-    >
-      <div className="flex items-center justify-between bg-card/50 backdrop-blur-sm p-1 rounded-lg shadow-soft">
-        <TabsList className="bg-background/50">
-          <TabsTrigger 
-            value="overview" 
-            className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white"
-          >
-            Overview
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full overflow-hidden">
+      <div className="border-b border-border/40 mb-6">
+        <TabsList className="h-14 bg-background/30 backdrop-blur-sm rounded-none px-0">
+          <TabsTrigger value="overview" className="gap-2 relative px-4">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden md:inline-block">Overview</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="tasks" 
-            className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white"
-          >
-            Tasks
+          <TabsTrigger value="tasks" className="gap-2 relative px-4">
+            <ListTodo className="h-4 w-4" />
+            <span className="hidden md:inline-block">Tasks</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="create" 
-            className="data-[state=active]:bg-gradient-purple-pink data-[state=active]:text-white"
-          >
-            Create Task
+          {calendar && (
+            <TabsTrigger value="calendar" className="gap-2 relative px-4">
+              <CalendarDays className="h-4 w-4" />
+              <span className="hidden md:inline-block">Calendar</span>
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="create" className="gap-2 relative px-4">
+            <PlusCircle className="h-4 w-4" />
+            <span className="hidden md:inline-block">Create</span>
           </TabsTrigger>
+          {settings && (
+            <TabsTrigger value="settings" className="gap-2 relative px-4">
+              <Settings className="h-4 w-4" />
+              <span className="hidden md:inline-block">Settings</span>
+            </TabsTrigger>
+          )}
         </TabsList>
-        
-        <div className="hidden sm:flex items-center space-x-2">
-          <Button variant="outline" size="sm" className="gap-1 backdrop-blur-sm bg-background/50">
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1 backdrop-blur-sm bg-background/50">
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
       {children}
     </Tabs>

@@ -18,6 +18,7 @@ import DashboardTabs from "@/components/Dashboard/DashboardTabs";
 import DashboardOverview from "@/components/Dashboard/DashboardOverview";
 import TasksTab from "@/components/Dashboard/TasksTab";
 import CreateTaskTab from "@/components/Dashboard/CreateTaskTab";
+import CalendarTab from "@/components/Dashboard/CalendarTab";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -69,6 +70,7 @@ const Index = () => {
             <DashboardTabs 
               activeTab={activeTab} 
               setActiveTab={setActiveTab}
+              calendar // Enable calendar tab
             >
               <TabsContent value="overview">
                 <DashboardOverview 
@@ -84,6 +86,13 @@ const Index = () => {
                   tasks={tasks}
                   onCreateTask={() => setActiveTab("create")}
                   onDeleteTasks={handleDeleteTasks}
+                  onViewTaskDetails={(taskId) => navigate(`/task/${taskId}`)}
+                />
+              </TabsContent>
+              
+              <TabsContent value="calendar">
+                <CalendarTab 
+                  tasks={tasks} 
                   onViewTaskDetails={(taskId) => navigate(`/task/${taskId}`)}
                 />
               </TabsContent>

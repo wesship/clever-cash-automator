@@ -1,5 +1,6 @@
+
 import { useState, useMemo } from 'react';
-import { Task } from '@/lib/types';
+import { Task, TaskPriority } from '@/lib/types';
 
 export const useTaskData = (tasks: Task[]) => {
   const [searchTerm, setSearchTerm] = useState("");
