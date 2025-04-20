@@ -3,18 +3,37 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { usePerplexityApi } from '@/hooks/use-perplexity-api';
+import { GENERATION_OPTIONS, GenerationType } from '@/types/ai-types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DepartmentAIHelperProps {
   onDescriptionGenerated: (description: string) => void;
 }
 
 const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGenerated }) => {
-  const [apiKey, setApiKey] = useState('');
+  const { apiKey, setApiKey, removeApiKey, isValidKey } = usePerplexityApi();
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedType, setSelectedType] = useState<GenerationType>('description');
 
-  const generateDescription = async () => {
+  const handleApiKeyChange = (value: string) => {
+    try {
+      setApiKey(value);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  const getCurrentOption = () => {
+    return GENERATION_OPTIONS.find(option => option.type === selectedType)!;
+  };
+
+  const generateContent = async () => {
     if (!apiKey) {
       toast.error("Please enter your Perplexity API key");
       return;
@@ -25,7 +44,9 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
       return;
     }
 
+    const option = getCurrentOption();
     setIsLoading(true);
+
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -38,7 +59,7 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful assistant that generates concise and professional department descriptions for businesses.'
+              content: option.systemPrompt
             },
             {
               role: 'user',
@@ -51,52 +72,87 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate description');
+        throw new Error('Failed to generate content');
       }
 
       const data = await response.json();
-      const generatedDescription = data.choices[0].message.content;
-      onDescriptionGenerated(generatedDescription);
-      toast.success("Description generated successfully!");
+      const generatedContent = data.choices[0].message.content;
+      onDescriptionGenerated(generatedContent);
+      toast.success(`${option.label} generated successfully!`);
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Failed to generate description. Please check your API key and try again.");
+      toast.error("Failed to generate content. Please check your API key and try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4 p-4 border rounded-lg bg-card/50 backdrop-blur-sm">
-      <h3 className="text-lg font-medium">AI Department Description Generator</h3>
-      <div className="space-y-2">
+    <Card className="bg-card/50 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle>AI Department Assistant</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Input
+            type="password"
+            placeholder="Enter your Perplexity API key (starts with 'pplx-')"
+            value={apiKey}
+            onChange={(e) => handleApiKeyChange(e.target.value)}
+          />
+          {apiKey && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                removeApiKey();
+                toast.success("API key removed");
+              }}
+              className="w-full"
+            >
+              Remove API Key
+            </Button>
+          )}
+        </div>
+
+        <Select
+          value={selectedType}
+          onValueChange={(value: GenerationType) => setSelectedType(value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select generation type" />
+          </SelectTrigger>
+          <SelectContent>
+            {GENERATION_OPTIONS.map((option) => (
+              <SelectItem key={option.type} value={option.type}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Input
-          type="password"
-          placeholder="Enter your Perplexity API key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-        />
-        <Input
-          placeholder="Enter department details (e.g., 'Generate a description for the Marketing department')"
+          placeholder={getCurrentOption().placeholder}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
+
         <Button 
-          onClick={generateDescription} 
+          onClick={generateContent} 
           disabled={isLoading}
           className="w-full"
         >
           {isLoading ? (
             <>
               <Loader className="mr-2" />
-              Generating...
+              Generating {getCurrentOption().label.toLowerCase()}...
             </>
           ) : (
-            'Generate Description'
+            `Generate ${getCurrentOption().label}`
           )}
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
