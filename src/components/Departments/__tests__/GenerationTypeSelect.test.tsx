@@ -33,8 +33,8 @@ describe('GenerationTypeSelect', () => {
     const select = screen.getByRole('combobox');
     expect(select).toBeInTheDocument();
     ['description', 'goals', 'responsibilities', 'metrics'].forEach(option => {
-      expect(screen.getByValue(option)).toBeInTheDocument();
+      const optionElement = screen.getByText(option);
+      expect(optionElement).toBeInTheDocument();
     });
   });
 });
-

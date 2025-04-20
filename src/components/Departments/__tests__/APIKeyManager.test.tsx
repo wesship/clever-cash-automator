@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import APIKeyManager from '../APIKeyManager';
 import { usePerplexityApi } from '@/hooks/use-perplexity-api';
 
@@ -78,4 +78,3 @@ describe('APIKeyManager', () => {
     expect(screen.getByText(/Invalid API key format/i)).toBeInTheDocument();
   });
 });
-
