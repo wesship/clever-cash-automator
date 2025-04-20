@@ -167,8 +167,8 @@ const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({ tasks, onVi
               onMonthChange={setCurrentDate}
               className="rounded-md border"
               components={{
-                Day: ({ day, ...props }) => {
-                  const date = day; // Rename day to date to fix the issue
+                Day: ({ date, ...props }) => {
+                  // Fixed: Changed 'day' to 'date' to match the DayPicker component props
                   const taskCount = getTaskCountForDate(date);
                   const isCurrentDay = isToday(date);
                   return (
@@ -180,7 +180,8 @@ const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({ tasks, onVi
                             "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
                             isCurrentDay && "bg-primary/20",
                             taskCount > 0 && "bg-blue-500/10 hover:bg-blue-500/20",
-                            props.selected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                            // Fixed: Removed 'selected' property reference and used aria-selected attribute checking
+                            props["aria-selected"] && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
                           )}
                           {...props}
                         >
