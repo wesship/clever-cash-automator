@@ -2,7 +2,7 @@
 import React from "react";
 import { Task } from "@/lib/types";
 import TaskCard from "./TaskCard";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
+import ErrorBoundary from "@/components/ui/error-boundary";
 
 interface TaskListProps {
   tasks: Task[];
@@ -40,4 +40,3 @@ const TaskList: React.FC<TaskListProps> = React.memo(({ tasks, onViewTask }) => 
 TaskList.displayName = "TaskList";
 
 export default TaskList;
-
