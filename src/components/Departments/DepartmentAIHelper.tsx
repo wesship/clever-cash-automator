@@ -19,7 +19,7 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
 
   return (
     <ErrorBoundary
-      fallback={DepartmentAIHelperError}
+      fallback={props => <DepartmentAIHelperError {...props} />}
     >
       <Card className="bg-card/50 backdrop-blur-sm">
         <CardHeader>
