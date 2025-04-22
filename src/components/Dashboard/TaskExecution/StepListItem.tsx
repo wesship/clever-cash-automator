@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Clock, Loader2, Check, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatDuration } from "./utils";
+import { formatDuration } from "@/lib/utils/time-utils";
 
 interface StepProps {
   step: {

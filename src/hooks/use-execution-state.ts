@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TaskExecutionEngine } from '@/services/task-execution';
-import { parseStepsFromLogs } from '@/components/Dashboard/TaskExecution/utils';
+import { parseStepsFromLogs } from '@/lib/utils/step-utils';
 
 export const useExecutionState = (taskId?: string) => {
   const [state, setState] = useState({

@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Clock, Hourglass, Check, Loader2, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { formatTime } from "./utils";
+import { formatTime } from "@/lib/utils/time-utils";
 
 interface ProgressStatsProps {
   overallProgress: number;
