@@ -12,7 +12,7 @@ interface TaskControlsProps {
   estimatedCompletion?: Date | null;
   config?: {
     schedule?: {
-      endDate?: string;
+      endDate?: string | Date;
     };
   };
 }
@@ -36,7 +36,9 @@ export const TaskControls: React.FC<TaskControlsProps> = ({
         <span className="text-sm font-medium">
           {isCompleted ? "Completed" : isFailed ? "Failed" : 
             config?.schedule?.endDate ? 
-              new Date(config.schedule.endDate).toLocaleDateString() : 
+              (config.schedule.endDate instanceof Date) ?
+                config.schedule.endDate.toLocaleDateString() :
+                new Date(config.schedule.endDate).toLocaleDateString() : 
               "Not specified"}
         </span>
       </div>
