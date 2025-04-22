@@ -86,6 +86,7 @@ describe('TaskController', () => {
     // Mark the task as finished with an error
     TaskStateManager.finishTask("test-task", false, new PlatformError("Test error", {
       type: ErrorType.UNKNOWN,
+      platformId: "test-platform", // Add the required platformId property
       recoverable: true
     }));
     

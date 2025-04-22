@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { Task, TaskStatus } from '@/lib/types';
 import { TaskExecutor } from '@/services/task-execution/task-executor';
@@ -41,15 +40,15 @@ export function useTask(taskId: string) {
           id: task.id,
           name: task.name,
           description: task.description,
-          type: task.type, // Use the enum directly instead of converting to string
-          platform: task.platform, // Use the enum directly
-          priority: task.priority, // Use the enum directly
+          type: task.type.toString() as any,
+          platform: task.platform.toString() as any,
+          priority: task.priority.toString() as any,
           maxRetries: 3,
           timeout: 3600,
           parameters: {}
         },
         state: {
-          status: task.status,
+          status: task.status.toString() as any,
           progress: task.progress,
           currentStep: task.currentStep || '',
           logs: task.logs ? task.logs.map(log => ({

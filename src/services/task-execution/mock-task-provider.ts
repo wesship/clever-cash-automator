@@ -1,3 +1,4 @@
+
 import { Task, TaskType, PlatformType, TaskStatus, TaskPriority } from '@/lib/types';
 
 // Mock task data provider
@@ -50,5 +51,11 @@ export class MockTaskProvider {
     const numberOfTasks = 15;
     const tasks = Array.from({ length: numberOfTasks }, (_, i) => generateRandomTask(i));
     return tasks;
+  }
+
+  // Add the getTaskFromId method
+  static getTaskFromId(id: string): Task | null {
+    const tasks = this.getTasks();
+    return tasks.find(task => task.id === id) || null;
   }
 }
