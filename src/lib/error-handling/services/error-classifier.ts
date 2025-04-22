@@ -1,6 +1,6 @@
 
 import { PlatformError } from "../platform-error";
-import { ErrorType } from "../types";
+import { ErrorSeverity } from "../types/error-severity";
 
 export class ErrorClassifier {
   static isRetryable(error: PlatformError): boolean {

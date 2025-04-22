@@ -1,4 +1,6 @@
 
+import { Task } from "@/lib/types";
+
 export interface TaskPerformanceData {
   timestamp: string;
   completion: number;

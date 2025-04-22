@@ -1,6 +1,6 @@
 
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TaskPerformanceData } from "./types";
 
 export const ResourceUsageChart: React.FC<{ data: TaskPerformanceData[] }> = ({ data }) => (
