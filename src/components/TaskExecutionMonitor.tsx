@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RefreshCw } from "lucide-react";
 import { useTaskExecution } from '@/hooks/use-task-execution';
+import { TaskType, PlatformType, TaskPriority, TaskStatus } from '@/lib/types';
 
 interface TaskExecutionMonitorProps {
   task: Task;
@@ -38,15 +39,15 @@ export const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({
       const adaptedTask = {
         id: task.id,
         name: task.title,
-        type: 'SURVEY', // Using a placeholder type
-        platform: 'CUSTOM', // Using a placeholder platform
-        status: 'PENDING', // Using a string that matches the enum
+        type: TaskType.SURVEY, // Using proper enum value
+        platform: PlatformType.CUSTOM, // Using proper enum value
+        status: TaskStatus.PENDING, // Using proper enum value
         createdAt: task.createdAt,
         description: task.description,
         completionCount: 0,
         targetCompletions: 1,
         earnings: 0,
-        priority: 'MEDIUM',
+        priority: TaskPriority.MEDIUM, // Using proper enum value
         config: {
           proxyRequired: false,
           captchaHandling: false,

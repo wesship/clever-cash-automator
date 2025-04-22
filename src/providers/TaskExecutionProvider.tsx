@@ -1,9 +1,8 @@
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { TaskExecutionEngine } from '@/services/task-execution';
 import { Task, TaskStatus } from '@/services/TaskExecutionService';
 import { toast } from 'sonner';
-import { TaskType, PlatformType, TaskPriority } from '@/lib/types';
+import { TaskType, PlatformType, TaskPriority, TaskStatus as OriginalTaskStatus } from '@/lib/types';
 
 interface TaskExecutionContextType {
   executeTask: (taskId: string) => Promise<void>;
@@ -54,7 +53,7 @@ export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ ch
         // Map other fields to match the expected interface
         type: TaskType.AD_CLICK, // Using an actual enum value
         platform: PlatformType.CUSTOM, // Using an actual enum value
-        status: 'PENDING', // Using string value that matches the enum
+        status: OriginalTaskStatus.PENDING, // Using proper enum value
         createdAt: task.createdAt,
         description: task.description,
         completionCount: 0,
