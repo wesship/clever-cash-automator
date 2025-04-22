@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Task } from "@/lib/types";
 import TaskCard from "./TaskCard";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,7 +27,7 @@ interface TaskGridViewProps {
   onTaskSelect?: (taskId: string) => void;
 }
 
-const TaskGridView: React.FC<TaskGridViewProps> = ({
+const TaskGridView = React.memo(({
   tasks,
   onStartTask,
   onPauseTask,
@@ -37,8 +37,9 @@ const TaskGridView: React.FC<TaskGridViewProps> = ({
   bulkMode = false,
   selectedTaskIds = [],
   onTaskSelect
-}) => {
-  return (
+}: TaskGridViewProps) => {
+  // Memoize the task cards grid layout
+  const taskGrid = useMemo(() => (
     <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {tasks.map((task, index) => (
         <div key={task.id} className="relative">
@@ -64,7 +65,11 @@ const TaskGridView: React.FC<TaskGridViewProps> = ({
         </div>
       ))}
     </div>
-  );
-};
+  ), [tasks, onStartTask, onPauseTask, onDeleteTask, onEditTask, isInView, bulkMode, selectedTaskIds, onTaskSelect]);
+
+  return taskGrid;
+});
+
+TaskGridView.displayName = 'TaskGridView';
 
 export default TaskGridView;

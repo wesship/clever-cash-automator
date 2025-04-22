@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Task } from "@/lib/types";
 import TaskGridView from "./TaskGridView";
 import TaskListView from "./TaskListView";
@@ -20,7 +20,7 @@ interface TaskViewContainerProps {
   onCreateTask?: () => void;
 }
 
-const TaskViewContainer: React.FC<TaskViewContainerProps> = ({
+const TaskViewContainer = React.memo(({
   tasks,
   viewMode,
   isInView,
@@ -33,9 +33,14 @@ const TaskViewContainer: React.FC<TaskViewContainerProps> = ({
   onEditTask,
   onViewTaskDetails,
   onCreateTask
-}) => {
+}: TaskViewContainerProps) => {
+  // Memoize the empty state component
+  const emptyStateComponent = useMemo(() => (
+    <TaskEmptyState onCreateTask={onCreateTask} />
+  ), [onCreateTask]);
+
   if (tasks.length === 0) {
-    return <TaskEmptyState onCreateTask={onCreateTask} />;
+    return emptyStateComponent;
   }
 
   if (viewMode === 'grid') {
@@ -68,6 +73,8 @@ const TaskViewContainer: React.FC<TaskViewContainerProps> = ({
       onTaskSelect={selectTask}
     />
   );
-};
+});
+
+TaskViewContainer.displayName = 'TaskViewContainer';
 
 export default TaskViewContainer;

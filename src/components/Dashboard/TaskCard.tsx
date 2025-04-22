@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useMemo } from "react";
 import { Task } from "@/lib/types";
 import Card3D, { CardContent3D, CardFooter3D, CardHeader3D, CardTitle3D } from "@/components/ui/3d-card";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ interface TaskCardProps {
   className?: string;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({
+const TaskCard = React.memo(({
   task,
   onStart,
   onPause,
@@ -29,7 +30,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   delay,
   isInView,
   className
-}) => {
+}: TaskCardProps) => {
   const isMobile = useIsMobile();
 
   const handleStart = (taskId: string) => {
@@ -48,6 +49,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     onEdit?.(taskId);
   };
 
+  // Memoize the task description
+  const taskDescription = useMemo(() => {
+    return task.description.length > (isMobile ? 40 : 60) 
+      ? `${task.description.substring(0, isMobile ? 40 : 60)}...` 
+      : task.description;
+  }, [task.description, isMobile]);
+
   return (
     <Card3D 
       className={cn(
@@ -64,9 +72,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <div className="flex items-center gap-2 mt-1">
               <TaskPriorityBadge priority={task.priority} />
               <p className="text-sm text-muted-foreground">
-                {task.description.length > (isMobile ? 40 : 60) 
-                  ? `${task.description.substring(0, isMobile ? 40 : 60)}...` 
-                  : task.description}
+                {taskDescription}
               </p>
             </div>
           </div>
@@ -99,6 +105,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       </CardFooter3D>
     </Card3D>
   );
-};
+});
+
+TaskCard.displayName = 'TaskCard';
 
 export default TaskCard;
