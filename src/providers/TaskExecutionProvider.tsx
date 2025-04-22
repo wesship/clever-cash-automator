@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { TaskExecutionEngine } from '@/services/task-execution';
 import { Task, TaskStatus } from '@/services/TaskExecutionService';
@@ -64,7 +65,7 @@ export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ ch
           proxyRequired: false,
           captchaHandling: false,
           schedule: {
-            frequency: "daily",
+            frequency: "daily" as "daily" | "hourly" | "weekly" | "monthly" | "custom",
             maxRuns: 5
           }
         }

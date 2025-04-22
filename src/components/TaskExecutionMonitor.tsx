@@ -52,7 +52,7 @@ export const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({
           proxyRequired: false,
           captchaHandling: false,
           schedule: {
-            frequency: "daily",
+            frequency: "daily" as "daily" | "hourly" | "weekly" | "monthly" | "custom",
             maxRuns: 5
           }
         }
