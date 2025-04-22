@@ -9,7 +9,7 @@ import Footer from "@/components/Layout/Footer";
 import Background3D from "@/components/ui/3d-background";
 import { Building, Users, BriefcaseBusiness, LucideIcon, Search, ShoppingCart, Newspaper, BarChart4, Code, HelpCircle, ScreenShare, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import DepartmentAIHelper from '@/components/Departments/DepartmentAIHelper';
+import DepartmentAIHelper from '@/components/Departments/AIHelper';
 
 interface DepartmentInfo {
   id: string;
