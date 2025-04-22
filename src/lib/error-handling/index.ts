@@ -1,76 +1,43 @@
 
-export enum ErrorType {
-  UNKNOWN = 'unknown',
-  NETWORK = 'network',
-  TIMEOUT = 'timeout',
-  RATE_LIMIT = 'rate_limit',
-  AUTHORIZATION = 'authorization',
-  AUTHENTICATION = 'authentication',
-  PLATFORM_UNAVAILABLE = 'platform_unavailable',
-  NOT_FOUND = 'not_found',
-  VALIDATION = 'validation',
-  SERVER = 'server',
-  CLIENT = 'client'
-}
+import { ErrorType } from './types';
 
-export class PlatformError extends Error {
+// Interface for error options
+export interface PlatformErrorOptions {
   type: ErrorType;
   recoverable: boolean;
   platformId?: string;
   code?: string;
   details?: any;
-  cause?: Error;
+  cause?: Error;  // Added cause property
+}
 
-  constructor(
-    message: string,
-    options: {
-      type: ErrorType;
-      recoverable: boolean;
-      platformId?: string;
-      code?: string;
-      details?: any;
-      cause?: Error;
-    }
-  ) {
+/**
+ * Custom error class for platform operations
+ */
+export class PlatformError extends Error {
+  public type: ErrorType;
+  public recoverable: boolean;
+  public platformId: string;
+  public code?: string;
+  public details?: any;
+  public cause?: Error;  // Added cause property
+
+  constructor(message: string, options: PlatformErrorOptions) {
     super(message);
     this.name = 'PlatformError';
     this.type = options.type;
     this.recoverable = options.recoverable;
-    this.platformId = options.platformId;
+    this.platformId = options.platformId || 'unknown';
     this.code = options.code;
     this.details = options.details;
-    this.cause = options.cause;
+    this.cause = options.cause; // Store the cause
+    
+    // Ensure prototype chain is properly maintained
+    Object.setPrototypeOf(this, PlatformError.prototype);
   }
 
-  getUserFriendlyMessage(): string {
-    switch (this.type) {
-      case ErrorType.NETWORK:
-        return 'Network error occurred. Please check your internet connection.';
-      case ErrorType.TIMEOUT:
-        return 'The operation timed out. Please try again later.';
-      case ErrorType.RATE_LIMIT:
-        return 'Rate limit exceeded. Please try again later.';
-      case ErrorType.AUTHORIZATION:
-        return 'Authorization error. Please check your credentials.';
-      case ErrorType.AUTHENTICATION:
-        return 'Authentication error. Please check your login details.';
-      case ErrorType.PLATFORM_UNAVAILABLE:
-        return 'The platform is currently unavailable. Please try again later.';
-      case ErrorType.NOT_FOUND:
-        return 'The requested resource was not found.';
-      case ErrorType.VALIDATION:
-        return 'Validation error. Please check your input.';
-      case ErrorType.SERVER:
-        return 'Server error occurred. Please try again later.';
-      case ErrorType.CLIENT:
-        return 'Client error occurred. Please try again.';
-      default:
-        return this.message;
-    }
-  }
-  
-  // Add static factory methods for common error types
-  static network(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+  // Helper static methods
+  static network(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
     return new PlatformError(message, {
       type: ErrorType.NETWORK,
       recoverable: true,
@@ -80,7 +47,7 @@ export class PlatformError extends Error {
     });
   }
 
-  static authentication(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+  static authentication(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
     return new PlatformError(message, {
       type: ErrorType.AUTHENTICATION,
       recoverable: false,
@@ -90,7 +57,7 @@ export class PlatformError extends Error {
     });
   }
 
-  static authorization(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+  static authorization(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
     return new PlatformError(message, {
       type: ErrorType.AUTHORIZATION,
       recoverable: false,
@@ -100,17 +67,17 @@ export class PlatformError extends Error {
     });
   }
 
-  static validation(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+  static validation(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
     return new PlatformError(message, {
       type: ErrorType.VALIDATION,
-      recoverable: true,
+      recoverable: false,
       platformId,
       details,
       cause
     });
   }
 
-  static platformUnavailable(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+  static platformUnavailable(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
     return new PlatformError(message, {
       type: ErrorType.PLATFORM_UNAVAILABLE,
       recoverable: true,
@@ -120,51 +87,80 @@ export class PlatformError extends Error {
     });
   }
 
-  // Add getRecoverySuggestion method
+  static rateLimit(message: string, platformId: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.RATE_LIMIT,
+      recoverable: true,
+      platformId,
+      details,
+      cause
+    });
+  }
+
+  // Get a user-friendly message
+  getUserFriendlyMessage(): string {
+    switch (this.type) {
+      case ErrorType.NETWORK:
+        return `Network error: ${this.message}`;
+      case ErrorType.AUTHENTICATION:
+        return `Authentication failed: ${this.message}`;
+      case ErrorType.AUTHORIZATION:
+        return `Authorization failed: ${this.message}`;
+      case ErrorType.RATE_LIMIT:
+        return `Rate limit exceeded: ${this.message}`;
+      case ErrorType.PLATFORM_UNAVAILABLE:
+        return `Platform unavailable: ${this.message}`;
+      case ErrorType.VALIDATION:
+        return `Validation error: ${this.message}`;
+      default:
+        return this.message;
+    }
+  }
+
+  // Get recovery suggestion
   getRecoverySuggestion(): string {
     switch (this.type) {
       case ErrorType.NETWORK:
-        return 'Check your internet connection and try again.';
-      case ErrorType.TIMEOUT:
-        return 'The server might be experiencing high load. Try again later or reduce the number of concurrent tasks.';
-      case ErrorType.RATE_LIMIT:
-        return 'You have reached a rate limit. Wait for a while before trying again or use a different proxy.';
-      case ErrorType.AUTHORIZATION:
-        return 'Your authorization may have expired. Try logging in again.';
+        return "Check your internet connection and try again.";
       case ErrorType.AUTHENTICATION:
-        return 'Please check your username and password and try again.';
+        return "Try logging in again with your credentials.";
+      case ErrorType.RATE_LIMIT:
+        return "Please wait a few minutes before trying again.";
       case ErrorType.PLATFORM_UNAVAILABLE:
-        return 'The platform may be under maintenance. Check the platform status page or try again later.';
-      case ErrorType.NOT_FOUND:
-        return 'The requested resource no longer exists. Try refreshing your data.';
-      case ErrorType.VALIDATION:
-        return 'Check your input parameters for errors and try again.';
-      case ErrorType.SERVER:
-        return 'This is likely a temporary server issue. Try again later.';
-      case ErrorType.CLIENT:
-        return 'Review your request and try again. If the problem persists, contact support.';
+        return "The platform might be down for maintenance. Please try again later.";
       default:
-        return 'Try the operation again. If the problem persists, contact support.';
+        return "Try again or contact support if the issue persists.";
     }
   }
 }
 
-// Higher order function for wrapping functions with error handling
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  errorHandler?: (error: Error, ...args: Parameters<T>) => Promise<ReturnType<T> | null>
-): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    try {
-      return await fn(...args);
-    } catch (error) {
-      if (errorHandler) {
-        const result = await errorHandler(error instanceof Error ? error : new Error(String(error)), ...args);
-        if (result !== null) {
-          return result;
-        }
-      }
+// Utility function for handling platform errors
+export const withErrorHandling = async <T>(
+  platformId: string,
+  fn: () => Promise<T>,
+  errorHandler?: (error: unknown) => PlatformError
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error) {
+    // If custom error handler provided, use it
+    if (errorHandler) {
+      throw errorHandler(error);
+    }
+    
+    // Default error handling
+    if (error instanceof PlatformError) {
       throw error;
     }
-  };
-}
+    
+    // Convert unknown errors to PlatformError
+    throw new PlatformError(
+      error instanceof Error ? error.message : String(error),
+      {
+        type: ErrorType.UNKNOWN,
+        recoverable: false,
+        platformId
+      }
+    );
+  }
+};

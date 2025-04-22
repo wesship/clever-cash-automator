@@ -47,7 +47,7 @@ export enum TaskPriority {
   CRITICAL = 'critical',
 }
 
-// Add the missing RecurrencePattern enum
+// RecurrencePattern enum
 export enum RecurrencePattern {
   DAILY = 'daily',
   WEEKLY = 'weekly',
@@ -55,7 +55,7 @@ export enum RecurrencePattern {
   CUSTOM = 'custom',
 }
 
-// Add TaskSchedule interface
+// TaskSchedule interface
 export interface TaskSchedule {
   frequency: string;
   timeOfDay?: string;
@@ -70,7 +70,7 @@ export interface TaskSchedule {
   customCron?: string;
 }
 
-// Define TaskDependency interface which is used in DependenciesField.tsx
+// TaskDependency interface
 export interface TaskDependency {
   taskId: string;
   condition: "completed" | "failed" | "any";
@@ -84,7 +84,7 @@ export interface Task {
   platform: PlatformType;
   status: TaskStatus;
   priority: TaskPriority;
-  progress: number; // This was missing but is required
+  progress: number; // Required field
   currentStep?: string;
   createdAt: Date;
   startedAt?: Date;
@@ -97,7 +97,7 @@ export interface Task {
     schedule?: TaskSchedule;
     id?: string;
     platform?: string;
-    // Add taskSpecific and taskTags properties
+    // Task specific and taskTags properties
     taskSpecific?: {
       category?: string;
       labels?: string[];
@@ -126,7 +126,7 @@ export interface Task {
   }>;
 }
 
-// Update Statistics interface for DashboardOverview.tsx with all required fields
+// Update Statistics interface with all required fields
 export interface Statistics {
   totalTasks: number;
   completedTasks: number;
@@ -141,4 +141,5 @@ export interface Statistics {
   activeAccounts: number;
   earningsToday: number;
   earningsThisWeek: number;
+  earningsThisMonth?: number; // Added this property
 }

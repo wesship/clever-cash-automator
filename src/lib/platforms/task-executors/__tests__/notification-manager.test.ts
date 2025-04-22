@@ -35,6 +35,7 @@ describe('Notification Manager', () => {
       earnings: 0,
       description: "Test task for notification testing",
       priority: TaskPriority.MEDIUM, // Add priority
+      progress: 0, // Add required progress property
       config: {
         proxyRequired: false,
         captchaHandling: false,
@@ -69,6 +70,7 @@ describe('Notification Manager', () => {
       earnings: 0,
       description: "Test task for notification testing",
       priority: TaskPriority.LOW, // Add priority
+      progress: 0, // Add required progress property
       config: {
         proxyRequired: false,
         captchaHandling: false,

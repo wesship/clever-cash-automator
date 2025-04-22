@@ -41,9 +41,9 @@ export function useTask(taskId: string) {
           id: task.id,
           name: task.name,
           description: task.description,
-          type: task.type,
-          platform: task.platform,
-          priority: task.priority,
+          type: task.type.toString(), // Convert to string to avoid type incompatibility
+          platform: task.platform.toString(), // Convert to string to avoid type incompatibility
+          priority: task.priority.toString(), // Convert to string to avoid type incompatibility
           maxRetries: 3,
           timeout: 3600,
           parameters: {}
