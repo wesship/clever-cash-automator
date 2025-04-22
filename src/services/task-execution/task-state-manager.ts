@@ -1,186 +1,68 @@
 
-import { Task, TaskStatus } from "@/lib/types";
-import { PlatformError } from "@/lib/error-handling";
-import { TaskExecutionState } from "./types";
-import { formatLogMessage } from "./utils";
+import { 
+  Task, 
+  TaskConfiguration, 
+  TaskState, 
+  TaskLogEntry 
+} from '@/lib/task-models';
+import { ErrorService } from '../error-service';
 
-// Store for all running tasks
-const runningTasks = new Map<string, TaskExecutionState>();
-
-/**
- * Manages task execution state
- */
 export class TaskStateManager {
-  /**
-   * Initialize task execution state
-   */
-  static initializeTaskState(taskId: string): TaskExecutionState {
-    const executionState: TaskExecutionState = {
-      isRunning: true,
+  initializeTaskState(config: TaskConfiguration): Task {
+    const initialState: TaskState = {
+      status: 'pending',
       progress: 0,
-      currentStepDescription: "Initializing task...",
-      startTime: new Date(),
-      logs: [],
-      errors: [],
-      retryAttempts: 0
+      currentStep: 'Waiting to start',
+      logs: [this.createLogEntry('Task created and waiting to start', 'info')],
+      retryCount: 0
     };
-
-    // Store the task state
-    runningTasks.set(taskId, executionState);
     
-    return executionState;
+    return {
+      config,
+      state: initialState
+    };
   }
 
-  /**
-   * Get the current execution state of a task
-   */
-  static getTaskState(taskId: string): TaskExecutionState | null {
-    return runningTasks.get(taskId) || null;
-  }
-
-  /**
-   * Check if a task is currently running
-   */
-  static isTaskRunning(taskId: string): boolean {
-    return runningTasks.has(taskId) && runningTasks.get(taskId)!.isRunning;
-  }
-
-  /**
-   * Get the latest error for a task
-   */
-  static getLastError(taskId: string): PlatformError | undefined {
-    return runningTasks.get(taskId)?.lastError;
-  }
-
-  /**
-   * Update task progress
-   */
-  static updateProgress(taskId: string, progress: number, description: string): void {
-    const state = runningTasks.get(taskId);
-    if (state) {
-      state.progress = progress;
-      state.currentStepDescription = description;
-    }
-  }
-
-  /**
-   * Log a message for a task
-   */
-  static logTaskProgress(taskId: string, message: string, isError: boolean = false): void {
-    const state = runningTasks.get(taskId);
-    if (!state) return;
-
-    const logMessage = formatLogMessage(message);
-    
-    state.logs.push(logMessage);
-    if (isError) {
-      state.errors.push(logMessage);
+  updateProgress(task: Task, progress: number, stepDescription: string): Task {
+    if (task.state.status !== 'in_progress') {
+      const error = new Error(`Cannot update progress for task in ${task.state.status} state`);
+      ErrorService.log(error);
+      throw error;
     }
     
-    console.log(`Task ${taskId}: ${logMessage}`);
-  }
-
-  /**
-   * Mark task as completed or failed
-   */
-  static finishTask(taskId: string, success: boolean, error?: PlatformError): void {
-    const state = runningTasks.get(taskId);
-    if (!state) return;
-
-    state.isRunning = false;
-    state.endTime = new Date();
-    state.progress = success ? 100 : 0;
+    const validProgress = Math.max(0, Math.min(100, progress));
     
-    if (!success && error) {
-      state.lastError = error;
-    }
-  }
-
-  /**
-   * Mark task as stopped by user
-   */
-  static stopTask(taskId: string): boolean {
-    if (!runningTasks.has(taskId)) {
-      return false;
-    }
-
-    const state = runningTasks.get(taskId)!;
-    state.isRunning = false;
-    state.endTime = new Date();
+    const shouldLogUpdate = 
+      stepDescription !== task.state.currentStep || 
+      Math.abs(validProgress - task.state.progress) >= 10;
     
-    return true;
-  }
-  
-  /**
-   * Mark task as cancelled by user
-   */
-  static cancelTask(taskId: string): boolean {
-    if (!runningTasks.has(taskId)) {
-      return false;
-    }
-
-    const state = runningTasks.get(taskId)!;
-    state.isRunning = false;
-    state.endTime = new Date();
-    state.isCancelled = true;
+    const updatedLogs = shouldLogUpdate
+      ? [...task.state.logs, this.createLogEntry(`Progress ${validProgress}%: ${stepDescription}`, 'info')]
+      : task.state.logs;
     
-    return true;
-  }
-
-  /**
-   * Prepare task for retry
-   */
-  static prepareForRetry(taskId: string): number {
-    const state = runningTasks.get(taskId);
-    if (!state) return 0;
-    
-    // Increment retry attempts
-    state.retryAttempts++;
-    
-    // Reset execution state for retry
-    state.isRunning = true;
-    state.progress = 0;
-    state.lastError = undefined;
-    
-    return state.retryAttempts;
-  }
-  
-  /**
-   * Clear completed tasks from memory
-   * This can be called periodically to free up memory
-   */
-  static clearCompletedTasks(olderThanHours: number = 24): number {
-    let clearedCount = 0;
-    const now = new Date();
-    
-    for (const [taskId, state] of runningTasks.entries()) {
-      if (!state.isRunning && state.endTime) {
-        const hoursDifference = (now.getTime() - state.endTime.getTime()) / (1000 * 60 * 60);
-        if (hoursDifference >= olderThanHours) {
-          runningTasks.delete(taskId);
-          clearedCount++;
-        }
+    return {
+      ...task,
+      state: {
+        ...task.state,
+        progress: validProgress,
+        currentStep: stepDescription,
+        logs: updatedLogs
       }
-    }
-    
-    return clearedCount;
+    };
   }
-  
-  /**
-   * Get all task states (for admin purposes)
-   */
-  static getAllTaskStates(): Map<string, TaskExecutionState> {
-    return new Map(runningTasks);
-  }
-  
-  /**
-   * Get count of running tasks
-   */
-  static getRunningTaskCount(): number {
-    let count = 0;
-    for (const state of runningTasks.values()) {
-      if (state.isRunning) count++;
-    }
-    return count;
+
+  private createLogEntry(
+    message: string, 
+    type: TaskLogEntry['type'] = 'info',
+    data?: any
+  ): TaskLogEntry {
+    return {
+      timestamp: new Date(),
+      message,
+      type,
+      data
+    };
   }
 }
+
+export const taskStateManager = new TaskStateManager();
