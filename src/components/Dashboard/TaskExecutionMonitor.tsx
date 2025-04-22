@@ -51,7 +51,7 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
             {task.name}
             <TaskStatusBadge 
               isRunning={isRunning} 
-              lastError={lastError}
+              error={lastError}
               progress={progress} 
             />
           </CardTitle>

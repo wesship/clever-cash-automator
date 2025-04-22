@@ -1,6 +1,8 @@
 
 import { render, screen } from '@testing-library/react';
 import TaskStatusBadge from '../TaskStatusBadge';
+import { PlatformError } from '@/lib/error-handling';
+import { ErrorType } from '@/lib/error-handling/types';
 
 describe('TaskStatusBadge', () => {
   it('shows running state correctly', () => {
@@ -14,10 +16,33 @@ describe('TaskStatusBadge', () => {
   });
 
   it('shows error state when there is an error', () => {
+    const platformError = new PlatformError('Test error', {
+      type: ErrorType.UNKNOWN,
+      platformId: 'test',
+      recoverable: false
+    });
+
     render(
       <TaskStatusBadge 
         isRunning={false}
-        lastError={new Error('Test error')}
+        error={platformError}
+        progress={50}
+      />
+    );
+    expect(screen.getByText('Failed')).toBeInTheDocument();
+  });
+
+  it('shows error state with lastError prop', () => {
+    const platformError = new PlatformError('Test error', {
+      type: ErrorType.UNKNOWN,
+      platformId: 'test',
+      recoverable: false
+    });
+
+    render(
+      <TaskStatusBadge 
+        isRunning={false}
+        lastError={platformError}
         progress={50}
       />
     );
