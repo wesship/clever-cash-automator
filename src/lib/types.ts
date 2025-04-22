@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 export enum TaskStatus {
@@ -69,6 +70,12 @@ export interface TaskSchedule {
   customCron?: string;
 }
 
+// Define TaskDependency interface which is used in DependenciesField.tsx
+export interface TaskDependency {
+  taskId: string;
+  condition: "completed" | "failed" | "any";
+}
+
 export interface Task {
   id: string;
   name: string;
@@ -77,7 +84,7 @@ export interface Task {
   platform: PlatformType;
   status: TaskStatus;
   priority: TaskPriority;
-  progress: number;
+  progress: number; // This was missing but is required
   currentStep?: string;
   createdAt: Date;
   startedAt?: Date;
@@ -90,6 +97,21 @@ export interface Task {
     schedule?: TaskSchedule;
     id?: string;
     platform?: string;
+    // Add taskSpecific and taskTags properties
+    taskSpecific?: {
+      category?: string;
+      labels?: string[];
+      estimatedDuration?: number;
+      [key: string]: any;
+    };
+    taskTags?: string[];
+    dependencies?: TaskDependency[];
+    notifyOnCompletion?: boolean;
+    notifyOnFailure?: boolean;
+    retryStrategy?: {
+      maxRetries: number;
+      delayBetweenRetries: number;
+    };
   };
   lastRun?: Date;
   completionCount?: number;
@@ -104,7 +126,7 @@ export interface Task {
   }>;
 }
 
-// Add Statistics interface for DashboardOverview.tsx
+// Update Statistics interface for DashboardOverview.tsx with all required fields
 export interface Statistics {
   totalTasks: number;
   completedTasks: number;
@@ -112,4 +134,11 @@ export interface Statistics {
   failedTasks: number;
   totalEarnings: number;
   successRate: number;
+  
+  // Additional properties used in StatisticsPanel.tsx
+  tasksCompleted: number;
+  taskSuccessRate: number;
+  activeAccounts: number;
+  earningsToday: number;
+  earningsThisWeek: number;
 }
