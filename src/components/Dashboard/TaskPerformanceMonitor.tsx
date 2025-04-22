@@ -1,18 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Task, TaskStatus } from "@/lib/types";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DownloadIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CompletionChart } from "./Performance/CompletionChart";
 import { EarningsChart, ErrorsChart } from "./Performance/MetricsCharts";
 import { ResourceUsageChart, ResponseTimeChart } from "./Performance/ResourceCharts";
 import { generateMockPerformanceData } from "./Performance/utils";
 import { TaskPerformanceMonitorProps } from "./Performance/types";
+import { MetricsCards } from "./Performance/MetricsCards";
+import { DownloadIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 
 const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
   task,
@@ -179,24 +177,10 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
           </TabsContent>
           
           <TabsContent value="metrics" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Earnings</h4>
-                <div className="bg-muted/40 rounded-md p-4">
-                  <div className="text-2xl font-bold">${latestPerformance?.earnings.toFixed(2) || '0.00'}</div>
-                  <div className="text-sm text-muted-foreground">Current earnings</div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Error Rate</h4>
-                <div className="bg-muted/40 rounded-md p-4">
-                  <div className="text-2xl font-bold">{averageErrorRate.toFixed(2)}</div>
-                  <div className="text-sm text-muted-foreground">Errors per execution</div>
-                </div>
-              </div>
-            </div>
-            
+            <MetricsCards 
+              latestPerformance={latestPerformance}
+              averageErrorRate={averageErrorRate}
+            />
             <EarningsChart data={performanceData} />
             <ErrorsChart data={performanceData} />
           </TabsContent>
