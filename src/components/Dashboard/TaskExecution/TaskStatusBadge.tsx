@@ -58,13 +58,13 @@ interface TaskStatusBadgeProps {
   error?: Error | PlatformError;
   progress: number;
   className?: string;
-  lastError?: Error | PlatformError; // Added this property to match usage in tests and TaskExecutionMonitor
+  lastError?: Error | PlatformError;
 }
 
 const TaskStatusBadge: React.FC<TaskStatusBadgeProps> = ({
   isRunning,
   error,
-  lastError, // Added this prop
+  lastError,
   progress,
   className
 }) => {
