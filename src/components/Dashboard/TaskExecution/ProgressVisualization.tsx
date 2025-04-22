@@ -1,42 +1,43 @@
 
-import React, { memo } from "react";
+import React from "react";
 import { Progress } from "@/components/ui/progress";
-import { formatTime } from "./utils";
+import { formatTime } from "@/lib/utils";
+import { Clock } from "lucide-react";
 
 interface ProgressVisualizationProps {
   progress: number;
   currentStepDescription: string;
-  executionTime: number;
+  executionTime: number; // in seconds
+  className?: string;
 }
 
-const ProgressVisualization = memo(({ 
-  progress, 
-  currentStepDescription, 
-  executionTime 
-}: ProgressVisualizationProps) => {
+const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
+  progress,
+  currentStepDescription,
+  executionTime,
+  className
+}) => {
   return (
-    <div className="space-y-4">
+    <div className={className}>
       <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
+        <div className="flex justify-between items-center">
+          <div className="text-sm font-medium">{progress}%</div>
+          <div className="text-sm text-muted-foreground">
+            {currentStepDescription || "Not running"}
+          </div>
         </div>
+
         <Progress value={progress} className="h-2" />
-      </div>
-      
-      <div className="bg-background/50 p-3 rounded-md">
-        <p className="text-sm font-medium">Current Operation:</p>
-        <p className="text-sm">{currentStepDescription || "Not running"}</p>
+
         {executionTime > 0 && (
-          <p className="text-xs text-muted-foreground mt-1">
-            Execution time: {formatTime(executionTime)}
-          </p>
+          <div className="flex items-center text-xs text-muted-foreground mt-1">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>Execution time: {formatTime(executionTime)}</span>
+          </div>
         )}
       </div>
     </div>
   );
-});
-
-ProgressVisualization.displayName = 'ProgressVisualization';
+};
 
 export default ProgressVisualization;
