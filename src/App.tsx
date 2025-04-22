@@ -1,92 +1,44 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Index from "@/pages/Index";
+import Analytics from "@/pages/Analytics";
+import TaskDetail from "@/pages/TaskDetail";
+import Accounts from "@/pages/Accounts";
+import AccountDetail from "@/pages/AccountDetail";
+import Departments from "@/pages/Departments";
+import DepartmentDetail from "@/pages/DepartmentDetail";
+import AnalyticsDetail from "@/pages/AnalyticsDetail";
+import Settings from "@/pages/Settings";
+import BackgroundDemo from "@/pages/BackgroundDemo";
+import NotFound from "@/pages/NotFound";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "@/hooks/use-theme";
-import { UserPreferencesProvider } from "@/hooks/use-user-preferences";
 import { MatrixThemeProvider } from "@/hooks/use-matrix-theme";
-import { useState, useEffect } from "react";
-import { Loader } from "@/components/ui/Loader";
-import ErrorBoundary from "@/components/ui/error-boundary";
-import Index from "./pages/Index";
-import Analytics from "./pages/Analytics";
-import AnalyticsDetail from "./pages/AnalyticsDetail";
-import Accounts from "./pages/Accounts";
-import AccountDetail from "./pages/AccountDetail";
-import Settings from "./pages/Settings";
-import Departments from "./pages/Departments";
-import DepartmentDetail from "./pages/DepartmentDetail";
-import NotFound from "./pages/NotFound";
-import BackgroundDemo from "./pages/BackgroundDemo";
-import TaskDetail from "./pages/TaskDetail";
+import { TaskExecutionProvider } from "@/providers/TaskExecutionProvider";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <Loader size="lg" className="mx-auto border-primary" />
-          <p className="mt-4 text-lg text-gradient animate-pulse">Loading DEVONN.AI Moneyhub...</p>
-        </div>
-      </div>
-    );
-  }
-
+function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <UserPreferencesProvider>
-            <MatrixThemeProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/analytics" element={<Analytics />} />
-                    <Route path="/analytics/:id" element={<AnalyticsDetail />} />
-                    <Route path="/accounts" element={<Accounts />} />
-                    <Route path="/accounts/:id" element={<AccountDetail />} />
-                    <Route path="/departments" element={<Departments />} />
-                    <Route path="/departments/:id" element={<DepartmentDetail />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/task/:id" element={<TaskDetail />} />
-                    <Route path="/background-demo" element={<BackgroundDemo />} />
-                    <Route path="/welcome" element={<Navigate to="/background-demo" replace />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </TooltipProvider>
-            </MatrixThemeProvider>
-          </UserPreferencesProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <MatrixThemeProvider>
+        <TaskExecutionProvider>
+          <Toaster closeButton position="top-right" />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/analytics/:id" element={<AnalyticsDetail />} />
+            <Route path="/task/:id" element={<TaskDetail />} />
+            <Route path="/accounts" element={<Accounts />} />
+            <Route path="/account/:id" element={<AccountDetail />} />
+            <Route path="/departments" element={<Departments />} />
+            <Route path="/department/:id" element={<DepartmentDetail />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/background-demo" element={<BackgroundDemo />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TaskExecutionProvider>
+      </MatrixThemeProvider>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;
