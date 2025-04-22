@@ -1,23 +1,44 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { Task, TaskStatus } from '@/lib/types';
 import { TaskExecutor } from '@/services/task-execution/task-executor';
 import { TaskController } from '@/services/task-execution/task-controller';
+import { PlatformError, ErrorType } from '@/lib/error-handling';
 import { toast } from 'sonner';
 
 export function useTask(taskId: string) {
   const [task, setTask] = useState<Task | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<PlatformError | null>(null);
+
+  const handleError = useCallback((err: unknown, operation: string) => {
+    const platformError = err instanceof PlatformError 
+      ? err 
+      : new PlatformError(
+          err instanceof Error ? err.message : 'An unknown error occurred',
+          {
+            type: ErrorType.UNKNOWN,
+            platformId: 'task-system',
+            recoverable: true,
+            cause: err instanceof Error ? err : undefined
+          }
+        );
+
+    setError(platformError);
+    toast.error(platformError.getUserFriendlyMessage());
+    console.error(`Task ${operation} failed:`, platformError);
+  }, []);
 
   const fetchTaskState = useCallback(() => {
     try {
       const state = TaskController.getTaskState(taskId);
       if (state) {
-        setTask(state as unknown as Task); // Type assertion due to state manager differences
+        setTask(state as unknown as Task);
+        setError(null); // Clear any previous errors on successful fetch
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch task state'));
+      handleError(err, 'state fetch');
     }
-  }, [taskId]);
+  }, [taskId, handleError]);
 
   useEffect(() => {
     if (!taskId) return;
@@ -34,7 +55,6 @@ export function useTask(taskId: string) {
     if (!task) return;
 
     try {
-      // Convert Task to TaskModel format that TaskExecutor expects
       const taskModel = {
         config: {
           id: task.id,
@@ -63,47 +83,47 @@ export function useTask(taskId: string) {
       
       await TaskExecutor.executeTask(taskModel);
       toast.success('Task started successfully');
+      setError(null); // Clear any previous errors on successful start
     } catch (err) {
-      toast.error('Failed to start task');
-      setError(err instanceof Error ? err : new Error('Failed to start task'));
+      handleError(err, 'start');
     }
-  }, [task]);
+  }, [task, handleError]);
 
   const pauseTask = useCallback(() => {
     try {
       const success = TaskController.stopTask(taskId);
       if (success) {
         toast.success('Task paused successfully');
+        setError(null); // Clear any previous errors on successful pause
       }
     } catch (err) {
-      toast.error('Failed to pause task');
-      setError(err instanceof Error ? err : new Error('Failed to pause task'));
+      handleError(err, 'pause');
     }
-  }, [taskId]);
+  }, [taskId, handleError]);
 
   const retryTask = useCallback(async () => {
     try {
       const success = await TaskController.retryTask(taskId);
       if (success) {
         toast.success('Task retry initiated');
+        setError(null); // Clear any previous errors on successful retry
       }
     } catch (err) {
-      toast.error('Failed to retry task');
-      setError(err instanceof Error ? err : new Error('Failed to retry task'));
+      handleError(err, 'retry');
     }
-  }, [taskId]);
+  }, [taskId, handleError]);
 
   const cancelTask = useCallback(() => {
     try {
       const success = TaskController.cancelTask(taskId);
       if (success) {
         toast.success('Task cancelled successfully');
+        setError(null); // Clear any previous errors on successful cancellation
       }
     } catch (err) {
-      toast.error('Failed to cancel task');
-      setError(err instanceof Error ? err : new Error('Failed to cancel task'));
+      handleError(err, 'cancel');
     }
-  }, [taskId]);
+  }, [taskId, handleError]);
 
   return {
     task,
