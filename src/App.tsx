@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Index from "@/pages/Index";
 import Analytics from "@/pages/Analytics";
 import TaskDetail from "@/pages/TaskDetail";
+import EnhancedTaskDetail from "@/pages/EnhancedTaskDetail";
 import Accounts from "@/pages/Accounts";
 import AccountDetail from "@/pages/AccountDetail";
 import Departments from "@/pages/Departments";
@@ -29,6 +30,7 @@ function App() {
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/analytics/:id" element={<AnalyticsDetail />} />
               <Route path="/task/:id" element={<TaskDetail />} />
+              <Route path="/task-enhanced/:id" element={<EnhancedTaskDetail />} />
               <Route path="/accounts" element={<Accounts />} />
               <Route path="/account/:id" element={<AccountDetail />} />
               <Route path="/departments" element={<Departments />} />

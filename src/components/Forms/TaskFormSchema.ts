@@ -39,7 +39,13 @@ export const taskFormSchema = z.object({
   retryStrategy: z.object({
     maxRetries: z.number().int().min(0),
     delayBetweenRetries: z.number().int().min(0)
-  }).optional()
+  }).optional(),
+  // New fields for advanced filtering and categorization
+  category: z.string().optional(),
+  estimatedDuration: z.number().int().min(1).optional(),
+  estimatedEarnings: z.number().min(0).optional(),
+  complexity: z.enum(["simple", "moderate", "complex"]).optional(),
+  labels: z.array(z.string()).default([]),
 });
 
 export type TaskFormData = z.infer<typeof taskFormSchema>;
@@ -60,5 +66,6 @@ export const defaultTaskFormValues: TaskFormData = {
   notifyOnCompletion: true,
   notifyOnFailure: true,
   priority: "medium",
-  recurrenceEndType: "never"
+  recurrenceEndType: "never",
+  labels: [],
 };
