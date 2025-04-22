@@ -4,6 +4,7 @@ import { TaskExecutionEngine } from '@/services/task-execution';
 import { Task, TaskStatus } from '@/services/TaskExecutionService';
 import { toast } from 'sonner';
 import { TaskType, PlatformType, TaskPriority, TaskStatus as OriginalTaskStatus } from '@/lib/types';
+import { mapTaskStatus, mapToOriginalTaskStatus } from '@/lib/task-types';
 
 interface TaskExecutionContextType {
   executeTask: (taskId: string) => Promise<void>;
@@ -11,6 +12,7 @@ interface TaskExecutionContextType {
   abortTask: (taskId: string) => void;
   getTaskProgress: (taskId: string) => number;
   tasks: Record<string, Task>;
+  addTask: (task: Omit<Task, 'status' | 'updatedAt' | 'completedAt'>) => void;
 }
 
 const TaskExecutionContext = createContext<TaskExecutionContextType | null>(null);
@@ -29,6 +31,22 @@ interface TaskExecutionProviderProps {
 
 export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useState<Record<string, Task>>({});
+  
+  const addTask = useCallback((task: Omit<Task, 'status' | 'updatedAt' | 'completedAt'>) => {
+    const now = new Date();
+    const newTask: Task = {
+      ...task,
+      status: 'pending' as TaskStatus,
+      updatedAt: now,
+    };
+    
+    setTasks(prev => ({
+      ...prev,
+      [newTask.id]: newTask
+    }));
+    
+    toast.success(`Task "${newTask.title}" added`);
+  }, []);
   
   const executeTask = useCallback(async (taskId: string): Promise<void> => {
     try {
@@ -129,7 +147,8 @@ export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ ch
     updateTaskStatus,
     abortTask,
     getTaskProgress,
-    tasks
+    tasks,
+    addTask
   };
   
   return (
