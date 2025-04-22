@@ -19,12 +19,12 @@ const DepartmentAIHelper: React.FC<DepartmentAIHelperProps> = ({ onDescriptionGe
 
   return (
     <ErrorBoundary
-      fallback={({ error, resetErrorBoundary }) => (
+      fallback={
         <DepartmentAIHelperError 
-          error={error} 
-          resetErrorBoundary={resetErrorBoundary} 
+          error={new Error("An error occurred")} 
+          resetErrorBoundary={() => {}} 
         />
-      )}
+      }
     >
       <AIHelperCard>
         <APIKeyManager />
