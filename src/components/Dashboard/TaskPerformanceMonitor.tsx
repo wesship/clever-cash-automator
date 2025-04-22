@@ -10,7 +10,9 @@ import { ResourceUsageChart, ResponseTimeChart } from "./Performance/ResourceCha
 import { generateMockPerformanceData } from "./Performance/utils";
 import { TaskPerformanceMonitorProps } from "./Performance/types";
 import { MetricsCards } from "./Performance/MetricsCards";
-import { DownloadIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import { ResourceCards } from "./Performance/ResourceCards";
+import { TaskControls } from "./Performance/TaskControls";
+import { DownloadIcon } from "lucide-react";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -133,6 +135,14 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
             <ErrorBoundary>
               <CompletionChart data={performanceData} />
             </ErrorBoundary>
+
+            <TaskControls 
+              status={task.status}
+              onPause={onPause}
+              onResume={onResume}
+              onRetry={onRetry}
+              config={task.config}
+            />
           </TabsContent>
           
           <TabsContent value="metrics" className="mt-0 space-y-4">
@@ -149,23 +159,7 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
           </TabsContent>
           
           <TabsContent value="resources" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">CPU Usage</h4>
-                <div className="bg-muted/40 rounded-md p-4">
-                  <div className="text-2xl font-bold">{latestPerformance?.cpuUsage.toFixed(1)}%</div>
-                  <div className="text-sm text-muted-foreground">Average CPU utilization</div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Memory Usage</h4>
-                <div className="bg-muted/40 rounded-md p-4">
-                  <div className="text-2xl font-bold">{latestPerformance?.memoryUsage.toFixed(1)} MB</div>
-                  <div className="text-sm text-muted-foreground">Average memory usage</div>
-                </div>
-              </div>
-            </div>
+            <ResourceCards latestPerformance={latestPerformance} />
             
             <ErrorBoundary>
               <ResourceUsageChart data={performanceData} />
