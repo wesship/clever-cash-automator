@@ -11,6 +11,9 @@ import { generateMockPerformanceData } from "./Performance/utils";
 import { TaskPerformanceMonitorProps } from "./Performance/types";
 import { MetricsCards } from "./Performance/MetricsCards";
 import { DownloadIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import ErrorBoundary from "@/components/ui/error-boundary";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
   task,
@@ -95,6 +98,7 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
           </div>
         </div>
       </CardHeader>
+      
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-3 mb-4">
@@ -103,7 +107,7 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
             <TabsTrigger value="resources">Resources</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="progress" className="space-y-4">
+          <TabsContent value="progress" className="mt-0 space-y-4">
             <div className="flex flex-col space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm font-medium">Completion Status</span>
@@ -126,63 +130,22 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
               </div>
             </div>
             
-            <CompletionChart data={performanceData} />
-            
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Estimated completion:</span>
-                <span className="text-sm font-medium">
-                  {isTaskCompleted ? "Completed" : isTaskFailed ? "Failed" : 
-                    task.config.schedule?.endDate ? 
-                      new Date(task.config.schedule.endDate).toLocaleDateString() : 
-                      "Not specified"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {isTaskRunning && onPause && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={onPause}
-                    className="flex items-center gap-1"
-                  >
-                    <PauseIcon className="h-4 w-4" />
-                    Pause
-                  </Button>
-                )}
-                {isTaskPaused && onResume && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={onResume}
-                    className="flex items-center gap-1"
-                  >
-                    <PlayIcon className="h-4 w-4" />
-                    Resume
-                  </Button>
-                )}
-                {isTaskFailed && onRetry && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={onRetry}
-                    className="flex items-center gap-1"
-                  >
-                    <RotateCcwIcon className="h-4 w-4" />
-                    Retry
-                  </Button>
-                )}
-              </div>
-            </div>
+            <ErrorBoundary>
+              <CompletionChart data={performanceData} />
+            </ErrorBoundary>
           </TabsContent>
           
-          <TabsContent value="metrics" className="space-y-4">
+          <TabsContent value="metrics" className="mt-0 space-y-4">
             <MetricsCards 
               latestPerformance={latestPerformance}
               averageErrorRate={averageErrorRate}
             />
-            <EarningsChart data={performanceData} />
-            <ErrorsChart data={performanceData} />
+            <ErrorBoundary>
+              <EarningsChart data={performanceData} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <ErrorsChart data={performanceData} />
+            </ErrorBoundary>
           </TabsContent>
           
           <TabsContent value="resources" className="space-y-4">
@@ -204,8 +167,12 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
               </div>
             </div>
             
-            <ResourceUsageChart data={performanceData} />
-            <ResponseTimeChart data={performanceData} />
+            <ErrorBoundary>
+              <ResourceUsageChart data={performanceData} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <ResponseTimeChart data={performanceData} />
+            </ErrorBoundary>
           </TabsContent>
         </Tabs>
       </CardContent>
