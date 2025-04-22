@@ -59,6 +59,30 @@ export class PlatformError extends Error {
         return this.message;
     }
   }
+  
+  // Add getRecoverySuggestion method
+  getRecoverySuggestion(): string {
+    switch (this.type) {
+      case ErrorType.NETWORK:
+        return 'Check your internet connection and try again.';
+      case ErrorType.TIMEOUT:
+        return 'The server might be experiencing high load. Try again later or reduce the number of concurrent tasks.';
+      case ErrorType.RATE_LIMIT:
+        return 'You have reached a rate limit. Wait for a while before trying again or use a different proxy.';
+      case ErrorType.AUTHORIZATION:
+        return 'Your authorization may have expired. Try logging in again.';
+      case ErrorType.NOT_FOUND:
+        return 'The requested resource no longer exists. Try refreshing your data.';
+      case ErrorType.VALIDATION:
+        return 'Check your input parameters for errors and try again.';
+      case ErrorType.SERVER:
+        return 'This is likely a temporary server issue. Try again later.';
+      case ErrorType.CLIENT:
+        return 'Review your request and try again. If the problem persists, contact support.';
+      default:
+        return 'Try the operation again. If the problem persists, contact support.';
+    }
+  }
 }
 
 // Higher order function for wrapping functions with error handling
