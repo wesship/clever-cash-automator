@@ -13,7 +13,8 @@ export class ErrorService {
 
   static trackEvent(eventName: string, properties?: Record<string, any>) {
     if (ENV.ANALYTICS.ENABLED) {
-      // Integrate with your analytics provider
+      // Track analytics event
+      console.log('Analytics event:', eventName, properties);
     }
   }
 }
