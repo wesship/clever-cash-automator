@@ -1,19 +1,18 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Task } from "@/lib/types";
 import useTaskExecution from "@/hooks/use-task-execution";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlatformError } from "@/lib/error-handling";
-import { parseStepsFromLogs } from "./TaskExecution/utils";
 
 // Import our new components
 import TaskStatusBadge from "./TaskExecution/TaskStatusBadge";
 import TaskControlButtons from "./TaskExecution/TaskControlButtons";
-import TaskProgressTab from "./TaskExecution/TaskProgressTab";
-import TaskLogsTab from "./TaskExecution/TaskLogsTab";
-import TaskErrorsTab from "./TaskExecution/TaskErrorsTab";
 import TaskDetailsTab from "./TaskExecution/TaskDetailsTab";
+import TaskErrorsTab from "./TaskExecution/TaskErrorsTab";
+import TaskLogsTab from "./TaskExecution/TaskLogsTab";
+import TaskProgressTab from "./TaskExecution/TaskProgressTab";
+import { useExecutionState } from "@/hooks/use-execution-state";
 
 interface TaskExecutionMonitorProps {
   task: Task;
@@ -21,40 +20,25 @@ interface TaskExecutionMonitorProps {
 }
 
 const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClose }) => {
-  const { 
-    isRunning, 
-    progress, 
-    currentStepDescription, 
-    logs, 
+  const [activeTab, setActiveTab] = useState<string>("progress");
+  
+  const {
+    isRunning,
+    progress,
+    currentStepDescription,
+    logs,
+    executionTime,
+    steps: executionSteps,
+    currentStepIndex
+  } = useExecutionState(task.id);
+
+  const {
     lastError,
     canRetry,
     retryTask,
     stopTask,
     startTask
   } = useTaskExecution(task.id);
-
-  const [activeTab, setActiveTab] = useState<string>("progress");
-  const [executionTime, setExecutionTime] = useState<number>(0);
-
-  // Use parseStepsFromLogs utility
-  const { steps: executionSteps, currentStepIndex } = parseStepsFromLogs(logs);
-
-  // Start a timer to track execution time
-  useEffect(() => {
-    let interval: number | undefined;
-    
-    if (isRunning) {
-      interval = window.setInterval(() => {
-        setExecutionTime(prev => prev + 1);
-      }, 1000);
-    }
-    
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isRunning]);
 
   // Determine if we should show error details
   const showErrorDetails = !!lastError && !isRunning;
@@ -109,38 +93,38 @@ const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({ task, onClo
           </TabsList>
         </div>
 
-        <CardContent className="space-y-4 pt-6">
-          <TabsContent value="progress" className="mt-0 space-y-4">
-            <TaskProgressTab 
-              progress={progress}
-              currentStepDescription={currentStepDescription}
-              executionSteps={executionSteps}
-              currentStepIndex={currentStepIndex}
-              isRunning={isRunning}
-              executionTime={executionTime}
+      <CardContent className="space-y-4">
+        <TabsContent value="progress" className="mt-0 space-y-4">
+          <TaskProgressTab 
+            progress={progress}
+            currentStepDescription={currentStepDescription}
+            executionSteps={executionSteps}
+            currentStepIndex={currentStepIndex}
+            isRunning={isRunning}
+            executionTime={executionTime}
+          />
+        </TabsContent>
+
+        <TabsContent value="logs" className="mt-0">
+          <TaskLogsTab logs={logs} />
+        </TabsContent>
+
+        <TabsContent value="errors" className="mt-0">
+          {showErrorDetails && lastError && (
+            <TaskErrorsTab 
+              lastError={lastError as PlatformError}
+              canRetry={canRetry}
+              onRetryTask={retryTask}
+              taskId={task.id}
             />
-          </TabsContent>
+          )}
+        </TabsContent>
 
-          <TabsContent value="logs" className="mt-0">
-            <TaskLogsTab logs={logs} />
-          </TabsContent>
-
-          <TabsContent value="errors" className="mt-0">
-            {showErrorDetails && lastError && (
-              <TaskErrorsTab 
-                lastError={lastError as PlatformError}
-                canRetry={canRetry}
-                onRetryTask={retryTask}
-                taskId={task.id}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="details" className="mt-0">
-            <TaskDetailsTab task={task} />
-          </TabsContent>
-        </CardContent>
-      </Tabs>
+        <TabsContent value="details" className="mt-0">
+          <TaskDetailsTab task={task} />
+        </TabsContent>
+      </CardContent>
+    </Tabs>
     </Card>
   );
 };

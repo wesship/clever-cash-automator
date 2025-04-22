@@ -1,8 +1,7 @@
 
-import React from "react";
-import { Progress } from "@/components/ui/progress";
+import React, { memo } from "react";
+import ProgressVisualization from "./ProgressVisualization";
 import TaskExecutionProgress from "./TaskExecutionProgress";
-import { formatTime } from "./utils";
 
 interface TaskProgressTabProps {
   progress: number;
@@ -18,28 +17,21 @@ interface TaskProgressTabProps {
   executionTime: number;
 }
 
-const TaskProgressTab: React.FC<TaskProgressTabProps> = ({
+const TaskProgressTab = memo(({
   progress,
   currentStepDescription,
   executionSteps,
   currentStepIndex,
   isRunning,
   executionTime
-}) => {
+}: TaskProgressTabProps) => {
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </div>
-      
-      <div className="bg-background/50 p-3 rounded-md">
-        <p className="text-sm font-medium">Current Operation:</p>
-        <p className="text-sm">{currentStepDescription || "Not running"}</p>
-      </div>
+      <ProgressVisualization
+        progress={progress}
+        currentStepDescription={currentStepDescription}
+        executionTime={executionTime}
+      />
       
       {/* Step Progress Visualization */}
       {executionSteps.length > 0 && (
@@ -52,6 +44,8 @@ const TaskProgressTab: React.FC<TaskProgressTabProps> = ({
       )}
     </div>
   );
-};
+});
+
+TaskProgressTab.displayName = 'TaskProgressTab';
 
 export default TaskProgressTab;
