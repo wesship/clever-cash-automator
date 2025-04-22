@@ -1,15 +1,6 @@
 
 import { ErrorType } from "./types";
 
-// Error properties interface
-interface PlatformErrorOptions {
-  type: ErrorType;
-  platformId: string;
-  details?: Record<string, any>;
-  recoverable?: boolean; // Indicates if retrying the operation might succeed
-  cause?: Error;
-}
-
 /**
  * Custom error class for platform-related errors
  */
@@ -19,8 +10,17 @@ export class PlatformError extends Error {
   readonly details: Record<string, any>;
   readonly recoverable: boolean;
   readonly cause?: Error;
+  readonly code: string;
+  context: Record<string, any>;
 
-  constructor(message: string, options: PlatformErrorOptions) {
+  constructor(message: string, options: {
+    type: ErrorType;
+    platformId: string;
+    details?: Record<string, any>;
+    recoverable?: boolean;
+    cause?: Error;
+    code?: string;
+  }) {
     super(message);
     this.name = 'PlatformError';
     this.type = options.type;
@@ -28,6 +28,8 @@ export class PlatformError extends Error {
     this.details = options.details || {};
     this.recoverable = options.recoverable !== undefined ? options.recoverable : false;
     this.cause = options.cause;
+    this.code = options.code || options.type;
+    this.context = {};
 
     // Maintains proper stack trace for where error was thrown (V8 engines)
     if (Error.captureStackTrace) {
@@ -42,7 +44,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: true, 
-      cause 
+      cause,
+      code: "NETWORK_ERROR"
     });
   }
 
@@ -52,7 +55,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: false, 
-      cause 
+      cause,
+      code: "AUTH_ERROR" 
     });
   }
 
@@ -62,7 +66,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: false, 
-      cause 
+      cause,
+      code: "PERMISSION_ERROR"
     });
   }
 
@@ -72,7 +77,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: true, 
-      cause 
+      cause,
+      code: "RATE_LIMIT_ERROR"
     });
   }
 
@@ -82,7 +88,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: true, 
-      cause 
+      cause,
+      code: "SERVER_ERROR" 
     });
   }
 
@@ -92,7 +99,8 @@ export class PlatformError extends Error {
       platformId, 
       details, 
       recoverable: false, 
-      cause 
+      cause,
+      code: "VALIDATION_ERROR"
     });
   }
 

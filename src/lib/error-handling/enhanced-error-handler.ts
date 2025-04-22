@@ -1,6 +1,7 @@
 
 import { PlatformError } from "@/lib/error-handling";
 import { toast } from "sonner";
+import { ErrorType } from "./types";
 
 export enum ErrorSeverity {
   LOW = "low",
@@ -29,10 +30,11 @@ export class EnhancedErrorHandler {
     // Convert to PlatformError if it's a regular Error
     const platformError = error instanceof PlatformError 
       ? error 
-      : new PlatformError({
+      : new PlatformError(error.message, {
+          type: ErrorType.UNKNOWN,
+          platformId: "unknown",
           code: "UNKNOWN_ERROR",
-          message: error.message,
-          originalError: error
+          cause: error
         });
     
     // Add context to the error

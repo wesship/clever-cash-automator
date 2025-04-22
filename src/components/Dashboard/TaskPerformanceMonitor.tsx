@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TaskPerformanceData {
   timestamp: string;
@@ -166,9 +167,9 @@ const TaskPerformanceMonitor: React.FC<TaskPerformanceMonitorProps> = ({
                   {task.completionCount} of {task.targetCompletions} completions
                 </span>
                 <Badge variant={
-                  isTaskRunning ? "success" : 
-                  isTaskPaused ? "warning" : 
-                  isTaskCompleted ? "info" : 
+                  isTaskRunning ? "default" : 
+                  isTaskPaused ? "outline" : 
+                  isTaskCompleted ? "secondary" : 
                   "destructive"
                 }>
                   {task.status}
