@@ -23,7 +23,45 @@ export const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({
   onClose
 }) => {
   const [error, setError] = useState<Error | null>(null);
-  const { startTask, stopTask, retryTask, progress, isRunning } = useTaskExecution(task.id);
+  const { 
+    startTask: originalStartTask, 
+    stopTask, 
+    retryTask, 
+    progress, 
+    isRunning 
+  } = useTaskExecution(task.id);
+  
+  // Create a function to convert our Task to the expected Task type
+  const startTask = async () => {
+    try {
+      // We need to modify our task to work with the original startTask function
+      const adaptedTask = {
+        id: task.id,
+        name: task.title,
+        type: 'SURVEY', // Using a placeholder type
+        platform: 'CUSTOM', // Using a placeholder platform
+        status: 'PENDING', // Using a string that matches the enum
+        createdAt: task.createdAt,
+        description: task.description,
+        completionCount: 0,
+        targetCompletions: 1,
+        earnings: 0,
+        priority: 'MEDIUM',
+        config: {
+          proxyRequired: false,
+          captchaHandling: false,
+          schedule: {
+            frequency: "daily",
+            maxRuns: 5
+          }
+        }
+      };
+      
+      return await originalStartTask(adaptedTask);
+    } catch (err) {
+      throw err;
+    }
+  };
   
   useEffect(() => {
     if (progress >= 100 && onComplete) {
@@ -34,7 +72,7 @@ export const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({
   const handleExecute = async () => {
     try {
       setError(null);
-      await startTask(task);
+      await startTask();
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
       setError(error);

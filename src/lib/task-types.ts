@@ -5,11 +5,11 @@ import { TaskStatus as CentralizedTaskStatus } from '@/services/TaskExecutionSer
 // Map between centralized and original task status types
 export const mapTaskStatus = (status: OriginalTaskStatus): CentralizedTaskStatus => {
   switch (status) {
-    case 'PENDING': return 'pending';
-    case 'RUNNING': return 'in_progress';
-    case 'COMPLETED': return 'completed';
-    case 'FAILED': return 'failed';
-    case 'PAUSED': return 'pending';
+    case OriginalTaskStatus.PENDING: return 'pending';
+    case OriginalTaskStatus.RUNNING: return 'in_progress';
+    case OriginalTaskStatus.COMPLETED: return 'completed';
+    case OriginalTaskStatus.FAILED: return 'failed';
+    case OriginalTaskStatus.PAUSED: return 'pending';
     default: return 'pending';
   }
 };
@@ -17,10 +17,10 @@ export const mapTaskStatus = (status: OriginalTaskStatus): CentralizedTaskStatus
 // Map from centralized task status to original task status
 export const mapToOriginalTaskStatus = (status: CentralizedTaskStatus): OriginalTaskStatus => {
   switch (status) {
-    case 'pending': return 'PENDING';
-    case 'in_progress': return 'RUNNING';
-    case 'completed': return 'COMPLETED';
-    case 'failed': return 'FAILED';
-    default: return 'PENDING';
+    case 'pending': return OriginalTaskStatus.PENDING;
+    case 'in_progress': return OriginalTaskStatus.RUNNING;
+    case 'completed': return OriginalTaskStatus.COMPLETED;
+    case 'failed': return OriginalTaskStatus.FAILED;
+    default: return OriginalTaskStatus.PENDING;
   }
 };
