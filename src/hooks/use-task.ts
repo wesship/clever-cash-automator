@@ -1,8 +1,10 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { Task, TaskStatus } from '@/lib/types';
 import { TaskExecutor } from '@/services/task-execution/task-executor';
 import { TaskController } from '@/services/task-execution/task-controller';
 import { toast } from 'sonner';
+import { mapTaskType, mapTaskStatus } from '@/lib/task-types';
 
 export function useTask(taskId: string) {
   const [task, setTask] = useState<Task | null>(null);
