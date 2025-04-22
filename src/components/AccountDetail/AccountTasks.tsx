@@ -35,7 +35,8 @@ const AccountTasks = ({ tasks, getStatusColor }: AccountTasksProps) => {
       targetCompletions: task.total,
       earnings: task.earnings,
       description: `Task for ${task.name}`,
-      priority: TaskPriority.MEDIUM, // Add default priority
+      priority: TaskPriority.MEDIUM,
+      progress: Math.round((task.completions / task.total) * 100), // Add progress property
       config: {
         proxyRequired: true,
         captchaHandling: true,

@@ -18,7 +18,8 @@ describe('Task Cancellation', () => {
       targetCompletions: 10,
       earnings: 0,
       description: "Test task for cancellation testing",
-      priority: TaskPriority.MEDIUM, // Add priority
+      priority: TaskPriority.MEDIUM,
+      progress: 0, // Add the required progress property
       config: {
         proxyRequired: false,
         captchaHandling: false,

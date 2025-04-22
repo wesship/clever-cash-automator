@@ -19,6 +19,7 @@ export const useTaskManager = (initialTasks: Task[] = []) => {
       earnings: 0,
       description: data.description || "",
       priority: data.priority || TaskPriority.MEDIUM,
+      progress: 0, // Add the required progress field
       config: {
         proxyRequired: data.proxyRequired,
         captchaHandling: data.captchaHandling,

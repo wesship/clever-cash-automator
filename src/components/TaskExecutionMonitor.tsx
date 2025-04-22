@@ -48,6 +48,7 @@ export const TaskExecutionMonitor: React.FC<TaskExecutionMonitorProps> = ({
         targetCompletions: 1,
         earnings: 0,
         priority: TaskPriority.MEDIUM, // Using proper enum value
+        progress: 0, // Add the required progress property
         config: {
           proxyRequired: false,
           captchaHandling: false,

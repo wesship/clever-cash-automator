@@ -1,8 +1,7 @@
 
 import { render, screen } from '@testing-library/react';
 import TaskStatusBadge from '../TaskStatusBadge';
-import { PlatformError } from '@/lib/error-handling';
-import { ErrorType } from '@/lib/error-handling/types';
+import { PlatformError, ErrorType } from '@/lib/error-handling';
 
 describe('TaskStatusBadge', () => {
   it('shows running state correctly', () => {

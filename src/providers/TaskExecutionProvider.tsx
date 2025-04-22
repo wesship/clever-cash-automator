@@ -79,6 +79,7 @@ export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ ch
         targetCompletions: 1,
         earnings: 0,
         priority: TaskPriority.MEDIUM,
+        progress: 0, // Add the required progress property
         config: {
           proxyRequired: false,
           captchaHandling: false,

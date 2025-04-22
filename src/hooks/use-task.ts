@@ -35,7 +35,34 @@ export function useTask(taskId: string) {
     if (!task) return;
 
     try {
-      await TaskExecutor.executeTask(task);
+      // Convert Task to TaskModel format that TaskExecutor expects
+      const taskModel = {
+        config: {
+          id: task.id,
+          name: task.name,
+          description: task.description,
+          type: task.type,
+          platform: task.platform,
+          priority: task.priority,
+          maxRetries: 3,
+          timeout: 3600,
+          parameters: {}
+        },
+        state: {
+          status: task.status,
+          progress: task.progress,
+          currentStep: task.currentStep || '',
+          logs: task.logs ? task.logs.map(log => ({
+            timestamp: log.timestamp,
+            message: log.message,
+            type: log.type,
+            data: log.data
+          })) : [],
+          retryCount: 0
+        }
+      };
+      
+      await TaskExecutor.executeTask(taskModel);
       toast.success('Task started successfully');
     } catch (err) {
       toast.error('Failed to start task');
@@ -90,4 +117,3 @@ export function useTask(taskId: string) {
     isRunning: task?.status === TaskStatus.RUNNING,
   };
 }
-

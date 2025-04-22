@@ -5,6 +5,8 @@ export enum ErrorType {
   TIMEOUT = 'timeout',
   RATE_LIMIT = 'rate_limit',
   AUTHORIZATION = 'authorization',
+  AUTHENTICATION = 'authentication',
+  PLATFORM_UNAVAILABLE = 'platform_unavailable',
   NOT_FOUND = 'not_found',
   VALIDATION = 'validation',
   SERVER = 'server',
@@ -17,6 +19,7 @@ export class PlatformError extends Error {
   platformId?: string;
   code?: string;
   details?: any;
+  cause?: Error;
 
   constructor(
     message: string,
@@ -26,6 +29,7 @@ export class PlatformError extends Error {
       platformId?: string;
       code?: string;
       details?: any;
+      cause?: Error;
     }
   ) {
     super(message);
@@ -35,6 +39,7 @@ export class PlatformError extends Error {
     this.platformId = options.platformId;
     this.code = options.code;
     this.details = options.details;
+    this.cause = options.cause;
   }
 
   getUserFriendlyMessage(): string {
@@ -47,6 +52,10 @@ export class PlatformError extends Error {
         return 'Rate limit exceeded. Please try again later.';
       case ErrorType.AUTHORIZATION:
         return 'Authorization error. Please check your credentials.';
+      case ErrorType.AUTHENTICATION:
+        return 'Authentication error. Please check your login details.';
+      case ErrorType.PLATFORM_UNAVAILABLE:
+        return 'The platform is currently unavailable. Please try again later.';
       case ErrorType.NOT_FOUND:
         return 'The requested resource was not found.';
       case ErrorType.VALIDATION:
@@ -60,6 +69,57 @@ export class PlatformError extends Error {
     }
   }
   
+  // Add static factory methods for common error types
+  static network(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.NETWORK,
+      recoverable: true,
+      platformId,
+      details,
+      cause
+    });
+  }
+
+  static authentication(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.AUTHENTICATION,
+      recoverable: false,
+      platformId,
+      details,
+      cause
+    });
+  }
+
+  static authorization(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.AUTHORIZATION,
+      recoverable: false,
+      platformId,
+      details,
+      cause
+    });
+  }
+
+  static validation(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.VALIDATION,
+      recoverable: true,
+      platformId,
+      details,
+      cause
+    });
+  }
+
+  static platformUnavailable(message: string, platformId?: string, details?: any, cause?: Error): PlatformError {
+    return new PlatformError(message, {
+      type: ErrorType.PLATFORM_UNAVAILABLE,
+      recoverable: true,
+      platformId,
+      details,
+      cause
+    });
+  }
+
   // Add getRecoverySuggestion method
   getRecoverySuggestion(): string {
     switch (this.type) {
@@ -71,6 +131,10 @@ export class PlatformError extends Error {
         return 'You have reached a rate limit. Wait for a while before trying again or use a different proxy.';
       case ErrorType.AUTHORIZATION:
         return 'Your authorization may have expired. Try logging in again.';
+      case ErrorType.AUTHENTICATION:
+        return 'Please check your username and password and try again.';
+      case ErrorType.PLATFORM_UNAVAILABLE:
+        return 'The platform may be under maintenance. Check the platform status page or try again later.';
       case ErrorType.NOT_FOUND:
         return 'The requested resource no longer exists. Try refreshing your data.';
       case ErrorType.VALIDATION:
