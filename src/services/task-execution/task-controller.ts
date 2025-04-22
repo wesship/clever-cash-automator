@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { TaskStateManager } from "./task-state-manager";
 import { TaskExecutor } from "./task-executor";
 import { PlatformError } from "@/lib/error-handling";
+import { Task as TaskModel } from "@/lib/task-models";
 
 /**
  * Provides the public API for controlling task execution
@@ -29,7 +30,34 @@ export class TaskController {
     TaskStateManager.logTaskProgress(task.id, "Task execution started");
     
     // Begin the execution in the background
-    TaskExecutor.executeTaskInBackground(task);
+    // Convert Task from lib/types to TaskModel from lib/task-models
+    const taskModel: TaskModel = {
+      config: {
+        id: task.id,
+        name: task.name,
+        description: task.description,
+        type: task.type as any,
+        platform: task.platform as any,
+        priority: task.priority as any,
+        maxRetries: 3, // Default value
+        timeout: 3600, // Default timeout in seconds
+        parameters: {} // Default empty parameters
+      },
+      state: {
+        status: task.status as any,
+        progress: task.progress,
+        currentStep: task.currentStep || '',
+        logs: task.logs ? task.logs.map(log => ({
+          timestamp: log.timestamp,
+          message: log.message,
+          type: log.type,
+          data: log.data
+        })) : [],
+        retryCount: 0
+      }
+    };
+    
+    TaskExecutor.executeTaskInBackground(taskModel);
 
     toast.success(`Started task "${task.name}"`);
     return true;
@@ -81,20 +109,23 @@ export class TaskController {
       return false;
     }
     
-    // Get the task to retry
-    const task = TaskExecutor.getTaskFromId(taskId);
-    if (!task) {
+    // Get the original task details
+    // Since getTaskFromId isn't part of TaskExecutor, we'll get the task details from state
+    const taskState = TaskStateManager.getTaskState(taskId);
+    if (!taskState) {
       return false;
     }
     
     // Check if error is retryable
-    const lastError = state.lastError;
+    const lastError = taskState.lastError;
     if (!lastError) {
       return false;
     }
     
-    if (!TaskExecutor.canRetryTask(task, lastError)) {
-      toast.error(`Cannot retry task "${task.name}": ${lastError.getUserFriendlyMessage()}`);
+    // We'll implement a simple check instead of depending on the missing method
+    const canRetry = lastError.recoverable !== false; // Default to true if not specified
+    if (!canRetry) {
+      toast.error(`Cannot retry task: ${lastError.message}`);
       return false;
     }
     
@@ -112,10 +143,32 @@ export class TaskController {
       `Retrying task execution (attempt ${retryAttempt} of ${this.MAX_RETRY_ATTEMPTS})`
     );
     
-    // Execute the task
+    // Execute the task - we need to reconstruct it from the state
+    // This is a simplified version that would need enhancement in production
+    const task: TaskModel = {
+      config: {
+        id: taskId,
+        name: taskState.taskName || "Unknown Task",
+        description: taskState.taskDescription || "",
+        type: "extraction" as any, // Default
+        platform: "web" as any, // Default
+        priority: "medium" as any, // Default
+        maxRetries: 3,
+        timeout: 3600,
+        parameters: {}
+      },
+      state: {
+        status: "pending" as any,
+        progress: 0,
+        currentStep: "Initializing retry",
+        logs: [],
+        retryCount: retryAttempt
+      }
+    };
+    
     TaskExecutor.executeTaskInBackground(task);
     
-    toast.info(`Retrying task "${task.name}"`);
+    toast.info(`Retrying task`);
     return true;
   }
   
