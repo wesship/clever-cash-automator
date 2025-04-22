@@ -1,126 +1,85 @@
 
 import React from "react";
-import { 
-  Check, 
-  Clock, 
-  Loader2, 
-  AlertTriangle, 
-  Pause 
-} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Check, AlertTriangle, Clock, Pause, Ban } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PlatformError } from "@/lib/error-handling";
+
+export const getTaskStatusDisplay = (
+  isRunning: boolean,
+  error: Error | PlatformError | undefined,
+  progress: number
+): {
+  label: string;
+  color: string;
+  icon: React.ReactNode;
+} => {
+  if (isRunning) {
+    return {
+      label: "Running",
+      color: "bg-blue-500",
+      icon: <Clock className="w-3 h-3" />
+    };
+  }
+
+  if (error) {
+    return {
+      label: "Failed",
+      color: "bg-red-500",
+      icon: <AlertTriangle className="w-3 h-3" />
+    };
+  }
+
+  if (progress >= 100) {
+    return {
+      label: "Completed",
+      color: "bg-green-500",
+      icon: <Check className="w-3 h-3" />
+    };
+  }
+
+  if (progress > 0) {
+    return {
+      label: "Paused",
+      color: "bg-yellow-500",
+      icon: <Pause className="w-3 h-3" />
+    };
+  }
+
+  return {
+    label: "Not Started",
+    color: "bg-gray-500",
+    icon: <Ban className="w-3 h-3" />
+  };
+};
 
 interface TaskStatusBadgeProps {
   isRunning: boolean;
+  error?: Error | PlatformError;
   progress: number;
-  lastError?: Error | null;
   className?: string;
-  showIcon?: boolean;
-  showTooltip?: boolean;
-  tooltipContent?: React.ReactNode;
-  size?: "sm" | "default" | "lg";
 }
 
 const TaskStatusBadge: React.FC<TaskStatusBadgeProps> = ({
   isRunning,
+  error,
   progress,
-  lastError,
-  className,
-  showIcon = true,
-  showTooltip = false,
-  tooltipContent,
-  size = "default"
+  className
 }) => {
-  // Determine the status based on the given props
-  const getStatus = () => {
-    if (isRunning) return "Running";
-    if (lastError) return "Failed";
-    if (progress === 100) return "Completed";
-    if (progress > 0) return "Paused";
-    return "Ready";
-  };
+  const { label, color, icon } = getTaskStatusDisplay(isRunning, error, progress);
 
-  // Get the appropriate styling for each status
-  const getStatusStyles = () => {
-    const status = getStatus();
-    switch (status) {
-      case "Running":
-        return "bg-vibrant-green/10 text-vibrant-green border-vibrant-green/20";
-      case "Failed":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      case "Completed":
-        return "bg-vibrant-blue/10 text-vibrant-blue border-vibrant-blue/20";
-      case "Paused":
-        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
-      case "Ready":
-        return "bg-muted text-muted-foreground border-muted/20";
-      default:
-        return "bg-muted text-muted-foreground border-muted/20";
-    }
-  };
-
-  // Get the appropriate icon for each status
-  const getStatusIcon = () => {
-    const status = getStatus();
-    switch (status) {
-      case "Running":
-        return <Loader2 className="h-3 w-3 animate-spin mr-1" />;
-      case "Failed":
-        return <AlertTriangle className="h-3 w-3 mr-1" />;
-      case "Completed":
-        return <Check className="h-3 w-3 mr-1" />;
-      case "Paused":
-        return <Pause className="h-3 w-3 mr-1" />;
-      case "Ready":
-        return <Clock className="h-3 w-3 mr-1" />;
-      default:
-        return null;
-    }
-  };
-
-  // Determine size classes
-  const getSizeClasses = () => {
-    switch (size) {
-      case "sm":
-        return "px-1.5 py-0.5 text-xs";
-      case "lg":
-        return "px-3 py-1 text-sm";
-      default:
-        return "px-2 py-0.5 text-xs";
-    }
-  };
-
-  const badge = (
+  return (
     <Badge 
       className={cn(
-        "font-medium border",
-        getStatusStyles(),
-        getSizeClasses(),
+        "flex items-center gap-1 text-white",
+        color,
         className
       )}
     >
-      {showIcon && getStatusIcon()}
-      {getStatus()}
+      {icon}
+      {label}
     </Badge>
   );
-
-  if (showTooltip) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {badge}
-          </TooltipTrigger>
-          <TooltipContent>
-            {tooltipContent || getStatus()}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-
-  return badge;
 };
 
 export default TaskStatusBadge;

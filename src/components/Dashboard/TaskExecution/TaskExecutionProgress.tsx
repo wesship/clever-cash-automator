@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import ProgressStats from "./ProgressStats";
 import StepList from "./StepList";
-import { countStepsByStatus, estimateTimeRemaining } from "./utils";
+import { countStepsByStatus } from "@/lib/utils/step-utils";
+import { estimateTimeRemaining } from "@/lib/utils/time-utils";
 
 interface StepStatus {
   name: string;

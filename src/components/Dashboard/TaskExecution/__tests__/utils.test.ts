@@ -1,11 +1,17 @@
 
 import { 
   formatTime, 
-  estimateTimeRemaining, 
+  estimateTimeRemaining
+} from '@/lib/utils/time-utils';
+
+import {
   countStepsByStatus,
-  parseStepsFromLogs,
-  getTaskStatusDisplay
-} from '../utils';
+  parseStepsFromLogs
+} from '@/lib/utils/step-utils';
+
+// Import these functions directly from their individual files
+// These function imports need to be updated based on their new locations
+import { getTaskStatusDisplay } from '@/components/Dashboard/TaskExecution/TaskStatusBadge';
 
 describe('Task Execution Utilities', () => {
   describe('formatTime', () => {

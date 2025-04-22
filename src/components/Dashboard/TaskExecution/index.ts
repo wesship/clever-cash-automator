@@ -12,4 +12,4 @@ export { default as StepList } from './StepList';
 export { default as StepListItem } from './StepListItem';
 
 // Utility functions
-export * from './utils';
+export * from '@/lib/utils/task-execution-utils';
