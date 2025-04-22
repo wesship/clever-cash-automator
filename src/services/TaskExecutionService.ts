@@ -1,7 +1,9 @@
 
 import { createContext, useContext } from 'react';
 import { TaskExecutionEngine } from './task-execution';
+import { TaskStatus as OriginalTaskStatus, TaskType, PlatformType, TaskPriority } from '@/lib/types';
 
+// Redefine TaskStatus to match our centralized schema
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
 
 export interface Task {

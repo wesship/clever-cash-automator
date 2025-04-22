@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { TaskExecutionEngine } from '@/services/task-execution';
 import { Task, TaskStatus } from '@/services/TaskExecutionService';
 import { toast } from 'sonner';
+import { TaskType, PlatformType, TaskPriority, TaskConfig } from '@/lib/types';
 
 interface TaskExecutionContextType {
   executeTask: (taskId: string) => Promise<void>;
@@ -51,16 +52,23 @@ export const TaskExecutionProvider: React.FC<TaskExecutionProviderProps> = ({ ch
         id: task.id,
         name: task.title,
         // Map other fields to match the expected interface
-        type: 'GENERIC',
-        platform: 'DEFAULT',
-        status: 'PENDING',
+        type: TaskType.GENERIC,
+        platform: PlatformType.DEFAULT,
+        status: TaskStatus.PENDING,
         createdAt: task.createdAt,
         description: task.description,
         completionCount: 0,
         targetCompletions: 1,
         earnings: 0,
-        priority: 'MEDIUM',
-        config: {}
+        priority: TaskPriority.MEDIUM,
+        config: {
+          proxyRequired: false,
+          captchaHandling: false,
+          schedule: {
+            frequency: "daily",
+            maxRuns: 5
+          }
+        }
       });
       
       if (!result) {
