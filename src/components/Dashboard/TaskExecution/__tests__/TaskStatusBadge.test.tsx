@@ -51,6 +51,6 @@ describe('TaskStatusBadge', () => {
         progress={0}
       />
     );
-    expect(screen.getByText('Ready')).toBeInTheDocument();
+    expect(screen.getByText('Not Started')).toBeInTheDocument();
   });
 });
