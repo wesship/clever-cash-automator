@@ -199,14 +199,21 @@ export const mockTasks: Task[] = [
 ];
 
 // Mock statistics data
-export const mockStatistics: Statistics = {
-  totalEarnings: 116.05,
-  tasksCompleted: 124,
-  activeAccounts: 8,
-  earningsToday: 12.35,
-  earningsThisWeek: 58.45,
-  earningsThisMonth: 116.05,
-  taskSuccessRate: 87,
+export const mockStatistics = {
+  totalTasks: 35,
+  completedTasks: 21,
+  pendingTasks: 7,
+  failedTasks: 4,
+  totalEarnings: 512.75,
+  successRate: 87.5,
+  
+  // Additional properties used in StatisticsPanel
+  tasksCompleted: 21,
+  taskSuccessRate: 87.5,
+  activeAccounts: 4,
+  earningsToday: 78.50,
+  earningsThisWeek: 238.25,
+  earningsThisMonth: 512.75
 };
 
 // Add the missing progress property to all tasks
@@ -412,17 +419,17 @@ export const getMockTasks = (): Task[] => {
 // Update mock statistics to include earningsThisMonth
 export const getMockStatistics = (): Statistics => {
   return {
-    totalTasks: 8,
-    completedTasks: 3,
-    pendingTasks: 3,
-    failedTasks: 2,
-    totalEarnings: 320.50,
-    successRate: 75,
-    tasksCompleted: 120,
-    taskSuccessRate: 85,
+    totalTasks: 35,
+    completedTasks: 21,
+    pendingTasks: 7,
+    failedTasks: 4,
+    totalEarnings: 512.75,
+    successRate: 87.5,
+    tasksCompleted: 21,
+    taskSuccessRate: 87.5,
     activeAccounts: 4,
-    earningsToday: 42.25,
-    earningsThisWeek: 187.50,
-    earningsThisMonth: 320.50
+    earningsToday: 78.50,
+    earningsThisWeek: 238.25,
+    earningsThisMonth: 512.75
   };
 };

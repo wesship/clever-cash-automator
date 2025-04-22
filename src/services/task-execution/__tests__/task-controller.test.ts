@@ -1,7 +1,9 @@
+
 import { TaskController } from "../task-controller";
 import { Task, TaskType, PlatformType, TaskStatus, TaskPriority } from "@/lib/types";
 import { TaskStateManager } from "../task-state-manager";
 import { PlatformError } from "@/lib/error-handling";
+import { ErrorType } from "@/lib/error-handling/types";
 
 describe('TaskController', () => {
   beforeEach(() => {
@@ -83,7 +85,7 @@ describe('TaskController', () => {
     
     // Mark the task as finished with an error
     TaskStateManager.finishTask("test-task", false, new PlatformError("Test error", {
-      type: "unknown",
+      type: ErrorType.UNKNOWN,
       recoverable: true
     }));
     

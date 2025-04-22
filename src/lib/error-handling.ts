@@ -1,2 +1,3 @@
 
-export { ErrorType, PlatformError, withErrorHandling } from './error-handling/index';
+export { ErrorType } from './error-handling/types';
+export { PlatformError, withErrorHandling } from './error-handling/index';

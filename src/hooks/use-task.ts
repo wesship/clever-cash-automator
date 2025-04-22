@@ -41,9 +41,9 @@ export function useTask(taskId: string) {
           id: task.id,
           name: task.name,
           description: task.description,
-          type: task.type.toString(), // Convert to string to avoid type incompatibility
-          platform: task.platform.toString(), // Convert to string to avoid type incompatibility
-          priority: task.priority.toString(), // Convert to string to avoid type incompatibility
+          type: task.type, // Use the enum directly instead of converting to string
+          platform: task.platform, // Use the enum directly
+          priority: task.priority, // Use the enum directly
           maxRetries: 3,
           timeout: 3600,
           parameters: {}
