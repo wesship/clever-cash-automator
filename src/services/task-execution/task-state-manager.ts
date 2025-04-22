@@ -1,4 +1,3 @@
-
 import { 
   Task, 
   TaskConfiguration, 
@@ -24,6 +23,18 @@ const taskStates: Map<string, {
 
 export class TaskStateManager {
   // Initialize a new task's state
+  static initializeTaskState(taskId: string): void {
+    taskStates.set(taskId, {
+      isRunning: true,
+      progress: 0,
+      currentStepDescription: 'Waiting to start',
+      logs: ['Task created and waiting to start'],
+      errors: [],
+      startTime: new Date(),
+      retryAttempts: 0
+    });
+  }
+
   initializeTaskState(config: TaskConfiguration): Task {
     const initialState: TaskState = {
       status: 'pending',
@@ -39,15 +50,7 @@ export class TaskStateManager {
     };
     
     // Also store the state in our tracking map
-    taskStates.set(config.id, {
-      isRunning: true,
-      progress: 0,
-      currentStepDescription: 'Waiting to start',
-      logs: ['Task created and waiting to start'],
-      errors: [],
-      startTime: new Date(),
-      retryAttempts: 0
-    });
+    TaskStateManager.initializeTaskState(config.id);
     
     return task;
   }
